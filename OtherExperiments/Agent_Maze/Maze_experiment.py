@@ -7,11 +7,12 @@ from SORNSim.NetworkCore.Network import *
 from SORNSim.NetworkCore.Synapse_Group import *
 from SORNSim.Exploration.StorageManager.StorageManager import *
 
-from Testing.Agent_Maze.Maze import *
+from OtherExperiments.Agent_Maze.Maze import *
 
 if __name__ == '__main__':
-    pass
-
+    from SORNSim.Exploration.Network_UI import *
+    from SORNSim.Exploration.Network_UI.Sequence_Activation_Tabs import *
+    from OtherExperiments.Agent_Maze.maze_tab import *
 
 def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb': True, 'plastic': 15000}):
     so = True
@@ -47,7 +48,7 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
                 18: SORN_generate_output(init_TH='0.1;+-100%'),
                 19: SORN_buffer_variables(),
 
-                20: SORN_Refractory(factor='0.5;+-50%'),
+                20: SORN_Refractory_Analog(factor='0.5;+-50%'),
                 21: SORN_STDP(eta_stdp='[0.0015#5]', weight_attr='W_temp', STDP_F={-5:0.2, -4:0.4, -3:0.6, -2:0.8, -1: 1}),
                 22: SORN_temporal_synapses(syn_type='GLU', behaviour_norm_factor=1.0),
                 #22: SORN_SN(syn_type='GLU', clip_max=None, behaviour_norm_factor=1.0),
@@ -73,7 +74,7 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
                 18: SORN_generate_output(init_TH='0.1;+-0%'),
                 19: SORN_buffer_variables(),
 
-                20: SORN_Refractory(factor='0.2;0.7'),
+                20: SORN_Refractory_Analog(factor='0.2;0.7'),
             })
 
         '''
@@ -112,7 +113,7 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
                 18: SORN_generate_output(init_TH='0.01'),
                 19: SORN_buffer_variables(),
 
-                20: SORN_Refractory(factor='0.7;+-50%'),
+                20: SORN_Refractory_Analog(factor='0.7;+-50%'),
                 21: SORN_STDP(eta_stdp='[0.0015#5]', STDP_F={-1: 1, 1:0}, weight_attr='W_temp'),#bigger #todo!!!!
                 #22: SORN_SN(syn_type='GLU', clip_max=None, behaviour_norm_factor=5.0),
                 22: SORN_temporal_synapses(syn_type='GLU', behaviour_norm_factor=5.0),
@@ -201,8 +202,9 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
     ###################################################################################################################
 
     if __name__ == '__main__' and attrs.get('UI', False):
-        default_modules.insert(0, maze_tab())
-        Network_UI(SORN, label='SORN UI default setup', storage_manager=sm, group_display_count=4, reduced_layout=True).show()
+        #default_modules.insert(0, maze_tab())
+        #Network_UI(SORN, label='SORN UI default setup', storage_manager=sm, group_display_count=4, reduced_layout=True).show()
+        Network_UI(SORN, modules=get_default_UI_modules()+[maze_tab()], label='SORN UI K_WTA', storage_manager=sm, group_display_count=1,reduced_layout=False).show()
 
 
     return 0

@@ -1,4 +1,5 @@
 from SORNSim.NetworkBehaviour.Structure.Structure import *
+import random
 
 def pol2cart(theta, rho):
     x = rho * np.cos(theta)
@@ -19,7 +20,7 @@ class Ray_Line():
 
 class Box:
 
-    def __init__(self, x, y, w, h, color):
+    def __init__(self, x, y, w, h, color=(0, 0, 0, 255)):
         self.x = x
         self.y = y
         self.w = w
@@ -71,12 +72,10 @@ class Maze_vision_behaviour(Behaviour):
         self.maze = self.get_init_attr('maze', None)
 
     def new_iteration(self, neurons):
-        self.maze.rays = []
-        image_data=[]
-        for r_i in range(self.maze.ray_count):
-            r = float(r_i) * 2.0 * np.pi / float(self.maze.ray_count)+0.00001
-            x, y = pol2cart(r, 1.0)
-            ray = Ray_Line(self.maze.player.x+self.maze.player.w/2, self.maze.player.y+self.maze.player.h/2, x, y)
+
+        image_data = []
+
+        for ray in self.maze.rays:
             ray.dist = 1000.0
             ray.collision_box = None
             for box in self.maze.boxes:
@@ -90,10 +89,8 @@ class Maze_vision_behaviour(Behaviour):
             else:
                 image_data.append([0, 0, 0])
 
-            self.maze.rays.append(ray)
-
         #print(image_data)
-        neurons.activity += np.array(image_data).transpose().flatten()
+        #neurons.activity += np.array(image_data).transpose().flatten()
 
 
 
@@ -104,11 +101,18 @@ class Maze_sense_behaviour(Behaviour):
         self.maze = self.get_init_attr('maze', None)
 
     def new_iteration(self, neurons):
-        x = self.maze.player.x-(self.maze.maze_w-1)/2
-        y = self.maze.player.y-(self.maze.maze_h-1)/2
+        nsm=self.maze.network_size_mul
 
-        mask = (neurons.x == x)*(neurons.y == y)
+        xmin = (self.maze.player.x)*nsm #-(self.maze.maze_w-1)/2
+        ymin = (self.maze.player.y)*nsm #-(self.maze.maze_h-1)/2
+
+        xmax = (self.maze.player.x+1)*nsm #-(self.maze.maze_w-1)/2
+        ymax = (self.maze.player.y+1)*nsm #-(self.maze.maze_h-1)/2
+
+        mask = (neurons.x >= xmin)*(neurons.x <= xmax)*(neurons.y >= ymin)*(neurons.y <= ymax)
+        #print(x,y, np.sum(mask))
         #print(x,y,np.sum(mask))
+        #mask=np.random.rand(len(mask))>0.4
         neurons.activity[mask] += 1
 
 
@@ -122,27 +126,7 @@ class Maze_action_behaviour(Behaviour):
         self.bottom=0
         self.top =  0
 
-    def move_player(self, x, y):
-
-        self.maze.player.x += x
-        self.maze.player.y += y
-
-        collision = False
-        for box in self.maze.boxes:
-            if box.collision(self.maze.player):
-                collision = True
-
-        if collision:
-            self.maze.player.x = self.maze.player.last_x
-            self.maze.player.y = self.maze.player.last_y
-
-        return collision
-
-
     def new_iteration(self, neurons):
-
-        self.maze.player.last_x = self.maze.player.x
-        self.maze.player.last_y = self.maze.player.y
 
         block_size = int(len(neurons.output)/4)
 
@@ -171,21 +155,18 @@ class Maze_action_behaviour(Behaviour):
             if max_act_sum > 1:
 
                 if self.right == max_act_sum:
-                    coll = coll or self.move_player(+1, 0)
+                    coll = coll or self.maze.move_player(+1, 0)
                 elif self.left == max_act_sum:
-                    coll = coll or self.move_player(-1, 0)
+                    coll = coll or self.maze.move_player(-1, 0)
                 elif self.bottom == max_act_sum:
-                    coll = coll or self.move_player(0, +1)
+                    coll = coll or self.maze.move_player(0, +1)
                 elif self.top == max_act_sum:
-                    coll = coll or self.move_player(0, -1)
+                    coll = coll or self.maze.move_player(0, -1)
 
             self.right = 0
             self.left = 0
             self.bottom = 0
             self.top = 0
-
-            self.maze.player.x = np.clip(self.maze.player.x, 0, self.maze.maze_w - 1)
-            self.maze.player.y = np.clip(self.maze.player.y, 0, self.maze.maze_h - 1)
 
         self.maze.collision = coll
 
@@ -222,7 +203,7 @@ class Maze_punishment_behaviour(Behaviour):
 def get_rnd_color():
     color = np.array([np.random.rand(), np.random.rand(), np.random.rand(), 1.0])
     color = color > 0.5
-    color = color * 200.0
+    color = color * 100.0
     color[3] = 255.0
     #color[2] = color[0]
     #color[1] = color[0]
@@ -245,15 +226,19 @@ class Maze:
         self.player.last_y = self.player.y
 
 
-    def __init__(self, level='default'):
+    def __init__(self, level='default', same_color=True):
+
+        self.collision_ray_color=not same_color
 
         self.boxes = []
 
-        self.reaction_time=1
+        self.reaction_time = 1
 
         self.ray_count = 32
-        self.rays=[]
+        self.rays = []
         self.collision = False
+
+        self.network_size_mul = 3
 
         if level == 'default':
             self.player = Box(1, 1, 1, 1, (0, 0, 255, 255))
@@ -262,6 +247,9 @@ class Maze:
             self.goal = Box(8, 1, 1, 1, (255, 0, 0, 255))
             self.maze_w = 10
             self.maze_h = 10
+
+            #for x in range(self.maze_w):
+            #    for y in range(self.maze_h):
 
             self.add_Box(1, 0, 8, 1, get_rnd_color())
             self.add_Box(9, 0, 1, 10, get_rnd_color())
@@ -273,6 +261,114 @@ class Maze:
             self.add_Box(3, 4, 1, 2, get_rnd_color())
             self.add_Box(5, 2, 1, 5, get_rnd_color())
             self.add_Box(7, 5, 1, 1, get_rnd_color())
+
+            if same_color:
+                for box in self.boxes:
+                    box.color = (100, 100, 100, 255)
+
+            for r_i in range(self.ray_count):
+                r = float(r_i) * 2.0 * np.pi / float(self.ray_count) + 0.00001
+                x, y = pol2cart(r, 1.0)
+                ray = Ray_Line(self.player.x + self.player.w / 2, self.player.y + self.player.h / 2, x, y)
+                self.rays.append(ray)
+
+
+
+    '''
+    def create_activation_Matrix(self, neurons, option_count, neurons_per_option):
+
+        result = np.zeros((neurons.size, option_count))
+
+        for opt in range(option_count):
+
+            mask =
+
+            result[mask, opt] = 1.0
+
+
+
+        if hasattr(neurons, 'input_density'):
+            density = neurons.input_density
+        else:
+            density = self.kwargs.get('input_density', 1/60)#int(output_size / 60)
+
+        output_size = neurons.size
+
+        #output_size = self.kwargs.get('output_size', 600)
+        # self.kwargs.get('activation_size', int(output_size / 60))
+
+        if density<=1:
+            self.activation_size = int(output_size * density)
+        else:
+            self.activation_size = int(density)
+
+        neurons.Input_Weights = np.zeros((output_size, self.get_alphabet_length()))
+        available = set(range(output_size))
+
+        frequency_adjustment = self.kwargs.get('frequency_adjustment', False)
+        char_count = self.get_char_input_statistics_list()
+        mean_char_count = np.mean(char_count)
+        sum_char_count = np.sum(char_count)
+
+        for a in range(self.get_alphabet_length()):
+
+            char_activiation_size=self.activation_size
+
+            if frequency_adjustment:
+                char_activiation_size = int(self.activation_size*(char_count[a]/mean_char_count))
+
+                avg_char_act = char_count[a]/sum_char_count
+                avg_cluster_red = char_activiation_size/28
+                avg_cluster_act = avg_cluster_red * 0.02
+                print(self.index_to_char(a), ': ', char_activiation_size, char_count[a], np.round(avg_char_act,decimals=4), np.round(avg_cluster_red,decimals=4), np.round(avg_cluster_act,decimals=4))
+
+            temp = random.sample(available, char_activiation_size)
+            neurons.Input_Weights[temp, a] = 1
+            available = set([n for n in available if n not in temp])
+            assert len(available) > 0, 'Input alphabet too big for non-overlapping neurons'
+
+        neurons.Input_Mask = (np.sum(neurons.Input_Weights, axis=1) > 0)
+        neurons.mean_network_input_activity=self.activation_size/output_size
+        neurons.add_tag('text_input_group')
+    '''
+
+
+
+
+
+    def random_move(self, repeat_when_collide=True):#TODO:
+        #random.choice([0.0, 1.0, -1.0])
+        self.move_player(random.choice([0.0, 1.0, -1.0]), random.choice([0.0, 1.0, -1.0]))
+
+
+
+    def move_player(self, x, y):
+
+        self.player.last_x = self.player.x
+        self.player.last_y = self.player.y
+
+        self.player.x += x
+        self.player.y += y
+
+        collision = False
+        for box in self.boxes:
+            if box.collision(self.player):
+                collision = True
+
+        if collision:
+            self.player.x = self.player.last_x
+            self.player.y = self.player.last_y
+
+        self.player.x = np.clip(self.player.x, 0, self.maze_w - 1)
+        self.player.y = np.clip(self.player.y, 0, self.maze_h - 1)
+
+        for ray in self.rays:
+            ray.x = self.player.x+self.player.w/2
+            ray.y = self.player.y+self.player.h/2
+
+        return collision
+
+
 
     def get_reward_neuron_behaviour(self):
         return Maze_reward_behaviour(maze=self)
@@ -302,7 +398,7 @@ class Maze:
         return Maze_sense_behaviour(maze=self)
 
     def get_location_neuron_dimension(self):
-        return NeuronDimension(width=self.maze_w, height=self.maze_h, depth=1)
+        return NeuronDimension(width=self.maze_w*self.network_size_mul, height=self.maze_h*self.network_size_mul, depth=1, centered=False)
 
     def get_inhibitory_location_neuron_dimension(self):
         return NeuronDimension(width=int(self.maze_w/2), height=int(self.maze_h/2), depth=1)

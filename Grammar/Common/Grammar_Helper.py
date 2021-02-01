@@ -1,5 +1,5 @@
 from SORNSim.NetworkBehaviour.Recorder.Recorder import *
-from Testing.Common.Classifier_Helper import *
+from Grammar.Common.Classifier_Helper import *
 
 from SORNSim.Exploration.Analysis.PCA import *
 from SORNSim.Exploration.Analysis.WiltingPriesemann import *
@@ -18,7 +18,7 @@ def max_source_act_text(network, steps):
 
         for ng in network['prediction_source']:
             recon = ng.Input_Weights.transpose().dot(ng.output)
-            char_act += recon
+            char_act += recon#.numpy()
 
         char = source.index_to_char(np.argmax(char_act))
         result_text += char

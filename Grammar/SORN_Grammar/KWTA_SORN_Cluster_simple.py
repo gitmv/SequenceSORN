@@ -4,7 +4,7 @@ sys.path.append('../../')
 
 from SORNSim.NetworkCore.Network import *
 from SORNSim.NetworkCore.Synapse_Group import *
-from Testing.Common.Grammar_Helper import *
+from Grammar.Common.Grammar_Helper import *
 from SORNSim.NetworkBehaviour.Logic.SORN.SORN_experimental import *
 from SORNSim.NetworkBehaviour.Logic.SORN.SORN_WTA import *
 from SORNSim.NetworkBehaviour.Input.Text.TextActivator import *

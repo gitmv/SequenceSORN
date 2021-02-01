@@ -7,11 +7,11 @@ from SORNSim.NetworkBehaviour.Logic.SORN.SORN_experimental import *
 from SORNSim.NetworkBehaviour.Logic.SORN.SORN_WTA import *
 from SORNSim.NetworkBehaviour.Input.Text.TextActivator import *
 
-#from Testing.Common.Grammar_Helper import *
+from Grammar.Common.Grammar_Helper import *
 
 if __name__ == '__main__':
     from SORNSim.Exploration.Network_UI import *
-    from Exploration.Network_UI.MyDefaultTabs import *
+    from SORNSim.Exploration.Network_UI.Sequence_Activation_Tabs import *
 #    from SORNSim.Exploration.Network_UI.Network_UI import *
 #    from SORNSim.Exploration.Network_UI.DefaultTabs import *
 
@@ -52,6 +52,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
                 #4: SORN_init_afferent_synapses(transmitter='GABA', density='[30#1]%', distribution='uniform(0.0,1.0)', normalize=True),
                 5: SORN_init_afferent_synapses(transmitter='GLU_cluster', density='90%', distribution='uniform(0.1,1.0)', normalize=True),
 
+                #10.0: SORN_slow_syn
                 10.0: SORN_slow_syn_simple(transmitter='GLU', strength='1.0', so=so), #todo: SORN_slow_syn_simple??????
                 10.1: SORN_IP_WTA_apply(),
                 10.15: WTA_refrac_apply(strengthfactor='[0.1#0]'),#0.1 #attrs['refrac']
@@ -108,9 +109,10 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
     ###################################################################################################################
 
     if __name__ == '__main__' and attrs.get('UI', False):
-        my_modules = get_default_UI_modules()+get_my_default_UI_modules()
-        my_modules[1] = multi_group_plot_tab(['output', 'exhaustion_value', 'weight_norm_factor'])  # , 'nox', 'refractory_counter'
-        my_modules[18] = single_group_plot_tab({'activity': (0, 0, 0), 'excitation': (0, 0, 255), 'inhibition': (255, 0, 0), 'input_act': (255, 0, 255),'exhaustion_value': (0, 255, 0)})
+        my_modules = get_default_UI_modules(['output', 'exhaustion_value', 'weight_norm_factor'])+get_my_default_UI_modules()
+        my_modules[0] = UI_sidebar_activity_module(1, add_color_dict={'output': (255, 255, 255), 'Input_Mask': (-100, -100, -100)})
+        #my_modules[1] = multi_group_plot_tab(['output', 'exhaustion_value', 'weight_norm_factor'])  # , 'nox', 'refractory_counter'
+        my_modules[8] = single_group_plot_tab({'activity': (0, 0, 0), 'excitation': (0, 0, 255), 'inhibition': (255, 0, 0), 'input_act': (255, 0, 255),'exhaustion_value': (0, 255, 0)})
         Network_UI(SORN, modules=my_modules, label='SORN UI K_WTA', storage_manager=sm, group_display_count=1, reduced_layout=False).show()
 
     score = 0

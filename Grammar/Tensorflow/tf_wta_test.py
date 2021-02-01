@@ -9,13 +9,13 @@ from SORNSim.NetworkBehaviour.Input.Text.TextActivator import *
 from SORNSim.NetworkBehaviour.Structure.Structure import *
 from SORNSim.NetworkBehaviour.Logic.TensorflowModules.TestNetwork import *
 from SORNSim.Exploration.StorageManager.StorageManager import *
-from Testing.Common.Grammar_Helper import *
+from Grammar.Common.Grammar_Helper import *
 
 if __name__ == '__main__':
     from SORNSim.Exploration.Network_UI.Network_UI import *
-    from SORNSim.Exploration.Network_UI.DefaultTabs import *
-    from Exploration.Network_UI.MyDefaultTabs import *
-
+    from SORNSim.Exploration.Network_UI.Sequence_Activation_Tabs import *
+    from SORNSim.Exploration.Network_UI.Basic_Tabs import *
+    from SORNSim.Exploration.Network_UI.Advanced_Tabs import *
 
 def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
 
@@ -86,6 +86,14 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
     ###################################################################################################################
 
     if __name__ == '__main__' and attrs.get('UI', False):
+        my_modules = get_default_UI_modules(['output', 'exhaustion_value', 'weight_norm_factor'])+get_my_default_UI_modules()
+        my_modules[0] = UI_sidebar_activity_module(1, add_color_dict={'output': (255, 255, 255), 'Input_Mask': (-100, -100, -100)})
+        #my_modules[1] = multi_group_plot_tab(['output', 'exhaustion_value', 'weight_norm_factor'])  # , 'nox', 'refractory_counter'
+        my_modules[8] = single_group_plot_tab({'activity': (0, 0, 0), 'excitation': (0, 0, 255), 'inhibition': (255, 0, 0), 'input_act': (255, 0, 255),'exhaustion_value': (0, 255, 0)})
+        Network_UI(SORN, modules=my_modules, label='SORN UI K_WTA', storage_manager=sm, group_display_count=1, reduced_layout=False).show()
+
+    '''
+    if __name__ == '__main__' and attrs.get('UI', False):
         my_modules = [
             UI_sidebar_activity_module(add_color_dict={'output': (255, 255, 255), 'Input_Mask': (-100, -100, -100)}),
 
@@ -105,6 +113,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
         #my_modules[1] = multi_group_plot_tab(['output', 'exhaustion_value', 'weight_norm_factor'])  # , 'nox', 'refractory_counter'
         #my_modules[18] = single_group_plot_tab({'activity': (0, 0, 0), 'excitation': (0, 0, 255), 'inhibition': (255, 0, 0), 'input_act': (255, 0, 255),'exhaustion_value': (0, 255, 0)})
         #Network_UI(SORN, modules=my_modules, label='SORN UI K_WTA', storage_manager=sm, group_display_count=1, reduced_layout=False).show()
+    '''
 
     score = 0
     plastic_steps = attrs.get('plastic', 20000)
@@ -132,7 +141,7 @@ if __name__ == '__main__':
     #ind = [0.1024607932656874, 0.017593238652155188, 0.3082856525780059, 0.007677918919646546, 0.00015438098687883516, 0.0001579431193983243, 0.33978128099023547]
     ind = []
 
-    print('score', run(attrs={'name': 'adsfdsfsdf', 'ind': ind, 'N_e': 1400, 'TS': [1], 'UI': True, 'plastic': 30000}))#30000 #50p log just exc 0.04
+    print('score', run(attrs={'name': 'adsfdsfsdf', 'ind': ind, 'N_e': 1400, 'TS': [1], 'UI': False, 'plastic': 30000}))#30000 #50p log just exc 0.04
 
 
 

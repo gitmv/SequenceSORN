@@ -10,7 +10,7 @@ from SORNSim.NetworkBehaviour.Input.Text.TextActivator import *
 from SORNSim.NetworkBehaviour.Structure.Structure import *
 from SORNSim.Exploration.StorageManager.StorageManager import *
 
-from Testing.Common.Grammar_Helper import *
+from Grammar.Common.Grammar_Helper import *
 
 
 
