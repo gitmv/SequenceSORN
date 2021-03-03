@@ -1,13 +1,13 @@
 import sys
 sys.path.append('../../')
 
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
-from SORNSim.NetworkBehaviour.Input.Text.TextActivator import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
 #from NetworkBehaviour.Input.Images.Lines import *
-from SORNSim.NetworkCore.Network import *
-from SORNSim.NetworkCore.Synapse_Group import *
-from SORNSim.NetworkBehaviour.Structure.Structure import *
-from SORNSim.Exploration.StorageManager.StorageManager import *
+from PymoNNto.NetworkCore.Network import *
+from PymoNNto.NetworkCore.Synapse_Group import *
+from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.Exploration.StorageManager.StorageManager import *
 from Testing.Common.Grammar_Helper import *
 if __name__ == '__main__':
     pass

@@ -1,19 +1,19 @@
 import sys
 sys.path.append("..")
 
-from SORNSim import *
+from PymoNNto import *
 
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_WTA import *
-from SORNSim.NetworkBehaviour.Input.Text.TextActivator import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
+from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
 
 from Grammar.Common.Grammar_Helper import *
 
 if __name__ == '__main__':
-    from SORNSim.Exploration.Network_UI import *
-    from SORNSim.Exploration.Network_UI.Sequence_Activation_Tabs import *
-#    from SORNSim.Exploration.Network_UI.Network_UI import *
-#    from SORNSim.Exploration.Network_UI.DefaultTabs import *
+    from PymoNNto.Exploration.Network_UI import *
+    from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
+#    from PymoNNto.Exploration.Network_UI.Network_UI import *
+#    from PymoNNto.Exploration.Network_UI.DefaultTabs import *
 
 
 
@@ -81,7 +81,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
                 21.1: SORN_STDP(transmitter='GLU', eta_stdp='[0.00015#4]', STDP_F={-1: 0.2, 1: -1}),#, 0: 1 #[0.00015#7] #0.5, 0: 3.0
                 21.2: SORN_STDP(transmitter='GLU_cluster', eta_stdp='[0.00015#5]', STDP_F={0: 2.0}),  #[0.00015#7]
                 22: SORN_SN(syn_type='GLU', behaviour_norm_factor=1.0),
-                23: SORN_SN(syn_type='GLU_cluster', behaviour_norm_factor='[0.3#6]')#0.1
+                23: SORN_SN(syn_type='GLU_cluster', behaviour_norm_factor='[0.3#6]'),#0.1
             })
 
 

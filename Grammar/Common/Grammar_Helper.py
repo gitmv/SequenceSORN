@@ -1,8 +1,8 @@
-from SORNSim.NetworkBehaviour.Recorder.Recorder import *
+from PymoNNto.NetworkBehaviour.Recorder.Recorder import *
 from Grammar.Common.Classifier_Helper import *
 
-from SORNSim.Exploration.Analysis.PCA import *
-from SORNSim.Exploration.Analysis.WiltingPriesemann import *
+from PymoNNto.Exploration.Analysis.PCA import *
+from PymoNNto.Exploration.Analysis.WiltingPriesemann import *
 
 def max_source_act_text(network, steps):
 
@@ -119,9 +119,9 @@ def train_and_generate_text(SORN, steps_plastic, steps_train, steps_spont, steps
         SORN.deactivate_mechanisms('STDP')
 
     for ng in SORN['prediction_source']:
-        SORN.add_behaviours_to_neuron_group({100: NeuronRecorder(['n.output'], tag='prediction_rec')}, ng)
+        SORN.add_behaviours_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
     for ng in SORN['text_input_group']:
-        SORN.add_behaviours_to_neuron_group({101: NeuronRecorder(['n.pattern_index'], tag='index_rec')}, ng)
+        SORN.add_behaviours_to_neuron_group({101: Recorder(['n.pattern_index'], tag='index_rec')}, ng)
 
     SORN.simulate_iterations(steps_train, 100, measure_block_time=display)
 

@@ -1,23 +1,27 @@
 import sys
+sys.path.append("..")
 
-sys.path.append('../../')
-from PymoNNto.NetworkCore.Network import *
-from PymoNNto.NetworkCore.Synapse_Group import *
-#from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-#from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
+from PymoNNto import *
+
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
 from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
-from PymoNNto.NetworkBehaviour.Logic.TensorflowModules.TestNetwork import *
-from PymoNNto.Exploration.StorageManager.StorageManager import *
+
 from Grammar.Common.Grammar_Helper import *
 
+from Grammar.SORN_Grammar.Behaviours.Structural_Plasticity import *
+
 if __name__ == '__main__':
-    from PymoNNto.Exploration.Network_UI.Network_UI import *
+    from PymoNNto.Exploration.Network_UI import *
     from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
-    from PymoNNto.Exploration.Network_UI.Basic_Tabs import *
-    from PymoNNto.Exploration.Network_UI.Advanced_Tabs import *
+#    from PymoNNto.Exploration.Network_UI.Network_UI import *
+#    from PymoNNto.Exploration.Network_UI.DefaultTabs import *
+
+
+
 
 def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
+    so = True
 
     print_info = attrs.get('print', True)
 
@@ -29,39 +33,48 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
 
     source = FewSentencesGrammar(tag='grammar_act', output_size=attrs['N_e'], random_blocks=True, input_density=0.015, frequency_adjustment=True)#21
 
-
-
     SORN = Network()
 
     e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(attrs['N_e']), behaviour={
-                2: SORN_init_neuron_varsTF(timescale=1),
-                3: SORN_init_afferent_synapsesTF(transmitter='GLU', density='90%', distribution='uniform(0.1,1.0)', normalize=True),#20%#lognormal(0,[0.95#1]) #[13#0]% #, partition_compensation=True , partition_compensation=True #lognormal(0,0.95)
+                2: SORN_init_neuron_vars(timescale=1),
+                3: SORN_init_afferent_synapses(transmitter='GLU', density='40%', distribution='uniform(0.1,1.0)', normalize=True),#20%#lognormal(0,[0.95#1]) #[13#0]% #, partition_compensation=True , partition_compensation=True #lognormal(0,0.95)
                 #4: SORN_init_afferent_synapses(transmitter='GABA', density='[30#1]%', distribution='uniform(0.0,1.0)', normalize=True),
-                5: SORN_init_afferent_synapsesTF(transmitter='GLU_cluster', density='90%', distribution='uniform(0.1,1.0)', normalize=True),
+                5: SORN_init_afferent_synapses(transmitter='GLU_cluster', density='40%', distribution='uniform(0.1,1.0)', normalize=True),
 
-                10.0: SORN_slow_syn_simpleTF(transmitter='GLU', strength='1.0'),
-                10.1: SORN_IP_WTA_apply_TF(),
-                10.15: WTA_refrac_applyTF(strengthfactor='[0.1#0]'),#0.1 #attrs['refrac']
-                10.2: SORN_generate_output_K_WTA_partitionedTF_Experimental(partition_size=7, K='[0.02#1]'),
+                #10.0: SORN_slow_syn
+                10.0: SORN_slow_syn_simple(transmitter='GLU', strength='1.0', so=so), #todo: SORN_slow_syn_simple??????
+                10.1: SORN_IP_WTA_apply(),
+                10.15: WTA_refrac_apply(strengthfactor='[0.1#0]'),#0.1 #attrs['refrac']
+                10.2: SORN_generate_output_K_WTA_partitioned(partition_size=7, K='[0.02#1]'),
 
-                10.3: SORN_slow_syn_simpleTF(transmitter='GLU_cluster', strength='1.0'),
-                10.4: SORN_generate_output_K_WTA_partitionedTF_Experimental(partition_size=7, K='[0.02#1]', filter_temporal_output=False),
+                10.3: SORN_slow_syn_simple(transmitter='GLU_cluster', strength='1.0'),
+                10.4: SORN_generate_output_K_WTA_partitioned(partition_size=7, K='[0.02#1]', filter_temporal_output=False),
 
-                10.5: SORN_slow_syn_simpleTF(transmitter='GLU_cluster', strength='1.0'),
-                10.6: SORN_generate_output_K_WTA_partitionedTF_Experimental(partition_size=7, K='[0.02#1]', filter_temporal_output=False),
+                10.5: SORN_slow_syn_simple(transmitter='GLU_cluster', strength='1.0'),
+                10.6: SORN_generate_output_K_WTA_partitioned(partition_size=7, K='[0.02#1]', filter_temporal_output=False),
 
-                10.7: SORN_slow_syn_simpleTF(transmitter='GLU_cluster', strength='1.0'),
-                10.8: SORN_generate_output_K_WTA_partitionedTF_Experimental(partition_size=7, K='[0.02#1]', filter_temporal_output=False),
+                10.7: SORN_slow_syn_simple(transmitter='GLU_cluster', strength='1.0'),
+                10.8: SORN_generate_output_K_WTA_partitioned(partition_size=7, K='[0.02#1]', filter_temporal_output=False),
 
+                # 12.1: SORN_WTA_iSTDP(eta_iSTDP='[0.00015#2]'),
+                # 12.2: SORN_SN(syn_type='GABA'),
+                #13.4: SORN_generate_output_K_WTA_partitioned(K='[0.12#4]'),
+                #13.5: SORN_WTA_fast_syn(transmitter='GABA', strength='-[0.5#5]', so=so),#[0.1383#2]SORN_fast_syn
+                #14: WTA_refrac(),
+                #, filter_temporal_output=True
 
-                #15: SORN_buffer_variables(random_temporal_output_shift=False),
+                15: SORN_buffer_variables(random_temporal_output_shift=False),
 
-                18: WTA_refracTF(decayfactor=0.5),
-                20: SORN_IP_WTA_TF(h_ip='lognormal_real_mean([0.02#1], [0.2944#2])', eta_ip='[0.007#3]', target_clip_min=None, target_clip_max=None), #-1.0 #1.0 #0.007
-                21.1: STDP_TF(syn_type='GLU', eta_stdp='[0.00015#4]'),#, 0: 1 #[0.00015#7] #0.5, 0: 3.0
-                21.2: STDP_TF_simu(syn_type='GLU_cluster', eta_stdp='[0.00015#5]'),  #[0.00015#7]
-                22: SORN_SN_TF(syn_type='GLU', norm_factor=1.0),
-                23: SORN_SN_TF(syn_type='GLU_cluster', norm_factor='[0.3#6]')#0.1
+                18: WTA_refrac(decayfactor=0.5),
+                20: SORN_IP_WTA(h_ip='lognormal_real_mean([0.02#1], [0.2944#2])', eta_ip='[0.007#3]', target_clip_min=None, target_clip_max=None), #-1.0 #1.0 #0.007
+                21.1: SORN_STDP(transmitter='GLU', eta_stdp='[0.00015#4]', STDP_F={-1: 0.2, 1: -1}),#, 0: 1 #[0.00015#7] #0.5, 0: 3.0
+                21.2: SORN_STDP(transmitter='GLU_cluster', eta_stdp='[0.00015#5]', STDP_F={0: 2.0}),  #[0.00015#7]
+
+                30: SORN_structural_plasticity(syn_type='syn', step_ct=1),
+                #31: SORN_weight_noise(max_noise=0.0001),
+
+                41: SORN_SN(syn_type='GLU', behaviour_norm_factor=1.0),
+                42: SORN_SN(syn_type='GLU_cluster', behaviour_norm_factor='[0.3#6]'),  # 0.1
             })
 
 
@@ -71,17 +84,20 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
     #receptive_field = int(18*math.sqrt(attrs['N_e']/1400))
     print(receptive_field)
 
-    SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU,syn', connectivity='(s_id!=d_id)*in_box({})'.format(receptive_field))#, partition=True)#14
-    SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster,syn', connectivity='(s_id!=d_id)*in_box({})'.format(receptive_field))#, partition=True)
+    SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU,syn')#, connectivity='(s_id!=d_id)*in_box({})'.format(receptive_field))#, partition=True)#14
+    SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster,syn')#, connectivity='(s_id!=d_id)*in_box({})'.format(receptive_field))#, partition=True)
     #SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GABA,GABA_same', connectivity='(s_id!=d_id)*in_box(10)', partition=True)
 
-    e_ng.add_behaviour(9, SORN_external_inputTF(strength=1.0, pattern_groups=[source]))
+    e_ng.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
 
     if __name__ == '__main__' and attrs.get('UI', False):
         e_ng.color = get_color(0, 1)
 
     SORN.set_marked_variables(attrs['ind'], info=print_info, storage_manager=sm)
     SORN.initialize(info=False)
+
+    #print(e_ng['GLU'])
+    #print(SORN.SynapseGroups)
 
     ###################################################################################################################
 
@@ -91,29 +107,6 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
         #my_modules[1] = multi_group_plot_tab(['output', 'exhaustion_value', 'weight_norm_factor'])  # , 'nox', 'refractory_counter'
         my_modules[8] = single_group_plot_tab({'activity': (0, 0, 0), 'excitation': (0, 0, 255), 'inhibition': (255, 0, 0), 'input_act': (255, 0, 255),'exhaustion_value': (0, 255, 0)})
         Network_UI(SORN, modules=my_modules, label='SORN UI K_WTA', storage_manager=sm, group_display_count=1, reduced_layout=False).show()
-
-    '''
-    if __name__ == '__main__' and attrs.get('UI', False):
-        my_modules = [
-            UI_sidebar_activity_module(add_color_dict={'output': (255, 255, 255), 'Input_Mask': (-100, -100, -100)}),
-
-            weight_tab(weight_attrs=['W']),
-
-            sidebar_fast_forward_module(),
-            sidebar_save_load_module(),
-            multi_group_plot_tab(['output'], tensorflow=True),
-
-            # fourier_tab(parameter='voltage'),
-            info_tab(),
-        ]
-
-        Network_UI(SORN, modules=my_modules, label='Tensorflow Test', storage_manager=None, group_display_count=1).show()
-
-        #my_modules = get_default_UI_modules()
-        #my_modules[1] = multi_group_plot_tab(['output', 'exhaustion_value', 'weight_norm_factor'])  # , 'nox', 'refractory_counter'
-        #my_modules[18] = single_group_plot_tab({'activity': (0, 0, 0), 'excitation': (0, 0, 255), 'inhibition': (255, 0, 0), 'input_act': (255, 0, 255),'exhaustion_value': (0, 255, 0)})
-        #Network_UI(SORN, modules=my_modules, label='SORN UI K_WTA', storage_manager=sm, group_display_count=1, reduced_layout=False).show()
-    '''
 
     score = 0
     plastic_steps = attrs.get('plastic', 20000)
@@ -132,8 +125,6 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
 
     #print('score=', score)
 
-    #print(SORN.simulate_iteration(True))
-
     return get_max_text_score(SORN, plastic_steps, 5000, 5000, display=True, stdp_off=True, return_key='right_word_square_score')
 
 
@@ -141,7 +132,7 @@ if __name__ == '__main__':
     #ind = [0.1024607932656874, 0.017593238652155188, 0.3082856525780059, 0.007677918919646546, 0.00015438098687883516, 0.0001579431193983243, 0.33978128099023547]
     ind = []
 
-    print('score', run(attrs={'name': 'adsfdsfsdf', 'ind': ind, 'N_e': 1400, 'TS': [1], 'UI': False, 'plastic': 30000}))#30000 #50p log just exc 0.04
+    print('score', run(attrs={'name': 'adsfdsfsdf', 'ind': ind, 'N_e': 1400, 'TS': [1], 'UI': True, 'plastic': 30000}))#30000 #50p log just exc 0.04
 
 
 

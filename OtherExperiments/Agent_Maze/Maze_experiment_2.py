@@ -2,19 +2,19 @@ import sys
 
 sys.path.append('../../')
 
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
-from SORNSim.NetworkCore.Network import *
-from SORNSim.NetworkCore.Synapse_Group import *
-from SORNSim.Exploration.StorageManager.StorageManager import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkCore.Network import *
+from PymoNNto.NetworkCore.Synapse_Group import *
+from PymoNNto.Exploration.StorageManager.StorageManager import *
 
 from OtherExperiments.Agent_Maze.Maze import *
 
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_WTA import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
 
 if __name__ == '__main__':
-    from SORNSim.Exploration.Network_UI import *
-    from SORNSim.Exploration.Network_UI.Sequence_Activation_Tabs import *
+    from PymoNNto.Exploration.Network_UI import *
+    from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
     from OtherExperiments.Agent_Maze.maze_tab import *
 
 def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb': True, 'plastic': 15000}):
@@ -29,7 +29,7 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
     sm.save_param_dict(attrs)
 
     #source = LongDelayGrammar(tag='grammar_act', output_size=attrs['N_e'], random_blocks=True, mode=['simple'], input_density=0.01)
-    maze = Maze(level='default', same_color=True)
+    maze = Maze(level='default', same_color=False)
 
     SORN = Network()#behaviour={maze.get_network_behaviour()}
 

@@ -1,4 +1,4 @@
-from SORNSim.Exploration.Network_UI.TabBase import *
+from PymoNNto.Exploration.Network_UI.TabBase import *
 from OtherExperiments.Agent_Maze.Maze import *
 
 class Maze_Draw_Item(pg.GraphicsObject):

@@ -2,16 +2,16 @@ import sys
 
 sys.path.append('../../')
 
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
-from SORNSim.NetworkCore.Network import *
-from SORNSim.NetworkCore.Synapse_Group import *
-from SORNSim.Exploration.StorageManager.StorageManager import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkCore.Network import *
+from PymoNNto.NetworkCore.Synapse_Group import *
+from PymoNNto.Exploration.StorageManager.StorageManager import *
 
 from OtherExperiments.Agent_Maze.Maze import *
 
 if __name__ == '__main__':
-    from SORNSim.Exploration.Network_UI import *
-    from SORNSim.Exploration.Network_UI.Sequence_Activation_Tabs import *
+    from PymoNNto.Exploration.Network_UI import *
+    from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
     from OtherExperiments.Agent_Maze.maze_tab import *
 
 def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb': True, 'plastic': 15000}):

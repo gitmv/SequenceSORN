@@ -1,12 +1,12 @@
 import sys
 sys.path.append('../../')
 
-from SORNSim.NetworkBehaviour.Logic.SORN.SORN_advanced import *
-from SORNSim.NetworkCore.Network import *
-from SORNSim.NetworkCore.Synapse_Group import *
-from SORNSim.NetworkBehaviour.Structure.Structure import *
-from SORNSim.Exploration.StorageManager.StorageManager import *
-from SORNSim.NetworkBehaviour.Input.Images.MNIST_Patterns import *
+from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced import *
+from PymoNNto.NetworkCore.Network import *
+from PymoNNto.NetworkCore.Synapse_Group import *
+from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.Exploration.StorageManager.StorageManager import *
+from PymoNNto.NetworkBehaviour.Input.Images.MNIST_Patterns import *
 from Testing.Common.Grammar_Helper import *
 
 display = False
@@ -57,7 +57,7 @@ def run(tag='hierarchical', ind=[], par={'N_e':900, 'TS':[1]}):
 
         e_ng.add_behaviour(9, SORN_external_input(strength=0.3, pattern_groups=[source]))
         if timecale == 1:
-            e_ng.add_behaviour(101, NeuronRecorder(['n.pattern_index'], tag='inp_rec'))
+            e_ng.add_behaviour(101, Recorder(['n.pattern_index'], tag='inp_rec'))
         else:
             #forward synapses
             SynapseGroup(net=SORN, src=last_e_ng, dst=e_ng, tag='GLU,e->e(+1)', connectivity='in_box(10)', partition=True)#.partition([10, 10], [6, 6])

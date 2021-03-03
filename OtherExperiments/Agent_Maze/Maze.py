@@ -1,4 +1,4 @@
-from SORNSim.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehaviour.Structure.Structure import *
 import random
 
 def pol2cart(theta, rho):
