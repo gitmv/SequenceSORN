@@ -7,11 +7,11 @@ def get_oscillation_score_hierarchical(SORN_Global, simulation_steps, evaluation
     for mode in ['grammar input', 'free activity without learning', 'free activity with learning']:
 
         if mode == 'free activity without learning':
-            SORN_Global['activator', 0].active = False
+            SORN_Global['activator', 0].behaviour_enabled = False
             SORN_Global.deactivate_mechanisms('STDP')
 
         if mode == 'free activity with learning':
-            SORN_Global['activator', 0].active = False
+            SORN_Global['activator', 0].behaviour_enabled = False
             SORN_Global.activate_mechanisms('STDP')
 
         SORN_Global.simulate_iterations(simulation_steps+evaluation_steps, 100, measure_block_time=True)

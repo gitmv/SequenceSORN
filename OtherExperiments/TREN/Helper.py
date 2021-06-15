@@ -124,7 +124,7 @@ def get_default_Input_Pattern_Neurons(input_width=1, input_height=1,input_depth=
         #8: HomeostaticMechanism(range_end=550, inc=1.84, dec=4.92, pattern_chance=0.01, target_max=1)
     }
 
-    input_neuron_group = NeuronGroup(NeuronDimension(width=input_width, height=input_height, input_pattern_groups=activator.TNAPatterns, depth=input_depth), behaviour).add_tag('input')  #
+    input_neuron_group = NeuronGroup(NeuronDimension(width=input_width, height=input_height, input_patterns=activator.TNAPatterns, depth=input_depth), behaviour).add_tag('input')  #
 
     if preprocessing_steps > 0:
         activator.preprocess(preprocessing_steps, input_neuron_group)

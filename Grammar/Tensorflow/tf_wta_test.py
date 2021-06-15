@@ -7,7 +7,7 @@ from PymoNNto.NetworkCore.Synapse_Group import *
 #from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
 from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
 from PymoNNto.NetworkBehaviour.Structure.Structure import *
-from PymoNNto.NetworkBehaviour.Logic.TensorflowModules.TestNetwork import *
+from Grammar.Tensorflow.WTA_Tensorflow import *
 from PymoNNto.Exploration.StorageManager.StorageManager import *
 from Grammar.Common.Grammar_Helper import *
 

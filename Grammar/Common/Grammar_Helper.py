@@ -7,6 +7,7 @@ from PymoNNto.Exploration.Analysis.WiltingPriesemann import *
 def max_source_act_text(network, steps):
 
     source = network['grammar_act', 0]
+    #source = network['Text_Generator', 0]
     alphabet = source.alphabet
     alphabet_length = len(alphabet)
 
@@ -17,6 +18,7 @@ def max_source_act_text(network, steps):
         char_act = np.zeros(alphabet_length)
 
         for ng in network['prediction_source']:
+            #recon = network['Text_Activator', 0].mat.transpose().dot(ng.output)
             recon = ng.Input_Weights.transpose().dot(ng.output)
             char_act += recon#.numpy()
 
@@ -32,7 +34,8 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
     if stdp_off:
         network.deactivate_mechanisms('STDP')
 
-    network['grammar_act', 0].active = False
+    network['grammar_act', 0].behaviour_enabled = False
+    #network['Text_Activator', 0].behaviour_enabled = False
 
     network.simulate_iterations(steps_recovery, 100, measure_block_time=display)
 
@@ -42,7 +45,8 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
 
     #print('\x1b[6;30;42m' + 'Success!' + '\x1b[0m')
 
-    network['grammar_act', 0].active = True
+    network['grammar_act', 0].behaviour_enabled = True
+    #network['Text_Activator', 0].behaviour_enabled = True
 
     if stdp_off:
         network.activate_mechanisms('STDP')
@@ -174,14 +178,14 @@ def train_and_generate_text(SORN, steps_plastic, steps_train, steps_spont, steps
     #SORN.recording_off()
 
     if same_timestep_without_feedback_loop:
-        SORN['grammar_act', 0].active = False
+        SORN['grammar_act', 0].behaviour_enabled = False
         if steps_recovery > 0:
             SORN.simulate_iterations(steps_recovery, 100, measure_block_time=display, disable_recording=True)
         spont_output = get_simu_sequence(SORN, SORN['prediction_source'], 'n.output', readout_classifyer=readout_layer, seq_length=steps_spont, source=SORN['grammar_act', 0])#output generation
     else:
         spont_output = predict_sequence(readout_layer, SORN['prediction_source'], 'n.output', steps_spont, SORN, SORN['grammar_act', 0], lag=1)
 
-    SORN['grammar_act', 0].active = True
+    SORN['grammar_act', 0].behaviour_enabled = True
 
     if additional_info:
         mean_act=np.mean(SORN['prediction_rec', 0]['n.output', 0, 'np'], axis=1)

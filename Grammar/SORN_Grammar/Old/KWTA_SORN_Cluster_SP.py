@@ -17,6 +17,12 @@ if __name__ == '__main__':
 #    from PymoNNto.Exploration.Network_UI.Network_UI import *
 #    from PymoNNto.Exploration.Network_UI.DefaultTabs import *
 
+from PymoNNto.NetworkBehaviour.Input.Images.Lines import *
+
+class FewSentencesGrammar2(TextActivator_New):
+
+    def get_text_blocks(self):
+        return [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.']# ' deer lives in forest.', ' parrots can fly.' ' the fish swims.' , ' deer lives in the forest.',  , ]#, ' penguin.' #,  , ' the fish swims.' #, 'the fish swims.'
 
 
 
@@ -31,7 +37,9 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
     sm = StorageManager(attrs['name'], random_nr=True, print_msg=print_info)
     sm.save_param_dict(attrs)
 
-    source = FewSentencesGrammar(tag='grammar_act', output_size=attrs['N_e'], random_blocks=True, input_density=0.015, frequency_adjustment=True)#21
+    #source = FewSentencesGrammar2(tag='grammar_act', output_size=attrs['N_e'], random_blocks=True, input_density=0.015, frequency_adjustment=True)#21
+
+    source = Line_Patterns(tag='image_act', group_possibility=1.0, grid_width=30, grid_height=30, center_x=list(range(40)), center_y=30 / 2, degree=90, line_length=60)
 
     SORN = Network()
 
@@ -93,7 +101,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
     if __name__ == '__main__' and attrs.get('UI', False):
         e_ng.color = get_color(0, 1)
 
-    SORN.set_marked_variables(attrs['ind'], info=print_info, storage_manager=sm)
+    SORN.set_marked_variables(info=print_info, storage_manager=sm)
     SORN.initialize(info=False)
 
     #print(e_ng['GLU'])

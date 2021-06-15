@@ -279,14 +279,14 @@ def get_score_spontaneous_music(SORN, source, readout_layer, steps_spont, split_
     SORN.recording_on()
 
     if same_timestep_without_feedback_loop:
-        source.active = False
+        source.behaviour_enabled = False
         if steps_recovery > 0:
             SORN.simulate_iterations(steps_recovery, 100, measure_block_time=display,disable_recording=True)
         spont_output, pianoroll = get_simu_music_sequence(SORN, SORN['prediction_source'], 'n.output', readout_classifyer=readout_layer, seq_length=steps_spont, source=source)#output generation
     else:
         spont_output, pianoroll = predict_music_sequence(readout_layer, SORN['prediction_source'], 'n.output', steps_spont, SORN, source, lag=1)
 
-    source.active = True
+    source.behaviour_enabled = True
 
     if create_MIDI and source.is_drum: # create a percussion track!
         # in this case pianoroll is a sequence of vectors of length alphabet, each letter in the alphabet stands for one instrument

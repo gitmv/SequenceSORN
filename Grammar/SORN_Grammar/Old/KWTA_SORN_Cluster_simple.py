@@ -24,7 +24,7 @@ class SORN_K_random_input(Behaviour):
     def new_iteration(self, neurons):
 
         if neurons.iteration % 10 == 0:
-            rnd=neurons.get_random_neuron_vec()*0.0001
+            rnd=neurons.get_neuron_vec('uniform')*0.0001
             ind = np.argpartition(rnd, -self.K)[-self.K:]
             neurons.output.fill(0)
             neurons.output[ind] = 1
@@ -220,7 +220,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
     if __name__ == '__main__' and attrs.get('UI', False):
         e_ng.color = get_color(0, 1)
 
-    SORN.set_marked_variables(attrs['ind'], info=print_info, storage_manager=sm)
+    SORN.set_marked_variables(info=print_info, storage_manager=sm)
     SORN.initialize(info=False)
 
     #for i, syn in enumerate(SORN['syn']):
