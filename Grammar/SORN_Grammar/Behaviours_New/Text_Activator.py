@@ -25,6 +25,7 @@ def one_hot_vec_to_neuron_mat(input_size, output_size, activation_size, input_we
 class Text_Activator(Behaviour):
 
     def set_variables(self, neurons):
+        self.add_tag('text_activator')
         self.text_generator = neurons['text_generator', 0]
 
         input_density = self.get_init_attr('input_density', 1 / 60)
@@ -34,13 +35,13 @@ class Text_Activator(Behaviour):
             activation_size = int(input_density)
         neurons.mean_network_activity = activation_size/neurons.size #optional/ can be used by other (homeostatic) modules
 
-        self.mat = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.count_chars_in_blocks())
-        neurons.Input_Mask = np.sum(self.mat, axis=1) > 0
+        neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.count_chars_in_blocks())
+        neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
 
         #neurons.input = neurons.get_neuron_vec()
 
     def new_iteration(self, neurons):
-        neurons.activity += self.mat[:, neurons.current_char_index].copy()
+        neurons.activity += neurons.Input_Weights[:, neurons.current_char_index].copy()
 
 
 class Text_Activator_Simple(Behaviour):

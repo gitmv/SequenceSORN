@@ -93,6 +93,11 @@ class Text_Generator(Behaviour):
             score += np.sqrt(bs)
         return score
 
+    def get_max_score(self):
+        txt = ''.join(self.text_blocks)
+        txt=txt+txt+txt+txt+txt
+        return self.get_text_score(txt)
+
 #ng = NeuronGroup(net=None, size=100, behaviour={})
 
 #tg=Text_Generator(text_blocks=['Das ist ein Test. ', 'BlubBlub. ', 'abc'])

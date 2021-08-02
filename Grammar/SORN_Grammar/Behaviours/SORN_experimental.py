@@ -136,12 +136,13 @@ class IP(Instant_Homeostasis):
         neurons.exhaustion_value = 0
 
     def new_iteration(self, neurons):
-        if last_cycle_step(neurons):
-            super().new_iteration(neurons)
+        super().new_iteration(neurons)
+        neurons.activity -= neurons.exhaustion_value
 
-            neurons.exhaustion_value = neurons.exhaustion_value-np.mean(neurons.exhaustion_value)
+class exhaustion_same_mean(Behaviour):
 
-            #neurons.activity -= neurons.exhaustion_value
+    def new_iteration(self, neurons):
+        neurons.exhaustion_value = neurons.exhaustion_value - np.mean(neurons.exhaustion_value)
 
 class IP_apply(Behaviour):
 

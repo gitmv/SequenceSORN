@@ -9,7 +9,7 @@ class Text_Reconstructor(Behaviour):
 
     def new_iteration(self, neurons):
         if neurons['Text_Activator', 0] is not None:
-            char_act = neurons['Text_Activator', 0].mat.transpose().dot(neurons.output)
+            char_act = neurons.Input_Weights.transpose().dot(neurons.output)
 
             self.current_reconstruction_char_index = np.argmax(char_act)
             self.current_reconstruction_char = neurons['Text_Activator', 0].text_generator.index_to_char(self.current_reconstruction_char_index)

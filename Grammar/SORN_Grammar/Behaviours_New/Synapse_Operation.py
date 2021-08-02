@@ -10,6 +10,6 @@ class init_synapses_simple(Behaviour):
 
     def new_iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
-            s.slow_add = s.W.dot(s.src.output)
+            s.slow_add = s.W.dot(s.src.activity)#output
 
             s.dst.activity += s.slow_add

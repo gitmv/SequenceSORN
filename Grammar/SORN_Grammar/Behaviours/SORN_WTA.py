@@ -29,11 +29,11 @@ class refrac(Behaviour):
 
 
     def new_iteration(self, neurons):
-        if last_cycle_step(neurons):
+        #if last_cycle_step(neurons):
             #neurons.activity -= neurons.refractory_counter_analog * self.strengthfactor
 
-            neurons.refractory_counter_analog *= self.decayfactor
-            neurons.refractory_counter_analog += neurons.output
+        neurons.refractory_counter_analog *= self.decayfactor
+        neurons.refractory_counter_analog += neurons.output
 
 class refrac_apply(Behaviour):
 
@@ -50,15 +50,24 @@ class synapse_operation(SORN_signal_propagation_base):
     def set_variables(self, neurons):
         super().set_variables(neurons)
         self.add_tag('slow_simple' + self.transmitter)
+        self.input_tag = 'input_' + self.transmitter
+        setattr(neurons, self.input_tag, neurons.get_neuron_vec())
 
     def new_iteration(self, neurons):
-        if last_cycle_step(neurons) and self.strength != 0:
+        setattr(neurons, 'input_' + self.transmitter, neurons.get_neuron_vec())
 
-            for s in neurons.afferent_synapses[self.transmitter]:
-                s.slow_add = s.W.dot(s.src.output) * self.strength
+        for s in neurons.afferent_synapses[self.transmitter]:
+            s.add = s.W.dot(s.src.output) * self.strength
 
-                s.dst.activity += s.slow_add
-                if self.strength > 0:
-                    s.dst.excitation += s.slow_add
-                else:
-                    s.dst.inhibition += s.slow_add
+            #if 'inh_neurons' in neurons.tags:
+            #    print(np.sum(s.src.output))
+            #    print(s.add)
+
+            s.dst.activity += s.add
+
+            setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
+
+            #if self.strength > 0:
+            #    s.dst.excitation += s.slow_add
+            #else:
+            #    s.dst.inhibition += s.slow_add
