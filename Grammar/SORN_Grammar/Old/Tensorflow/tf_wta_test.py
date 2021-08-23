@@ -1,14 +1,10 @@
 import sys
 
 sys.path.append('../../')
-from PymoNNto.NetworkCore.Network import *
-from PymoNNto.NetworkCore.Synapse_Group import *
 #from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
 #from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
 from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
-from Grammar.Tensorflow.WTA_Tensorflow import *
-from PymoNNto.Exploration.StorageManager.StorageManager import *
+from Grammar.SORN_Grammar.Old.Tensorflow.WTA_Tensorflow import *
 from Grammar.Common.Grammar_Helper import *
 
 if __name__ == '__main__':

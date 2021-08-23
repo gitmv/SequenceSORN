@@ -1,0 +1,12 @@
+
+1-9 init
+
+10-19 input
+
+20-29 stability
+
+30-39 output
+
+40-49 learning
+
+50-59 reconstruction

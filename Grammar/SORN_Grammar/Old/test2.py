@@ -5,10 +5,9 @@ np.random.seed(1)
 random.seed(1)
 
 from PymoNNto import *
-from PymoNNto.Exploration.Evolution.Interface_Functions import *
 
-from Grammar.SORN_Grammar.Behaviours.SORN_experimental import *
-from Grammar.SORN_Grammar.Behaviours.SORN_WTA import *
+from Grammar.SORN_Grammar.Behaviours_in_use.SORN_experimental import *
+from Grammar.SORN_Grammar.Behaviours_in_use.SORN_WTA import *
 from Input_Behaviours.Text.TextActivator import *
 
 from Grammar.Common.Grammar_Helper import *

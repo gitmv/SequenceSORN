@@ -11,6 +11,6 @@ class Refractory_D(Behaviour):
 
         neurons.refrac_ct += neurons.output * self.steps
 
-        neurons.activity *= (neurons.refrac_ct <= 0.0)
+        neurons.activity *= (neurons.refrac_ct <= 1.0)
 
 

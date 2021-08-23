@@ -49,7 +49,7 @@ class K_WTA_output_local(Behaviour):
             else:
                 K = K_floor
 
-            ng.output *= 0
+            ng.output *= False
 
             if K>0:
                 act = ng.activity.copy()
@@ -58,8 +58,8 @@ class K_WTA_output_local(Behaviour):
                     act = ng.activity*ng.output#-(s.dst.output*-10000)
 
                 ind = np.argpartition(act, -K)[-K:]
-                act_mat = np.zeros(ng.size)
-                act_mat[ind] = 1
+                act_mat = np.zeros(ng.size).astype(bool)
+                act_mat[ind] = True
 
                 ng.output += act_mat
 
@@ -137,7 +137,7 @@ class IP(Instant_Homeostasis):
 
     def new_iteration(self, neurons):
         super().new_iteration(neurons)
-        neurons.activity -= neurons.exhaustion_value
+        #neurons.activity -= neurons.exhaustion_value
 
 class exhaustion_same_mean(Behaviour):
 

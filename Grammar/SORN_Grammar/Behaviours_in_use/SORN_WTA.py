@@ -54,7 +54,7 @@ class synapse_operation(SORN_signal_propagation_base):
         setattr(neurons, self.input_tag, neurons.get_neuron_vec())
 
     def new_iteration(self, neurons):
-        setattr(neurons, 'input_' + self.transmitter, neurons.get_neuron_vec())
+        setattr(neurons, self.input_tag, neurons.get_neuron_vec())
 
         for s in neurons.afferent_synapses[self.transmitter]:
             s.add = s.W.dot(s.src.output) * self.strength

@@ -31,6 +31,9 @@ class Text_Generator(Behaviour):
             dim = get_squared_dim(len(self.alphabet)) #NeuronDimension
             dim.set_variables(neurons) #set size and x, y, z, width, height, depth
 
+        char_count_vec = self.count_chars_in_blocks()
+        self.char_weighting = char_count_vec / np.mean(char_count_vec)
+
 
     def new_iteration(self, neurons):
 

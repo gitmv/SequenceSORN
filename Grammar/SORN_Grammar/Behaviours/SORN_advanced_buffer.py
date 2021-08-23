@@ -225,7 +225,7 @@ class init_neuron_variables(Behaviour):
 
         #neurons.slow_act=neurons.get_neuron_vec()
 
-        neurons.timescale = self.get_init_attr('timescale', 1)
+        #neurons.timescale = self.get_init_attr('timescale', 1)
 
     def new_iteration(self, neurons):
         if first_cycle_step(neurons):

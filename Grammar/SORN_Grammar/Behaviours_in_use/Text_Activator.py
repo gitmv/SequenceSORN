@@ -12,14 +12,17 @@ def one_hot_vec_to_neuron_mat(input_size, output_size, activation_size, input_we
         char_activiation_size = activation_size
 
         if input_weighting is not None:
-            char_activiation_size = int(activation_size * (input_weighting[a] / np.mean(input_weighting)))
+            char_activiation_size = activation_size * input_weighting[a]
 
-        temp = random.sample(available, char_activiation_size)
+        temp = random.sample(available, int(char_activiation_size))
         result[temp, a] = 1
         available = set([n for n in available if n not in temp])
         assert len(available) > 0, 'Input too big for non-overlapping neurons'
 
     return result
+
+
+
 
 
 class Text_Activator(Behaviour):
@@ -35,13 +38,21 @@ class Text_Activator(Behaviour):
             activation_size = int(input_density)
         neurons.mean_network_activity = activation_size/neurons.size #optional/ can be used by other (homeostatic) modules
 
-        neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.count_chars_in_blocks())
+        neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.char_weighting)
         neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
 
-        #neurons.input = neurons.get_neuron_vec()
+        neurons.input_grammar = neurons.get_neuron_vec()
+
+        self.strength = self.get_init_attr('strength', 1, neurons)
 
     def new_iteration(self, neurons):
-        neurons.activity += neurons.Input_Weights[:, neurons.current_char_index].copy()
+        neurons.input_grammar = neurons.Input_Weights[:, neurons.current_char_index].copy()
+        neurons.activity += neurons.input_grammar*self.strength
+
+
+
+
+
 
 
 class Text_Activator_Simple(Behaviour):
@@ -58,7 +69,7 @@ class Text_Activator_Simple(Behaviour):
 
         neurons.activity[0:self.alphabet_length] += neurons.one_hot_alphabet_act_vec
 
-class input_synapse_operations(Behaviour):
+class input_synapse_operation(Behaviour):
 
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)  # 1 or -1
@@ -73,19 +84,24 @@ class input_synapse_operations(Behaviour):
         neurons.mean_network_activity = activation_size/neurons.size #optional/ can be used by other (homeostatic) modules
 
         for s in neurons.afferent_synapses['Input_GLU']:
-            s.W = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.count_chars_in_blocks())
+            s.W = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.char_weighting)
+
+            s.dst.Input_Weights = s.W
+
+            neurons.Input_Mask = np.sum(s.W, axis=1) > 0
+
             #print(s.W.shape)
             #print(s.get_synapse_mat().shape)
 
     def new_iteration(self, neurons):
         for s in neurons.afferent_synapses['Input_GLU']:
-            s.slow_add = s.W.dot(s.src.output) * self.strength
+            s.dst.activity = s.W.dot(s.src.output) * self.strength
 
-            s.dst.activity += s.slow_add
-            if self.strength > 0:
-                s.dst.excitation += s.slow_add
-            else:
-                s.dst.inhibition += s.slow_add
+            #s.dst.activity += s.slow_add
+            #if self.strength > 0:
+            #    s.dst.excitation += s.slow_add
+            #else:
+            #    s.dst.inhibition += s.slow_add
 
 #char_act = np.zeros(len(grammar_act.alphabet))
 #for ng in Network_UI.network['prediction_source']:
