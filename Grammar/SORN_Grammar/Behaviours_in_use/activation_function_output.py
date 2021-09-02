@@ -48,6 +48,18 @@ class relu_step_output(Behaviour):
         neurons.output = self.step(neurons.activity)
 
 
+class norm_output(Behaviour):
+
+    def set_variables(self, neurons):
+        self.factor = self.get_init_attr('factor', 1.0)
+
+    def new_iteration(self, neurons):
+
+        s=np.sum(neurons.output)
+        if s>0:
+            neurons.output = neurons.output/s*self.factor
+
+
 
 
 #x=np.arange(0.0,1.0,0.01)

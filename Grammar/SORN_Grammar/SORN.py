@@ -53,7 +53,7 @@ SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn', behaviou
     #init
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto'),
-    3: create_weights(distribution='lognormal(1.0,0.6)', density=1)
+    3: create_weights(distribution='lognormal(1.0,0.6)', density=0.9)
 })
 
 SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,syn', behaviour={

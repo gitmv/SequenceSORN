@@ -36,11 +36,13 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     18: synapse_operation(transmitter='GLU', strength=1.0),
 
     #stability
-    21: ip_new(sliding_window=100, speed=0.01),
+    21: ip_new(sliding_window=0, speed=0.007),#0 0.007 #sliding_window=100, speed=0.01
     #22: Refractory_D(steps=4.0),
 
     #output
-    30: K_WTA_output_local(partition_size=7, K=0.02),
+    #30: K_WTA_output_local(partition_size=7, K=0.02),
+    31: relu_output(),
+    32: norm_output(factor=75),#2400*0,02=48
 
     #learning
     41: buffer_variables(),#for STDP

@@ -18,25 +18,26 @@ def get_ssh_connection(host, user, password):
     ssh.connect(host, username=user, password=password)
     return ssh
 
-for i in range(10000):
-    ssh = get_ssh_connection('poppy.fias.uni-frankfurt.de', 'vieth', None)
-    print(i)
+#for i in range(10000):
+ssh = get_ssh_connection('192.168.1.14', 'marius', None)#poppy.fias.uni-frankfurt.de
+#    print(i)
 
-    #scp = SCPClient(ssh.get_transport())
-    #scp.put('test.txt', 'test.txt')
-    #scp.close()
+scp = SCPClient(ssh.get_transport())
+scp.put('nest_embedding2.py', 'nest_embedding2.py')
+#scp.get('nest_embedding2.py', 'nest_embedding2.py')
+scp.close()
 
-    #os.remove("test.txt")
+#os.remove("test.txt")
 
-    #scp = SCPClient(ssh.get_transport())
-    #scp.get('test.txt', 'test.txt')
-    #scp.close()
+#scp = SCPClient(ssh.get_transport())
+#scp.get('test.txt', 'test.txt')
+#scp.close()
 
-    #cmd = 'rm test.txt'
-    cmd='ls'
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
-    print(i, get_response(ssh_stdout, ssh_stderr))
+#cmd = 'rm test.txt'
+#cmd='ls'
+#ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+#print(i, get_response(ssh_stdout, ssh_stderr))
 
-    #ssh.close()
+#ssh.close()
 
-    #time.sleep(random.random()/10)
+#time.sleep(random.random()/10)
