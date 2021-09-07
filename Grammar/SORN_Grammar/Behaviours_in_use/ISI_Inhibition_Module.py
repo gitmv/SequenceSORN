@@ -9,6 +9,7 @@ def normal_f(x, mean = 0, std = 1):
     variance = np.square(std)
     return np.exp(-np.square(x - mean) / 2 * variance) / (np.sqrt(2 * np.pi * variance))
 
+
 class isi_reaction_module(Behaviour):
 
     def set_variables(self, neurons):

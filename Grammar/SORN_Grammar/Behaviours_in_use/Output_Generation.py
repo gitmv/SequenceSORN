@@ -2,6 +2,16 @@ from PymoNNto import *
 
 
 
+class threshold_output(Behaviour):
+
+    def set_variables(self, neurons):
+        neurons.threshold = neurons.get_neuron_vec()+self.get_init_attr('threshold', 0.0, neurons)
+
+    def new_iteration(self, neurons):
+        neurons.output = (neurons.activity >= neurons.threshold)#.astype(def_dtype)
+
+
+
 class relu_output(Behaviour):
 
     def relu(self, x):
@@ -9,6 +19,13 @@ class relu_output(Behaviour):
 
     def new_iteration(self, neurons):
         neurons.output = self.relu(neurons.activity)
+
+
+class relu_output_probablistic(relu_output):
+
+    def new_iteration(self, neurons):
+        chance = self.relu(neurons.activity)
+        neurons.output = neurons.get_neuron_vec("uniform") < chance
 
 
 class power_output(Behaviour):
@@ -58,6 +75,7 @@ class norm_output(Behaviour):
         s=np.sum(neurons.output)
         if s>0:
             neurons.output = neurons.output/s*self.factor
+
 
 
 

@@ -1,7 +1,7 @@
 from PymoNNto import *
 from Grammar.SORN_Grammar.Behaviours_in_use import *
 
-ui = False
+ui = True
 neuron_count = 2400
 plastic_steps = 30000
 
@@ -34,7 +34,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #input
     16: input_synapse_operation(input_density=0.04, strength=0.75),#0.5 #0.04
     18: synapse_operation(transmitter='GLU', strength=1.0),
-    19: synapse_operation(transmitter='GABA', strength=-0.3),#-0.1
+    #19: synapse_operation(transmitter='GABA', strength=-0.3),#-0.1
 
     #stability
     21: ip_new(sliding_window='0', speed='0.007'),#21: ip_new(sliding_window='[100#sw]', speed='[0.01#sp]'),#0.01#uniform(0.01,0.05)
@@ -45,7 +45,8 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
     #output
     #30: threshold_output(threshold=0.5),
-    30: relu_output(),
+    #30: relu_output(),
+    30: relu_output_probablistic(),
     #30: power_output(),
     #30: relu_step_output(),
     #30: id_output(),
@@ -53,8 +54,13 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
     #learning
     41: buffer_variables(),#for STDP
+
+    41.5: learning_inhibition(transmitter='GABA', strength=-10),
+
     42: STDP_complex(transmitter='GLU', eta_stdp=0.00015, STDP_F={-1: 1}),
     45: Normalization(syn_type='GLU'),
+
+    100: STDP_analysis(),
 
 })
 
@@ -84,12 +90,12 @@ SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn', behaviou
 
 SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,syn', behaviour={
     #init
-    3: create_weights(distribution='uniform(0.9,1.0)', density=0.2)#0.05
+    3: create_weights(distribution='uniform(0.5,1.0)', density=0.2)#0.05
 })
 
 SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,syn', behaviour={
     #init
-    3: create_weights(distribution='uniform(0.9,1.0)', density=1)
+    3: create_weights(distribution='uniform(0.5,1.0)', density=0.5)
 })
 
 

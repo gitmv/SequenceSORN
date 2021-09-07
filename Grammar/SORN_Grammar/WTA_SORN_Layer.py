@@ -40,9 +40,9 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #22: Refractory_D(steps=4.0),
 
     #output
-    #30: K_WTA_output_local(partition_size=7, K=0.02),
-    31: relu_output(),
-    32: norm_output(factor=75),#2400*0,02=48
+    30: K_WTA_output_local(partition_size=7, K=0.02),
+    #31: relu_output(),
+    #32: norm_output(factor=75),#2400*0,02=48
 
     #learning
     41: buffer_variables(),#for STDP

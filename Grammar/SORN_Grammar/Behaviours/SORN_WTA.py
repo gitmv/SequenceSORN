@@ -55,19 +55,14 @@ class synapse_operation(SORN_signal_propagation_base):
 
     def new_iteration(self, neurons):
         setattr(neurons, self.input_tag, neurons.get_neuron_vec())
-
         for s in neurons.afferent_synapses[self.transmitter]:
             s.add = s.W.dot(s.src.output) * self.strength
-
-            #if 'inh_neurons' in neurons.tags:
-            #    print(np.sum(s.src.output))
-            #    print(s.add)
-
             s.dst.activity += s.add
-
             setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
 
-            #if self.strength > 0:
-            #    s.dst.excitation += s.slow_add
-            #else:
-            #    s.dst.inhibition += s.slow_add
+
+
+
+
+
+

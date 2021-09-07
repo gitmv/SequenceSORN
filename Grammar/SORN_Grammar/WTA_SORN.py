@@ -1,7 +1,7 @@
 from PymoNNto import *
 from Grammar.SORN_Grammar.Behaviours_in_use import *
 
-ui = True
+ui = False
 neuron_count = 2400
 plastic_steps = 30000
 
@@ -12,7 +12,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     1: init_neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
     #input
-    15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.']),#, ' man drives car.', ' plant loves rain.'], ' parrots can fly.', 'the fish swims' #
+    15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.']),#], ' parrots can fly.', 'the fish swims' #
     16: Text_Activator(input_density=0.04, strength=1.0),
     18: synapse_operation(transmitter='GLU', strength=1.0),
 

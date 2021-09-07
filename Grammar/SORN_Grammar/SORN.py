@@ -28,8 +28,8 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     30: threshold_output(threshold=0.5),
 
     #learning
-    #41: buffer_variables(),#for STDP
-    #42: STDP_complex(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),
+    41: buffer_variables(),#for STDP
+    42: STDP_complex(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),
     45: Normalization(syn_type='GLU'),
 
     #reconstruction

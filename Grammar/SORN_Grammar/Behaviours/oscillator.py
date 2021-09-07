@@ -27,18 +27,18 @@ class oscillator(Behaviour):
     def new_iteration(self, neurons):
         #neurons.activity += np.random.rand() * 0.1
         neurons.x += (neurons.x - neurons.activity) / neurons.f
-        neurons.x *= 0.97# - 0.8/neurons.f   #0.97
+        neurons.x *= 0.97 - 1/neurons.f   #0.97 #0.8
         neurons.activity += neurons.x
 
-for i in [20]:#[2, 10, 30, 50, 70, 100, 150, 200]:
-    net = Network()
-    ng = NeuronGroup(size=1, net=net, behaviour={1: oscillator(f=i), 2: get_Recorder('n.activity')})
-    net.initialize()
-    net.simulate_iterations(1000)
-    plt.plot(ng['n.activity', 0])
+#for i in [20]:#[2, 10, 30, 50, 70, 100, 150, 200]:
+#    net = Network()
+#    ng = NeuronGroup(size=1, net=net, behaviour={1: oscillator(f=i), 2: get_Recorder('n.activity')})
+#    net.initialize()
+#    net.simulate_iterations(1000)
+#    plt.plot(ng['n.activity', 0])
 
-plt.show()
+#plt.show()
 
-plt.plot([20,50,62.5,100,125,150,200,250,500],[28,43,49,62,70,76,90,101,147])
+#plt.plot([20,50,62.5,100,125,150,200,250,500],[28,43,49,62,70,76,90,101,147])
 
-plt.show()
+#plt.show()
