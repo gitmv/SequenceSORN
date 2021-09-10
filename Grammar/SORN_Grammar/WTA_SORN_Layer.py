@@ -1,7 +1,7 @@
 from PymoNNto import *
 from Grammar.SORN_Grammar.Behaviours_in_use import *
 
-ui = False
+ui = True
 neuron_count = 2400
 plastic_steps = 30000
 
@@ -9,18 +9,18 @@ SORN = Network(tag='WTA_SORN_Layer')
 
 input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour={
     #init
-    1: init_neurons(),
+    1: Init_Neurons(),
 
     #input
-    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.'], set_network_size_to_alphabet_size=True),
+    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True),#, ' man drives car.', ' plant loves rain.'
     12: Text_Activator_Simple(),
-    13: synapse_operation(transmitter='GLU', strength=1.0),
-    13.5: char_cluster_compensation(),
+    13: Synapse_Operation(transmitter='GLU', strength=1.0),
+    13.5: Char_Cluster_Compensation(),
     14: SORN_generate_output_K_WTA(K=1),
 
     #learning
-    41: buffer_variables(),#for STDP
-    42: STDP_complex(transmitter='GLU', eta_stdp=0.00015, STDP_F={-1: 1}),
+    41: Buffer_Variables(),#for STDP
+    42: STDP_C(transmitter='GLU', eta_stdp=0.00015, STDP_F={-1: 1}),
     45: Normalization(syn_type='GLU'),
 
     #reconstruction
@@ -29,14 +29,14 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour=
 
 exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
     #init
-    1: init_neurons(target_activity='lognormal_rm(0.02,0.3)'),
+    1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
     #input
     16: input_synapse_operation(input_density=0.04, strength=1.0),
-    18: synapse_operation(transmitter='GLU', strength=1.0),
+    18: Synapse_Operation(transmitter='GLU', strength=1.0),
 
     #stability
-    21: ip_new(sliding_window=0, speed=0.007),#0 0.007 #sliding_window=100, speed=0.01
+    21: IP(sliding_window=0, speed=0.007),#0 0.007 #sliding_window=100, speed=0.01
     #22: Refractory_D(steps=4.0),
 
     #output
@@ -45,8 +45,8 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #32: norm_output(factor=75),#2400*0,02=48
 
     #learning
-    41: buffer_variables(),#for STDP
-    42: STDP_complex(transmitter='GLU', eta_stdp=0.00015, STDP_F={-1: 1}),
+    41: Buffer_Variables(),#for STDP
+    42: STDP_C(transmitter='GLU', eta_stdp=0.00015, STDP_F={-1: 1}),
     45: Normalization(syn_type='GLU'),
 
 })
@@ -59,7 +59,7 @@ SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,syn', behavi
 
 SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn', behaviour={
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
-    2: Partition(split_size='auto'),
+    #2: Partition(split_size='auto'),
     3: create_weights(density=0.9, distribution='lognormal(1.0,0.6)')#uniform(0.1,1.0)
 })
 

@@ -21,7 +21,7 @@ class SORN_signal_propagation_base(Behaviour):
     def new_iteration(self, neurons):
         print('warning: signal_propagation_base has to be overwritten')
 
-class synapse_operation(SORN_signal_propagation_base):
+class Synapse_Operation(SORN_signal_propagation_base):
 
     def set_variables(self, neurons):
         super().set_variables(neurons)
@@ -37,10 +37,12 @@ class synapse_operation(SORN_signal_propagation_base):
             setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
 
 #requires STDP
-class learning_inhibition(SORN_signal_propagation_base):
+class Learning_Inhibition(SORN_signal_propagation_base):
 
     def new_iteration(self, neurons):
+        neurons.linh = neurons.get_neuron_vec()
         for s in neurons.afferent_synapses[self.transmitter]:
             s.add = s.W.dot(s.src.output) * self.strength
+            s.dst.linh += s.add
             buffer = neurons.buffers['output']
             buffer[1] = np.clip(buffer[1]+s.add, 0.0, 1.0)

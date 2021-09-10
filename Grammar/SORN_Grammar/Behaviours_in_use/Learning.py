@@ -9,7 +9,7 @@ class buffer_reqirement:
 def get_buffer(neurons, variable):
     return neurons.mask_var(neurons.buffers[variable])
 
-class buffer_variables(Behaviour):#has to be executed AFTER intra, inter...behaviours
+class Buffer_Variables(Behaviour):#has to be executed AFTER intra, inter...behaviours
 
     def set_variables(self, neurons):
         self.add_tag('buffer')
@@ -48,8 +48,8 @@ class buffer_variables(Behaviour):#has to be executed AFTER intra, inter...behav
             neurons.buffer_roll(neurons.buffers[variable], new)
 
 
-
-class STDP_complex(Behaviour):
+#STDP Complex
+class STDP_C(Behaviour):
 
     def get_STDP_Function(self):
         return self.get_init_attr('STDP_F', {-1: 1, 1: -1})
@@ -121,7 +121,7 @@ class STDP_complex(Behaviour):
 
             setattr(s, self.weight_attr, getattr(s, self.weight_attr)+s.dw)
 
-class STDP_analysis(Behaviour):
+class STDP_Analysis(Behaviour):
 
     def new_iteration(self, neurons):
         neurons.total_dw = neurons.get_neuron_vec()

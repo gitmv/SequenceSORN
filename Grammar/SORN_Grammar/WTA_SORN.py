@@ -9,23 +9,23 @@ SORN = Network(tag='WTA_SORN')
 
 exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
     #init
-    1: init_neurons(target_activity='lognormal_rm(0.02,0.3)'),
+    1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
     #input
     15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.']),#], ' parrots can fly.', 'the fish swims' #
     16: Text_Activator(input_density=0.04, strength=1.0),
-    18: synapse_operation(transmitter='GLU', strength=1.0),
+    18: Synapse_Operation(transmitter='GLU', strength=1.0),
 
     #stability
-    21: ip_new(sliding_window=0, speed=0.007),
+    21: IP(sliding_window=0, speed=0.007),
     #22: Refractory_D(steps=4.0),
 
     #output
     30: K_WTA_output_local(partition_size=7, K=0.02),
 
     #learning
-    41: buffer_variables(),#for STDP
-    42: STDP_complex(transmitter='GLU', eta_stdp=0.00015, STDP_F={-1: 1}),
+    41: Buffer_Variables(),#for STDP
+    42: STDP_C(transmitter='GLU', eta_stdp=0.00015, STDP_F={-1: 1}),
     45: Normalization(syn_type='GLU'),
 
     #reconstruction

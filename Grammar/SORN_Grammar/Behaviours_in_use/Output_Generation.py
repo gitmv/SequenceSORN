@@ -2,7 +2,7 @@ from PymoNNto import *
 
 
 
-class threshold_output(Behaviour):
+class Threshold_Output(Behaviour):
 
     def set_variables(self, neurons):
         neurons.threshold = neurons.get_neuron_vec()+self.get_init_attr('threshold', 0.0, neurons)
@@ -12,7 +12,7 @@ class threshold_output(Behaviour):
 
 
 
-class relu_output(Behaviour):
+class ReLu_Output(Behaviour):
 
     def relu(self, x):
         return np.clip((x - 0.5) * 2.0, 0.0, 1.0)
@@ -21,14 +21,14 @@ class relu_output(Behaviour):
         neurons.output = self.relu(neurons.activity)
 
 
-class relu_output_probablistic(relu_output):
+class ReLu_Output_Prob(ReLu_Output):
 
     def new_iteration(self, neurons):
         chance = self.relu(neurons.activity)
         neurons.output = neurons.get_neuron_vec("uniform") < chance
 
 
-class power_output(Behaviour):
+class Power_Output(Behaviour):
 
     def power(self, x):
         return np.clip(np.power(x, 4.0), 0.0, 1.0)
@@ -37,7 +37,7 @@ class power_output(Behaviour):
         neurons.output = self.power(neurons.activity)
 
 
-class id_output(Behaviour):
+class ID_Output(Behaviour):
 
     def id(self, x):
         return np.clip(x, 0.0, 1.0)
@@ -46,7 +46,7 @@ class id_output(Behaviour):
         neurons.output = self.id(neurons.activity)
 
 
-class sigmoid_output(Behaviour):
+class Sigmoid_Output(Behaviour):
 
     def sigmoid(self, x):
         return 1.0 / (1.0 + np.power(np.e, -(x - 0.5) * 15))
@@ -55,7 +55,7 @@ class sigmoid_output(Behaviour):
         neurons.output = self.sigmoid(neurons.activity)
 
 
-class relu_step_output(Behaviour):
+class ReLu_Step_Output(Behaviour):
 
     def step(self, x):
         stairs = 4

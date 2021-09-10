@@ -32,11 +32,16 @@ class Text_Reconstructor_Simple(Behaviour):
 
             self.reconstruction_history += self.current_reconstruction_char
 
-class char_cluster_compensation(Behaviour):
+class Char_Cluster_Compensation(Behaviour):
+
+    def set_variables(self, neurons):
+        self.strength = self.get_init_attr('strength', 1)#1: full compensation 0: original activity
 
     def new_iteration(self, neurons):
         if len(neurons['Text_Generator']) > 0 and len(neurons['Text_Activator']) > 0:
 
             if not neurons['Text_Activator', 0].behaviour_enabled:
-                neurons.activity *= neurons['Text_Generator', 0].char_weighting
+                #neurons.activity *= neurons['Text_Generator', 0].char_weighting
                 #neurons.activity += neurons.activity * neurons['Text_Generator', 0].char_weighting
+
+                neurons.activity = neurons.activity*(1-self.strength) + neurons.activity * neurons['Text_Generator', 0].char_weighting*(self.strength)

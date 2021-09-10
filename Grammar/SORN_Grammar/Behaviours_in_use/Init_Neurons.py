@@ -1,6 +1,6 @@
 from PymoNNto import *
 
-class init_neurons(Behaviour):
+class Init_Neurons(Behaviour):
 
     def set_variables(self, neurons):
         neurons.activity = neurons.get_neuron_vec()

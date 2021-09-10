@@ -90,9 +90,9 @@ class input_synapse_operation(Behaviour):
 
             neurons.Input_Mask = np.sum(s.W, axis=1) > 0
 
-            #print(s.W.shape)
-            #print(s.get_synapse_mat().shape)
-
     def new_iteration(self, neurons):
+        neurons.input_grammar = neurons.get_neuron_vec()
         for s in neurons.afferent_synapses['Input_GLU']:
-            s.dst.activity = s.W.dot(s.src.output) * self.strength
+            add = s.W.dot(s.src.output) * self.strength
+            s.dst.activity = add
+            s.dst.input_grammar+=add

@@ -9,27 +9,28 @@ SORN = Network(tag='SORN')
 
 exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
     #init
-    1: init_neurons(target_activity='lognormal_rm(0.02,0.3)'),
+    1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
     #input
     15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.']),#, ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims' #
     16: Text_Activator(input_density=0.04, strength=1.0),
-    18: synapse_operation(transmitter='GLU', strength=1.0),
-    19: synapse_operation(transmitter='GABA', strength=-0.1),
+    18: Synapse_Operation(transmitter='GLU', strength=1.0),
+    #19: Synapse_Operation(transmitter='GABA', strength=-0.1),
 
     #stability
-    21: ip_new(sliding_window=10, speed=0.07),#0.01#uniform(0.01,0.05)
+    21: IP(sliding_window=10, speed=0.07),#0.01#uniform(0.01,0.05)
     22: Refractory_D(steps=4.0),
     #23: NOX_Diffusion(th_nox=0.0, strength=1.0),
     #24: isi_reaction_module(strength=0.1),
     #25: random_activity_simple(rate=0.001),
 
     #output
-    30: threshold_output(threshold=0.5),
+    #30: Threshold_Output(threshold=0.5),
+    30: ReLu_Output_Prob(),
 
     #learning
-    41: buffer_variables(),#for STDP
-    42: STDP_complex(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),
+    41: Buffer_Variables(),#for STDP
+    42: STDP_C(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),
     45: Normalization(syn_type='GLU'),
 
     #reconstruction
@@ -40,13 +41,13 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
 inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
     #init
-    2: init_neurons(),
+    2: Init_Neurons(),
 
     #input!
-    11: synapse_operation(transmitter='GLU', strength=2.0),
+    11: Synapse_Operation(transmitter='GLU', strength=2.0),
 
     #output!
-    14: threshold_output(threshold='uniform(0.1,0.9)'),
+    14: Threshold_Output(threshold='uniform(0.1,0.9)'),
 })
 
 SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn', behaviour={
@@ -76,8 +77,6 @@ if __name__ == '__main__' and ui:
     exc_neurons.color = blue
     inh_neurons.color = red
     show_UI(SORN, sm, 2)
-
-
 
 
 #learning
