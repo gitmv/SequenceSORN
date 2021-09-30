@@ -27,6 +27,6 @@ yellow = (255.0, 150.0, 0.0, 255.0)
 def show_UI(SORN, sm, n_groups):
     my_modules = get_default_UI_modules(['output'])+get_my_default_UI_modules()+[isi_module_tab()]
     my_modules[0] = UI_sidebar_activity_module(1, add_color_dict={'output': (255, 255, 255), 'Input_Mask': (-100, -100, -100)})#
-    my_modules[1] = multi_group_plot_tab(['output|target_activity', 'activity', 'sensitivity', 'sliding_average_activity|target_activity', 'buffers["output"][1]|linh', 'total_dw*1000'])#'input_isi_inh'
-    my_modules[8] = single_group_plot_tab(['output', 'activity', 'input_GLU', 'input_GABA', 'input_grammar', 'sensitivity'], net_lines=[0], neuron_lines=[0, 0.5, 1.0])
+    my_modules[1] = multi_group_plot_tab(['output|target_activity', 'activity', 'sensitivity', 'buffers["output"][1]|linh'])#'input_isi_inh' , 'total_dw*1000' , 'sliding_average_activity|target_activity'
+    my_modules[8] = single_group_plot_tab(['output', 'activity', 'input_GLU', 'input_GABA', 'input_grammar', 'sensitivity'], net_lines=[0.02], neuron_lines=[0, 0.5, 1.0])
     Network_UI(SORN, modules=my_modules, label=SORN.tags[0], storage_manager=sm, group_display_count=n_groups, reduced_layout=False).show()

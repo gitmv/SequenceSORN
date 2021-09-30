@@ -1,7 +1,7 @@
 from PymoNNto import *
 from Grammar.SORN_Grammar.Behaviours_in_use import *
 
-ui = False
+ui = True
 neuron_count = 2400
 plastic_steps = 30000
 
@@ -29,10 +29,10 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     45: Normalization(syn_type='GLU'),
 
     #reconstruction
-    50: Text_Reconstructor()
+    50: Text_Reconstructor(),
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto'),
     3: create_weights(distribution='uniform(0.1,1.0)', density=0.9)#lognormal(1.0,0.6)
@@ -64,11 +64,10 @@ SORN.simulate_iterations(5000, 100)
 #text generation
 SORN['Text_Reconstructor', 0].reconstruction_history = ''
 SORN.simulate_iterations(5000, 100)
-recon_text = SORN['Text_Reconstructor', 0].reconstruction_history
-print(recon_text)
+print(SORN['Text_Reconstructor', 0].reconstruction_history)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(recon_text)
+score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
 set_score(score, sm)
 
 

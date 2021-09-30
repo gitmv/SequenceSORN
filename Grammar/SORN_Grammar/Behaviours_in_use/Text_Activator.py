@@ -38,7 +38,12 @@ class Text_Activator(Behaviour):
             activation_size = int(input_density)
         neurons.mean_network_activity = activation_size/neurons.size #optional/ can be used by other (homeostatic) modules
 
-        neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.char_weighting)
+        if self.get_init_attr('char_weighting', True):
+            cw = self.text_generator.char_weighting
+        else:
+            cw = None
+
+        neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, cw)
         neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
 
         neurons.input_grammar = neurons.get_neuron_vec()

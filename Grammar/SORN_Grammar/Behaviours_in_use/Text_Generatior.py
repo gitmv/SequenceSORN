@@ -88,7 +88,7 @@ class Text_Generator(Behaviour):
                 comp_block = block[0:len(comp_text)]
                 for t, b in zip(comp_text, comp_block):
                     if t == b:
-                        block_score += 1
+                        block_score += 1 * (1/self.char_weighting[self.char_to_index(t)])
 
                 block_scores[bi] += (block_score*block_score)/len(text)
         score = 0
@@ -100,25 +100,3 @@ class Text_Generator(Behaviour):
         txt = ''.join(self.text_blocks)
         txt=txt+txt+txt+txt+txt
         return self.get_text_score(txt)
-
-#ng = NeuronGroup(net=None, size=100, behaviour={})
-
-#tg=Text_Generator(text_blocks=['Das ist ein Test. ', 'BlubBlub. ', 'abc'])
-#tg.set_variables(ng)
-
-#print(tg.get_text_score('Das ist ein Test. BlubBlub. Das ist ein Test. BlubBlub. Das ist ein Test. BlubBlub. Das ist e'))
-#print(tg.get_text_score('Das ist ein Test. BlubBlub. '))
-#print(tg.get_text_score('Das ist ein Test. Das ist ein Test. Das ist ein Test. Das ist ein Test. Das ist ein Test. Das'))
-#print(tg.get_text_score('Das ist ein Test. BlubBlub.    dsfgsadfsdfsdfsdagfdsgsfsdfasdfdsfgsadfsdfsdfsdagfdsgsfsdfasdf'))
-#print(tg.get_text_score('Das ist ein Test. Das ist ein Tdsfgsadfsdfsdfsdagfdsgsfsdfasdfdsfgsadfsdfsdfsdagfdsgsfsdfasdf'))
-#print(tg.get_text_score('dsfgsadfsdfsdfsdagfdsgsfsdfasdfdsfgsadfsdfsdfsdagfdsgsfsdfasdfdsfgsadfsdfsdfsdagfdsgsfsdfasdf'))
-#print(tg.get_text_score('dsfgsadfsdfsdfsdagfdsgsfsdfasd'))
-
-#tg = Text_Generator(text_blocks=['Das ist ein Test. ', 'BlubBlub. '])
-#tg.set_variables(ng)
-
-#for i in range(100):
-#    tg.new_iteration(ng)
-#    print(ng.current_char, ng.one_hot_alphabet_act_vec)
-
-#print(tg.history)

@@ -22,7 +22,7 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour=
 
     #learning
     41: Buffer_Variables(),#for STDP
-    42: STDP_C(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),#{-1: 0.2, 1: -1}
+    42: STDP_C(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),#{-1: 0.2, 1: -1} #, 1:-1
     45: Normalization(syn_type='GLU', behaviour_norm_factor=1.0),
 
     #reconstruction
@@ -38,6 +38,8 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     18: Synapse_Operation(transmitter='GLU', strength=1.0),
     #19: Synapse_Operation(transmitter='GABA', strength=-1.0),#-0.1
 
+    17: Classifier_Text_Reconstructor(),
+
     #stability
     21: IP(sliding_window='0', speed='0.007'),
     22: Refractory_D(steps=4.0),
@@ -52,7 +54,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     42: STDP_C(transmitter='GLU', eta_stdp=0.0015, STDP_F={-1: 1}),#0.00015
     45: Normalization(syn_type='GLU'),
 
-    100: STDP_Analysis(),
+    #100: STDP_Analysis(),
 
 })
 
@@ -108,12 +110,84 @@ if __name__ == '__main__' and ui:
 
 
 #learning
+#input_neurons['STDP_C', 0].behaviour_enabled = False
+#input_neurons['Normalization', 0].behaviour_enabled = False
+SORN.simulate_iterations(plastic_steps, 100)
+
+#deactivate STDP and Input
+exc_neurons['STDP_C', 0].behaviour_enabled = False
+exc_neurons['Normalization', 0].behaviour_enabled = False
+
+#input_neurons['STDP_C', 0].behaviour_enabled = True
+#input_neurons['Normalization', 0].behaviour_enabled = True
+
+SORN['Classifier_Text_Reconstructor', 0].start_recording()
+SORN.simulate_iterations(10000, 100)
+SORN.deactivate_mechanisms('Text_Activator')
+input_neurons['STDP_C', 0].behaviour_enabled = False
+input_neurons['Normalization', 0].behaviour_enabled = False
+SORN['Classifier_Text_Reconstructor', 0].train()#starts activating after training/stops recording automatically
+SORN['Classifier_Text_Reconstructor', 0].activate_predicted_char = False
+c = SORN['Classifier_Text_Reconstructor', 0].readout_layer.coef_.copy()
+w = SORN['InpE', 0].W.copy()
+
+#recovery phase
+SORN.simulate_iterations(5000, 100)
+
+#text generation
+#layer
+SORN['Text_Reconstructor', 0].reconstruction_history = ''
+SORN.simulate_iterations(5000, 100)
+print('normal layer', SORN['Text_Reconstructor', 0].reconstruction_history)
+
+#layer swapped
+SORN['Text_Reconstructor', 0].reconstruction_history = ''
+SORN['InpE', 0].W = c
+SORN.simulate_iterations(5000, 100)
+print('swapped layer', SORN['Text_Reconstructor', 0].reconstruction_history)
+
+
+#classifier
+SORN.deactivate_mechanisms('input_synapse_operation')
+SORN['Classifier_Text_Reconstructor', 0].activate_predicted_char = True
+
+SORN['Classifier_Text_Reconstructor', 0].reconstruction_history = ''
+SORN.simulate_iterations(5000, 100)
+print('classifier', SORN['Classifier_Text_Reconstructor', 0].reconstruction_history)
+
+SORN['Classifier_Text_Reconstructor', 0].reconstruction_history = ''
+SORN['Classifier_Text_Reconstructor', 0].readout_layer.coef_ = w
+SORN.simulate_iterations(5000, 100)
+print('swapped classifier', SORN['Classifier_Text_Reconstructor', 0].reconstruction_history)
+
+
+
+#scoring
+score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
+set_score(score, sm)
+
+import matplotlib.pyplot as plt
+plt.matshow(SORN['Classifier_Text_Reconstructor', 0].classifier.coef_[:, 0:200])
+# with bias:
+# np.hstack((clf.intercept_[:,None], clf.coef_))
+plt.show()
+
+import matplotlib.pyplot as plt
+plt.matshow(SORN['InpE', 0].W[:, 0:200])
+plt.show()
+
+
+
+
+
+'''
+#learning
 SORN.simulate_iterations(plastic_steps, 100)
 
 #deactivate STDP and Input
 SORN.deactivate_mechanisms('STDP')
 SORN.deactivate_mechanisms('Normalization')
-SORN.deactivate_mechanisms('Text_Activator')
+#SORN.deactivate_mechanisms('Text_Activator')
 
 #recovery phase
 SORN.simulate_iterations(5000, 100)
@@ -121,12 +195,13 @@ SORN.simulate_iterations(5000, 100)
 #text generation
 SORN['Text_Reconstructor', 0].reconstruction_history = ''
 SORN.simulate_iterations(5000, 100)
-print(SORN['Text_Reconstructor', 0].reconstruction_history)
+recon_text = SORN['Text_Reconstructor', 0].reconstruction_history
+print(recon_text)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
+score = SORN['Text_Generator', 0].get_text_score(recon_text)
 set_score(score, sm)
-
+'''
 
 
 

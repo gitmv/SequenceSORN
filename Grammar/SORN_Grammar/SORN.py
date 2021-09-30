@@ -1,9 +1,12 @@
 from PymoNNto import *
 from Grammar.SORN_Grammar.Behaviours_in_use import *
 
-ui = True
+#set_genome({'GABAE': 1.1057403610397172, 'IP': 0.007223298098309225, 'LIM': 195.9931369624642, 'STDP': 0.001025817650992625, 'GLUI': 17.450647503029778, 'PO': 1.0507630664072505, 'IED': 0.48737926313028035, 'gen': 38.0, 'score': 9.39619585134594})
+
+ui = False
 neuron_count = 2400
-plastic_steps = 30000
+plastic_steps = 30000#50000
+recovery_steps = 10000
 
 SORN = Network(tag='SORN')
 
@@ -13,59 +16,72 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
     #input
     15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.']),#, ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims' #
-    16: Text_Activator(input_density=0.04, strength=1.0),
+    16: Text_Activator(input_density=0.04, strength=0.75),#1.0
     18: Synapse_Operation(transmitter='GLU', strength=1.0),
-    #19: Synapse_Operation(transmitter='GABA', strength=-0.1),
+    19: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
 
     #stability
-    21: IP(sliding_window=10, speed=0.07),#0.01#uniform(0.01,0.05)
+    21: IP(sliding_window=0, speed='[0.007#IP]'),
     22: Refractory_D(steps=4.0),
-    #23: NOX_Diffusion(th_nox=0.0, strength=1.0),
-    #24: isi_reaction_module(strength=0.1),
-    #25: random_activity_simple(rate=0.001),
 
     #output
-    #30: Threshold_Output(threshold=0.5),
     30: ReLu_Output_Prob(),
 
     #learning
     41: Buffer_Variables(),#for STDP
-    42: STDP_C(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),
-    45: Normalization(syn_type='GLU'),
+    #41.5: Learning_Inhibition(transmitter='GABA', strength=-2),
+    41.5: Learning_Inhibition_mean(strength='-[200#LIM]'),
+    42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),
+    45: Normalization(syn_type='GLU', exec_every_x_step=1),
 
     #reconstruction
     50: Text_Reconstructor(),
-
-    #100: Recorder(tag='avg_rec', variables=['np.mean(n.output)']),
 })
 
 inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
-    #init
     2: Init_Neurons(),
-
-    #input!
-    11: Synapse_Operation(transmitter='GLU', strength=2.0),
-
-    #output!
-    14: Threshold_Output(threshold='uniform(0.1,0.9)'),
+    31: Synapse_Operation(transmitter='GLU', strength='[10.0#GLUI]'),#approximately: (mean_e+oscillation_e)*10.0=(0.02+0.06)*10=0.8 (nearly 1)
+    32: Power_Output(exp='[2.0#PO]'),
+    #32: Power_Output_Prob(exp='[2.0#PO]'),
+    #32: ID_Output(),
+    #32: ReLu_Output(),
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,IE', behaviour={
+    3: create_weights(distribution='uniform(0.9,1.0)', density='[0.5#IED]')
+})
+
+SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviour={
+    3: create_weights(distribution='uniform(0.9,1.0)', density=1.0)#0.9
+})
+
+
+#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
+    #init
+#    2: Init_Neurons(),
+
+    #input!
+#    31: Synapse_Operation(transmitter='GLU', strength=30),
+
+    #output!
+    #14: Threshold_Output(threshold='uniform(0.1,0.9)'),
+#    32: ReLu_Output(),
+#})
+
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
     #init
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto'),
     3: create_weights(distribution='lognormal(1.0,0.6)', density=0.9)
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,syn', behaviour={
-    #init
-    3: create_weights(distribution='uniform(0.9,1.0)', density=0.05)
-})
+#SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,IE', behaviour={
+#    3: create_weights(distribution='uniform(0.9,1.0)', density=0.5)
+#})
 
-SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,syn', behaviour={
-    #init
-    3: create_weights(distribution='uniform(0.9,1.0)', density=1)
-})
+#SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviour={
+#    3: create_weights(distribution='uniform(0.9,1.0)', density=0.9)
+#})
 
 
 sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
@@ -87,16 +103,15 @@ SORN.deactivate_mechanisms('STDP')
 SORN.deactivate_mechanisms('Text_Activator')
 
 #recovery phase
-SORN.simulate_iterations(5000, 100)
+SORN.simulate_iterations(recovery_steps, 100)
 
 #text generation
 SORN['Text_Reconstructor', 0].reconstruction_history = ''
 SORN.simulate_iterations(5000, 100)
-recon_text = SORN['Text_Reconstructor', 0].reconstruction_history
-print(recon_text)
+print(SORN['Text_Reconstructor', 0].reconstruction_history)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(recon_text)
+score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
 set_score(score, sm)
 
 
@@ -107,9 +122,14 @@ set_score(score, sm)
 
 #set_score(score, sm)
 
+#30: Threshold_Output(threshold=0.5),
 
+# 23: NOX_Diffusion(th_nox=0.0, strength=1.0),
+# 24: isi_reaction_module(strength=0.1),
+# 25: random_activity_simple(rate=0.001),
+# 100: STDP_Analysis(),
 
-
+# 100: Recorder(tag='avg_rec', variables=['np.mean(n.output)']),
 
 #SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
 #    1: Box_Receptive_Fields(range=18, remove_autapses=True),

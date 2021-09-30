@@ -8,6 +8,9 @@ class create_weights(Behaviour):
 
         synapses.W = synapses.get_synapse_mat(distribution, density=density) * synapses.enabled
 
+        if self.get_init_attr('update_enabled', False):
+            synapses.enabled *= synapses.W > 0
+
         normalize = self.get_init_attr('normalize', True)
         if normalize:
             synapses.W /= np.sum(synapses.W, axis=1)[:, None]

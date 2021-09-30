@@ -7,4 +7,4 @@ class delayed_activity_response(Behaviour):
         neurons.delay = self.get_init_attr('delay', 10)
 
     def new_iteration(self, neurons):
-
+        return

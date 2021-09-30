@@ -36,13 +36,11 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     18: Synapse_Operation(transmitter='GLU', strength=1.0),
 
     #stability
-    21: IP(sliding_window=0, speed=0.007),#0 0.007 #sliding_window=100, speed=0.01
+    21: IP(sliding_window=0, speed=0.007),
     #22: Refractory_D(steps=4.0),
 
     #output
     30: K_WTA_output_local(partition_size=7, K=0.02),
-    #31: relu_output(),
-    #32: norm_output(factor=75),#2400*0,02=48
 
     #learning
     41: Buffer_Variables(),#for STDP
@@ -51,13 +49,13 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
 })
 
-SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,syn', behaviour={})#weights created by input_synapse_operation
+SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,EInp', behaviour={})#weights created by input_synapse_operation
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,syn', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,InpE', behaviour={
     3: create_weights()
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     #2: Partition(split_size='auto'),
     3: create_weights(density=0.9, distribution='lognormal(1.0,0.6)')#uniform(0.1,1.0)
@@ -89,16 +87,22 @@ SORN.simulate_iterations(5000, 100)
 #text generation
 SORN['Text_Reconstructor', 0].reconstruction_history = ''
 SORN.simulate_iterations(5000, 100)
-recon_text = SORN['Text_Reconstructor', 0].reconstruction_history
-print(recon_text)
+print(SORN['Text_Reconstructor', 0].reconstruction_history)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(recon_text)
+score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
 set_score(score, sm)
 
 
 
 
+
+
+
+# 31: relu_output(),
+# 32: norm_output(factor=75),#2400*0,02=48
+
+#0 0.007 #sliding_window=100, speed=0.01
 
 #SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
 #    1: Box_Receptive_Fields(range=18, remove_autapses=True),

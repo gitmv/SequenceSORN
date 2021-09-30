@@ -44,5 +44,17 @@ class Learning_Inhibition(SORN_signal_propagation_base):
         for s in neurons.afferent_synapses[self.transmitter]:
             s.add = s.W.dot(s.src.output) * self.strength
             s.dst.linh += s.add
-            buffer = neurons.buffers['output']
-            buffer[1] = np.clip(buffer[1]+s.add, 0.0, 1.0)
+        buffer = neurons.buffers['output']
+        buffer[1] = np.clip(buffer[1]+neurons.linh, 0.0, 1.0)
+
+
+#requires STDP
+class Learning_Inhibition_mean(Behaviour):
+
+    def set_variables(self, neurons):
+        self.strength = self.get_init_attr('strength', 1, neurons)
+
+    def new_iteration(self, neurons):
+        neurons.linh = np.clip(np.mean(neurons.output)-0.02, 0, None)*self.strength
+        buffer = neurons.buffers['output']
+        buffer[1] = np.clip(buffer[1] + neurons.linh, 0.0, 1.0)

@@ -31,10 +31,21 @@ class ReLu_Output_Prob(ReLu_Output):
 class Power_Output(Behaviour):
 
     def power(self, x):
-        return np.clip(np.power(x, 4.0), 0.0, 1.0)
+        return np.clip(np.power(x, self.exp), 0.0, 1.0)
+
+    def set_variables(self, neurons):
+        self.exp = self.get_init_attr('exp', 4.0, neurons)
 
     def new_iteration(self, neurons):
         neurons.output = self.power(neurons.activity)
+
+
+class Power_Output_Prob(Power_Output):
+
+    def new_iteration(self, neurons):
+        chance = self.power(neurons.activity)
+        neurons.output = neurons.get_neuron_vec("uniform") < chance
+
 
 
 class ID_Output(Behaviour):
