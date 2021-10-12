@@ -9,11 +9,13 @@ set_genome({'GABAE': 1.853888950370442, 'IP': 0.00907738308945769, 'LIM': 341.17
 
 
 ui = False
-neuron_count = 2400
+neuron_count = 3600
 plastic_steps = 30000#50000
 recovery_steps = 10000#10000#1000
 
-SORN = Network(tag='SORN')
+load_learned_state = False
+
+SORN = Network(tag='SORN_big')
 
 exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
     #init
@@ -21,10 +23,11 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
     #input
     #15: Line_Patterns(center_x=20, center_y=np.arange(10,30), degree=0, line_length=30),
-    #15: MNIST_Patterns(center_x=20, center_y=20, pattern_count=10),
+
+    #15: MNIST_Patterns_On_Off(center_x=30, center_y=30, pattern_count=10),
 
     15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.']),#, ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims' #
-    16: Text_Activator(input_density=0.04, strength=0.75),#1.0
+    16: Text_Activator(input_density=96, strength=0.75),#1.0
     18: Synapse_Operation(transmitter='GLU', strength=1.0),
     19: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
 
@@ -100,9 +103,24 @@ SORN.initialize(info=True, storage_manager=sm)
 
 
 
-load_learned_state=True
+
 if load_learned_state:
-    load_state(SORN, '60ks_stable')
+    subfolder='60ks_stable'
+
+    folder = get_data_folder(create_when_not_found=True)+'/'+subfolder+'/'
+
+    set_partitioned_synapse_matrix(SORN['exc_neurons',0], 'EE', 'W', np.load(folder+'_EEw.npy'))
+    set_partitioned_synapse_matrix(SORN['exc_neurons',0], 'EE', 'enabled', np.load(folder+'_EEe.npy'))
+    #network['EE',0].W = np.load(folder+'_EEw.npy')
+    #network['EE',0].enabled = np.load(folder+'_EEe.npy')
+    #SORN['IE',0].W = np.load(folder+'_IEw.npy')
+    #SORN['IE',0].enabled = np.load(folder+'_IEe.npy')
+    #SORN['EI',0].W = np.load(folder+'_EIw.npy')
+    #SORN['EI',0].enabled = np.load(folder+'_EIe.npy')
+    SORN['exc_neurons', 0].target_activity = np.load(folder+'_ENt.npy')
+    SORN['exc_neurons', 0].Input_Weights = np.load(folder+'_ENw.npy')
+    SORN['exc_neurons', 0].Input_Mask = np.load(folder+'_ENm.npy')
+    SORN['exc_neurons', 0].sensitivity = np.load(folder+'_ENs.npy')
 
     # deactivate STDP and Input
     SORN.deactivate_mechanisms('STDP')
@@ -116,7 +134,7 @@ if __name__ == '__main__' and ui:
     inh_neurons.color = red
     show_UI(SORN, sm, 2)
 
-plot_corellation_matrix(SORN)
+#plot_corellation_matrix(SORN)
 
 if not load_learned_state:
     # learning

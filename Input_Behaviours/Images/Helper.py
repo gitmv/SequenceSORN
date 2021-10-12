@@ -88,7 +88,7 @@ def getHorLinePictureSmooth(y, width=15, height=15):
 def getLinePicture(deg, center_x, center_y, length, width, height):
     im = Image.new('L', (width, height), (0))
     draw = ImageDraw.Draw(im)
-    rot_point = rotatearoundpoint((length / 2, 0), deg, (0, 0))
+    rot_point = rotatearoundpoint((length, 0), deg, (0, 0))
     draw.line((center_x - np.floor(rot_point[0]), center_y - np.floor(rot_point[1]), center_x + np.floor(rot_point[0]), center_y + np.floor(rot_point[1])), fill=255)
     return picture_to_array(im)
 

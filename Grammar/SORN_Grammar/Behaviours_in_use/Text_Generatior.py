@@ -3,6 +3,69 @@ from PymoNNto import *
 def unique(l):
     return list(sorted(set(l)))
 
+def grammar_text_blocks():
+    verbs = ['eats ',
+                  'drinks ']
+
+    subjects = [' man ',
+                     ' woman ',
+                     ' girl ',
+                     ' boy ',
+                     ' child ',
+                     ' cat ',
+                     ' dog ',
+                     ' fox ']
+
+
+    objects_eat = ['meat.',
+                        'bread.',
+                        'fish.',
+                        'vegetables.']
+
+    objects_drink = ['milk.',
+                          'water.',
+                          'juice.',
+                          'tea.']
+
+    results=[]
+    for s in subjects:
+        for oe in objects_eat:
+            results.append(s + verbs[0] + oe)
+
+        for od in objects_drink:
+            results.append(s + verbs[1] + od)
+
+    return results
+
+def grammar_text_blocks_simple():
+    verbs = ['eats ',
+                  'drinks ']
+
+    subjects = [
+                     ' boy ',
+                     ' cat ',
+                     ' dog ',
+                     ' fox ']
+
+
+    objects_eat = ['meat.',
+                        'bread.',
+                        'fish.',]
+
+    objects_drink = ['milk.',
+                          'water.',
+                          'juice.',]
+
+    results=[]
+    for s in subjects:
+        for oe in objects_eat:
+            results.append(s + verbs[0] + oe)
+
+        for od in objects_drink:
+            results.append(s + verbs[1] + od)
+
+    return results
+
 class Text_Generator(Behaviour):
 
     set_variables_on_init = True

@@ -14,7 +14,7 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour=
     1: Init_Neurons(),
 
     #input
-    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True),
+    11: Text_Generator(text_blocks=grammar_text_blocks_simple(), set_network_size_to_alphabet_size=True),#[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], ' parrots can fly.', 'the fish swims'
     12: Text_Activator_Simple(),
     13: Synapse_Operation(transmitter='GLU', strength='1.0'),
     13.5: Char_Cluster_Compensation(strength=1.0),

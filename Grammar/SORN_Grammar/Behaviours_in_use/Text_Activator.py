@@ -94,6 +94,7 @@ class input_synapse_operation(Behaviour):
             s.dst.Input_Weights = s.W
 
             neurons.Input_Mask = np.sum(s.W, axis=1) > 0
+            #print('input:',np.sum(neurons.Input_Mask))
 
     def new_iteration(self, neurons):
         neurons.input_grammar = neurons.get_neuron_vec()

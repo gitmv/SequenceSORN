@@ -5,7 +5,7 @@ ui = True
 neuron_count = 2400#2400
 plastic_steps = 30000#30000
 
-SORN = Network(tag='SORN_Layer')
+SORN = Network(tag='SORN_Layer_cluster')
 
 input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour={
     #init
@@ -27,6 +27,10 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour=
     50: Text_Reconstructor_Simple()
 })
 
+class reset_act(Behaviour):
+    def new_iteration(self, neurons):
+        neurons.activity.fill(0)
+
 exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
     #init
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
@@ -36,12 +40,23 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     18: Synapse_Operation(transmitter='GLU', strength=1.0),
     #19: Synapse_Operation(transmitter='GABA', strength=-1.0),#-0.1
 
-    #stability
-    21: IP(sliding_window='0', speed='0.007'),
-    22: Refractory_D(steps=4.0),
 
-    #output
+    21: IP2(sliding_window='0', speed='0.007'),
+    22: Refractory_D(steps=4.0),
     30: ReLu_Output_Prob(),
+
+    31: reset_act(),
+    32: Synapse_Operation(transmitter='GLU_cluster', strength='0.3'),
+    21: IP(sliding_window='0', speed='0.007'),
+    34: ReLu_Output_Prob(),
+
+    #20.3: reset_act(),
+    #20.4: Synapse_Operation(transmitter='GLU_cluster', strength='0.3'),
+    #20.5: ReLu_Output_Prob(),
+
+    #20.6: reset_act(),
+    #20.7: Synapse_Operation(transmitter='GLU_cluster', strength='0.3'),
+    #20.8: ReLu_Output_Prob(),
 
     #learning
     41: Buffer_Variables(),#for STDP
@@ -50,9 +65,14 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     42: STDP_C(transmitter='GLU', eta_stdp=0.0015, STDP_F={-1: 1}),#0.00015
     45: Normalization(syn_type='GLU'),
 
+    43: STDP_C(transmitter='GLU_cluster', eta_stdp=0.00015, STDP_F={0: 2.0}),
+    46: Normalization(syn_type='GLU_cluster'),
+
     #100: STDP_Analysis(),
 
 })
+
+#exc_neurons.visualize_module()
 
 #inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
     #init
@@ -92,11 +112,15 @@ SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour
 #    3: create_weights(distribution='uniform(0.9,1.0)', density=0.9)
 #})
 
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
+    1: Box_Receptive_Fields(range=18, remove_autapses=True),
+    2: Partition(split_size='auto'),
+    3: create_weights(distribution='uniform(0.1,1.0)', density=0.9)
+})
+
 sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
 
 SORN.initialize(info=True, storage_manager=sm)
-
-#print(SORN['Text_Generator', 0].char_weighting)
 
 #User interface
 if __name__ == '__main__' and ui:
@@ -105,10 +129,10 @@ if __name__ == '__main__' and ui:
     input_neurons.color = yellow
     show_UI(SORN, sm, 2)
 
+
+
 #learning
 SORN.simulate_iterations(plastic_steps, 100)
-
-plot_corellation_matrix(SORN)
 
 #deactivate STDP and Input
 SORN.deactivate_mechanisms('STDP')
@@ -156,27 +180,3 @@ plt.show()
 
 '''
 
-#SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
-#    1: Box_Receptive_Fields(range=18, remove_autapses=True),
-#    2: Partition(split_size='auto')
-#})
-
-#3: init_afferent_synapses(transmitter='GLU', density='90%', distribution='uniform(0.1,1.0)', normalize=True),
-
-#0.3: init_synapses_simple(transmitter='GLU'),
-
-#15: STDP(transmitter='GLU', eta_stdp=0.00015),
-
-# 3.1: init_afferent_synapses(transmitter='GLU_cluster', density='90%', distribution='uniform(0.1,1.0)', normalize=True),
-
-# 14.1: synapse_operation(transmitter='GLU_cluster', strength='1.0'),
-# 14.2: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
-
-# 14.3: synapse_operation(transmitter='GLU_cluster', strength='1.0'),
-# 14.4: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
-
-# 14.5: synapse_operation(transmitter='GLU_cluster', strength='1.0'),
-# 14.6: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
-
-# 21.2: STDP_complex(transmitter='GLU_cluster', eta_stdp='[0.00015#STDP_eta]', STDP_F={0: 2.0}),
-# 22.2: Normalization(syn_type='GLU_cluster', behaviour_norm_factor=0.3),

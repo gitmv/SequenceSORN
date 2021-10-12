@@ -1,18 +1,18 @@
 from PymoNNto import *
 from Grammar.SORN_Grammar.Behaviours_in_use import *
 
-ui = True
-neuron_count = 2400#2400
+ui = False
+neuron_count = 3600#2400
 plastic_steps = 30000#30000
 
-SORN = Network(tag='SORN_Layer')
+SORN = Network(tag='SORN_Layer_big')
 
 input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour={
     #init
     1: Init_Neurons(),
 
     #input
-    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True),
+    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.'], set_network_size_to_alphabet_size=True),#, ' parrots can fly.', 'the fish swims'
     12: Text_Activator_Simple(),
     13: Synapse_Operation(transmitter='GLU', strength='1.0'),
     13.5: Char_Cluster_Compensation(strength=1.0),
@@ -32,7 +32,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
     #input
-    16: input_synapse_operation(input_density=0.04, strength=0.75),#0.5 #0.04 #0.75 #1.0
+    16: input_synapse_operation(input_density=96, strength=0.75),#0.5 #0.04 #0.75 #1.0
     18: Synapse_Operation(transmitter='GLU', strength=1.0),
     #19: Synapse_Operation(transmitter='GABA', strength=-1.0),#-0.1
 
@@ -96,14 +96,14 @@ sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
 
 SORN.initialize(info=True, storage_manager=sm)
 
-#print(SORN['Text_Generator', 0].char_weighting)
-
 #User interface
 if __name__ == '__main__' and ui:
     exc_neurons.color = blue
     #inh_neurons.color = red
     input_neurons.color = yellow
     show_UI(SORN, sm, 2)
+
+
 
 #learning
 SORN.simulate_iterations(plastic_steps, 100)

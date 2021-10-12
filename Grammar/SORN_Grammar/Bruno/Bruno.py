@@ -3,7 +3,7 @@ from Grammar.SORN_Grammar.Behaviours_in_use import *
 
 from Grammar.SORN_Grammar.Bruno.Logistic_Regression_Reconstruction import *
 
-ui = False
+ui = True
 neuron_count = 900#1600
 plastic_steps = 10000#100000
 train_steps = 5000#10000
