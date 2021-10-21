@@ -62,13 +62,14 @@ SORN.deactivate_mechanisms('Text_Activator')
 SORN.simulate_iterations(5000, 100)
 
 #text generation
-SORN['Text_Reconstructor', 0].reconstruction_history = ''
+tr = SORN['Text_Reconstructor', 0]
+tr.reconstruction_history = ''
 SORN.simulate_iterations(5000, 100)
-print(SORN['Text_Reconstructor', 0].reconstruction_history)
+print(tr.reconstruction_history)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
-set_score(score, sm)
+score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
+set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
 
 

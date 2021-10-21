@@ -1,9 +1,9 @@
 from PymoNNto import *
 from Grammar.SORN_Grammar.Behaviours_in_use import *
 
-ui = False
+ui = True
 neuron_count = 3600#2400
-plastic_steps = 30000#30000
+plastic_steps = 60000#30000
 
 SORN = Network(tag='SORN_Layer_big')
 
@@ -12,7 +12,7 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour=
     1: Init_Neurons(),
 
     #input
-    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.'], set_network_size_to_alphabet_size=True),#, ' parrots can fly.', 'the fish swims'
+    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True),#, ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims'
     12: Text_Activator_Simple(),
     13: Synapse_Operation(transmitter='GLU', strength='1.0'),
     13.5: Char_Cluster_Compensation(strength=1.0),
@@ -49,8 +49,10 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     41.5: Learning_Inhibition_mean(strength=-200),
     42: STDP_C(transmitter='GLU', eta_stdp=0.0015, STDP_F={-1: 1}),#0.00015
     45: Normalization(syn_type='GLU'),
+    46: Out_Normalization(syn_type='GLU'),
 
     #100: STDP_Analysis(),
+    #101: Neuron_Reaction_Analysis()
 
 })
 
@@ -96,6 +98,9 @@ sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
 
 SORN.initialize(info=True, storage_manager=sm)
 
+from Grammar.SORN_Grammar.Analysis_Modules import *
+add_all(exc_neurons)
+
 #User interface
 if __name__ == '__main__' and ui:
     exc_neurons.color = blue
@@ -119,13 +124,14 @@ SORN.deactivate_mechanisms('Text_Activator')
 SORN.simulate_iterations(5000, 100)
 
 #text generation
-SORN['Text_Reconstructor', 0].reconstruction_history = ''
+tr = SORN['Text_Reconstructor', 0]
+tr.reconstruction_history = ''
 SORN.simulate_iterations(5000, 100)
-print(SORN['Text_Reconstructor', 0].reconstruction_history)
+print(tr.reconstruction_history)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
-set_score(score, sm)
+score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
+set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
 
 

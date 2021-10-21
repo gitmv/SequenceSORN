@@ -1,5 +1,7 @@
 from PymoNNto import *
+from Grammar.SORN_Grammar.Analysis_Modules.Static_Classification import *
 import random
+
 
 def one_hot_vec_to_neuron_mat(input_size, output_size, activation_size, input_weighting=None):
 
@@ -94,6 +96,8 @@ class input_synapse_operation(Behaviour):
             s.dst.Input_Weights = s.W
 
             neurons.Input_Mask = np.sum(s.W, axis=1) > 0
+
+            neurons.add_analysis_module(Static_Classification(name='input class', classes=neurons.Input_Mask))
             #print('input:',np.sum(neurons.Input_Mask))
 
     def new_iteration(self, neurons):

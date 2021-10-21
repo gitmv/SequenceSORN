@@ -131,14 +131,14 @@ if not load_learned_state:
 SORN.simulate_iterations(recovery_steps, 100)
 
 #text generation
-SORN['Text_Reconstructor', 0].reconstruction_history = ''
+tr = SORN['Text_Reconstructor', 0]
+tr.reconstruction_history = ''
 SORN.simulate_iterations(5000, 100)
-text = SORN['Text_Reconstructor', 0].reconstruction_history
-print(text)
+print(tr.reconstruction_history)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(text)
-set_score(score, sm, info={'text': text})
+score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
+set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
 
 
