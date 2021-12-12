@@ -48,13 +48,15 @@ class Text_Activator(Behaviour):
         neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, cw)
         neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
 
+        neurons.add_analysis_module(Static_Classification(name='input class', classes=neurons.Input_Mask))
+
         neurons.input_grammar = neurons.get_neuron_vec()
 
         self.strength = self.get_init_attr('strength', 1, neurons)
 
     def new_iteration(self, neurons):
-        neurons.input_grammar = neurons.Input_Weights[:, neurons.current_char_index].copy()
-        neurons.activity += neurons.input_grammar*self.strength
+        neurons.input_grammar = neurons.Input_Weights[:, neurons.current_char_index].copy()*self.strength
+        neurons.activity += neurons.input_grammar
 
 
 
@@ -105,4 +107,4 @@ class input_synapse_operation(Behaviour):
         for s in neurons.afferent_synapses['Input_GLU']:
             add = s.W.dot(s.src.output) * self.strength
             s.dst.activity = add
-            s.dst.input_grammar+=add
+            s.dst.input_grammar += add

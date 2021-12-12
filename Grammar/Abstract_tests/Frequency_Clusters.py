@@ -3,25 +3,48 @@ from Grammar.SORN_Grammar.Behaviours_in_use import *
 
 class frequency_activator(Behaviour):
 
+    def expand(self, neurons, vec):
+        result = []
+        for freq_i in vec:
+            result += [freq_i for _ in range(neurons.width)]
+        return np.array(result)
+
     def set_variables(self, neurons):
-        self.f = self.get_init_attr('f', 0.01)
+        self.freq = self.get_init_attr('freq', 0.01)
+
+        if self.get_init_attr('cluster_sizes', False):
+            self.f = self.expand(neurons, self.freq)
+            self.mask = True
+        else:
+            cw = self.freq / np.mean(self.freq)
+            s = cw / np.max(cw)
+
+            self.mask = neurons.get_neuron_vec('uniform') < self.expand(neurons, s)
+
+            #import matplotlib.pyplot as plt
+            #plt.matshow(self.mask.reshape(neurons.height, neurons.width))
+            #plt.show()
+
+            su = np.sum(self.mask.reshape(neurons.height, neurons.width), axis=1)
+
+            if min(su)==0:
+                print('warning representation has zero neurons')
+
+            f = self.freq / su
+
+            self.f = self.expand(neurons, f)
 
     def new_iteration(self, neurons):
-        neurons.output = (neurons.get_neuron_vec('uniform') < f).astype(def_dtype)
+        neurons.output = (neurons.get_neuron_vec('uniform') < self.f).astype(def_dtype) * self.mask
 
 
 SORN = Network(tag='SORN')
 
-group_size = 10
+group_size = 100
 freq = np.array([0.173, 0.043, 0.01923])#[0.09, 0.06, 0.03]
 
-f = []
-for freq_i in freq:
-    f += [freq_i for _ in range(group_size)]
-f = np.array(f)
-
 input = NeuronGroup(net=SORN, tag='frequency_input', size=NeuronDimension(width=group_size, height=len(freq)), behaviour={
-    1: frequency_activator(f=f),
+    1: frequency_activator(freq=freq),
     41: Buffer_Variables()
 })
 
@@ -30,7 +53,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(1000
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
     #input
-    18: Synapse_Operation(transmitter='GLU', strength=1.0),
+    18: Synapse_Operation(transmitter='GLU', strength=25.0),
 
     #stability
     21: IP(sliding_window=0, speed='[0.007#IP]'),
@@ -43,7 +66,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(1000
     41: Buffer_Variables(),
     #41.5: Learning_Inhibition(transmitter='GABA', strength=-2),
     #41.5: Learning_Inhibition_mean(strength='-[200#LIM]'),
-    42: STDP_C(transmitter='GLU', eta_stdp=0.0015, STDP_F={-1: 1}),#0.0015
+    42: STDP_C(transmitter='GLU', eta_stdp=0.015, STDP_F={-1: 1}),#0.0015
     45: Normalization(syn_type='GLU')
 })
 

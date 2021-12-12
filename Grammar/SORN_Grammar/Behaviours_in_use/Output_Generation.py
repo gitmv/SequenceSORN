@@ -10,6 +10,17 @@ class Threshold_Output(Behaviour):
     def new_iteration(self, neurons):
         neurons.output = (neurons.activity >= neurons.threshold)#.astype(def_dtype)
 
+class variable_slope_relu_exp(Behaviour):
+
+    def set_variables(self, neurons):
+        self.exp = self.get_init_attr('exp', 1.5, neurons)
+
+    def f(self, x):
+        return np.power((x - 0.5) * 2, self.exp) * (x > 0.5)
+
+    def new_iteration(self, neurons):
+        chance = self.f(neurons.activity)
+        neurons.output = neurons.get_neuron_vec("uniform") < chance
 
 
 class ReLu_Output(Behaviour):
@@ -27,6 +38,32 @@ class ReLu_Output_Prob(ReLu_Output):
         chance = self.relu(neurons.activity)
         neurons.output = neurons.get_neuron_vec("uniform") < chance
 
+class Mem_Noise_Output_Prob(Behaviour):
+
+    def new_iteration(self, neurons):
+        chance = neurons.activity + neurons.get_neuron_vec("uniform")-0.5
+        neurons.output = chance > 1.0
+
+class Mem_Noise_Output_Prob_Triangular(Behaviour):
+
+    def set_variables(self, neurons):
+        self.tr_left = self.get_init_attr('tr_left', -0.7)
+
+    def new_iteration(self, neurons):
+        chance = neurons.activity+neurons.get_neuron_vec("triangular("+str(self.tr_left)+", -0.5, 0.0)")#-1.0 #-0.7
+        neurons.output = chance > 0.5
+
+class Mem_Noise_Output_Prob_Triangular_test(Behaviour):
+
+    def new_iteration(self, neurons):
+        chance = neurons.activity+neurons.get_neuron_vec("triangular(-0.7, -0.5, 0.0)")#-1.0 #-0.7
+        neurons.output = chance > 0.3
+
+class Mem_Noise_Output_Prob_Normal(Behaviour):
+
+    def new_iteration(self, neurons):
+        chance = neurons.activity+neurons.get_neuron_vec("normal(0.0,0.2)")
+        neurons.output = chance > 0.5
 
 class Power_Output(Behaviour):
 
@@ -47,6 +84,15 @@ class Power_Output_Prob(Power_Output):
         neurons.output = neurons.get_neuron_vec("uniform") < chance
 
 
+class ID_Output_no_clip(Behaviour):
+
+    def new_iteration(self, neurons):
+        neurons.output = neurons.activity
+
+class ID_Output_no_clip_prob(Behaviour):
+
+    def new_iteration(self, neurons):
+        neurons.output = neurons.get_neuron_vec('uniform') < neurons.activity
 
 class ID_Output(Behaviour):
 
@@ -92,7 +138,45 @@ class norm_output(Behaviour):
 
 
 #x=np.arange(0.0,1.0,0.01)
-#import matplotlib.pyplot as plt
+'''
+import matplotlib.pyplot as plt
+
+a = np.random.normal(0.0, 0.15, size=100000)
+b = np.random.triangular(-0.5, 0.0, 0.5, size=100000)
+
+bins = np.histogram(np.hstack((a, b)), bins=100)[1] #get the bin edges
+
+plt.hist(b, bins)
+plt.hist(a, bins)
+
+
+plt.show()
+
+
+x = []
+y = []
+for a in np.arange(0, 1, 0.01):
+    #chance = a + np.random.uniform(size=10000)-0.5
+    #spikes = np.sum(chance > 1.0)
+    chance = a + np.random.triangular(-0.5, -0.5, 0.0, size=10000)
+    spikes = np.sum(chance > 0.5)
+    #chance = a + np.random.normal(0.0, 0.15, size=10000)
+    #spikes = np.sum(chance > 0.5)
+    x.append(a)
+    y.append(spikes/10000)
+
+plt.plot(x, y)
+#plt.show()
+
+
+def f(x,e):
+    return np.power((x - 0.5) * 2, e) * (x > 0.5)
+
+for e in [1,2,3,4]:
+    plt.plot(np.arange(0, 1, 0.01), [f(x, e) for x in np.arange(0, 1, 0.01)])
+plt.show()
+'''
+
 #plt.plot(x, relu_output().relu(x))
 #plt.show()
 #plt.plot(x, sigmoid_output().sigmoid(x))

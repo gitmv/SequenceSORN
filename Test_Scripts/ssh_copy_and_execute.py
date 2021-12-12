@@ -3,7 +3,7 @@ from PymoNNto.Exploration.Evolution.SSH_Functions import *
 import random
 
 target = 'ssh marius@hey3kmuagjunsk2b.myfritz.net' #'ssh vieth@poppy.fias.uni-frankfurt.de'
-file = 'Grammar/SORN_Grammar/WTA_SORN.py'
+file = 'Grammar/SORN_Grammar/SORN_WTA.py'
 
 user, host, password = split_ssh_user_host_password_string()
 id = str(random.randint(1, 10000))

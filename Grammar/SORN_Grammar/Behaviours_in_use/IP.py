@@ -1,5 +1,24 @@
 from PymoNNto import *
 
+
+class SH_act(Behaviour):
+
+    def set_variables(self, neurons):
+        self.speed = self.get_init_attr('speed', 0.01, neurons)
+        neurons.SH_target_activity = self.get_init_attr('SH_target_activity', None, neurons)
+
+    def new_iteration(self, neurons):
+        measure = neurons.input_GLU+neurons.input_grammar
+        neurons.weight_norm_factor -= (measure - neurons.SH_target_activity) * self.speed
+
+
+class ip_new_apply(Behaviour):
+
+    def new_iteration(self, neurons):
+        neurons.activity += neurons.sensitivity
+
+
+
 class IP(Behaviour):
 
     def set_variables(self, neurons):

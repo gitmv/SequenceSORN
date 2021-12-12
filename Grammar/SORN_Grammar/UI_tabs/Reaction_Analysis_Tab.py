@@ -45,10 +45,10 @@ class Reaction_Analysis_Tab(TabBase):
 
     def update(self, Network_UI):
         if Network_UI.network['Activity_Response_Behaviour', 0] and Network_UI.network['Text_Generator', 0] is not None and self.reconstruction_tab.isVisible():
-            group = Network_UI.network[Network_UI.neuron_select_group, 0]
+            group = Network_UI.selected_neuron_group()
             nra = Network_UI.network['Activity_Response_Behaviour', 0]
 
-            res=nra.get_reconstruction_matrix(Network_UI.neuron_select_id)
+            res=nra.get_reconstruction_matrix(Network_UI.selected_neuron_id())
 
             res = np.array(res)
             res = res-np.min(res)
@@ -62,4 +62,4 @@ class Reaction_Analysis_Tab(TabBase):
                     val = 255-np.clip(int((res[y, x]-(np.mean(res[y, :])/2.0))/m*255.0), 0, None)
                     self.labels[x][y].setText('<font color='+('#%02x%02x%02x' % (val, val, val)).upper()+'>'+self.labels[x][y].char.replace(' ','_')+'</font>')
 
-            self.recon_text_label.setText(nra.get_representation(Network_UI.neuron_select_id))
+            self.recon_text_label.setText(nra.get_representation(Network_UI.selected_neuron_id()))

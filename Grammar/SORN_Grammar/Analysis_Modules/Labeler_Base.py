@@ -20,10 +20,14 @@ class Labeler_Base(AnalysisModule):
             if len(label_matrices) == len(classes):
                 for c in unique(classes):
                     mask = (classes == c)
-                    summed_recon_mat = np.sum(label_matrices[mask], axis=2)
+                    summed_recon_mat = np.sum(label_matrices[mask], axis=0)
                     result[c] = summed_recon_mat
             else:
                 print('labels and classes have different sizes')
         else:
             print('label not found')
         return result
+
+
+#print(np.sum(np.zeros((100, 20, 10)), axis=0).shape)
+

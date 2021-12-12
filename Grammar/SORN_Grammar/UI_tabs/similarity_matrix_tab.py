@@ -85,16 +85,16 @@ class similarity_matrix_tab(TabBase):
             image, self.current_label_resort = module.get_cluster_matrix(key)
             if image is not None:
                 self.image_item.setImage(np.fliplr(image))#np.fliplr(image)
-            else:
-                print('image is none')
-        else:
-            print('module is none')
+            #else:
+            #    print('image is none')
+        #else:
+        #    print('module is none')
 
 
     def on_selected_neuron_changed(self, Network_UI):
-        self.left_axis_cb.change_main_object(Network_UI.get_selected_neuron_group())
-        self.content_cb.change_main_object(Network_UI.get_selected_neuron_group())
-        self.right_axis_cb.change_main_object(Network_UI.get_selected_neuron_group())
+        self.left_axis_cb.change_main_object(Network_UI.selected_neuron_group())
+        self.content_cb.change_main_object(Network_UI.selected_neuron_group())
+        self.right_axis_cb.change_main_object(Network_UI.selected_neuron_group())
         self.update_plot()
 
     def initialize(self, Network_UI):
@@ -132,9 +132,9 @@ class similarity_matrix_tab(TabBase):
         #self.similarity_images = {}
         #self.similarity_idxs = {}
 
-        self.left_axis_cb = Network_UI.Add_element(Analytics_Results_Select_ComboBox(Network_UI.network.NeuronGroups[1], 'labeler', first_entry=''))
-        self.content_cb = Network_UI.Add_element(Analytics_Results_Select_ComboBox(Network_UI.network.NeuronGroups[1], 'cluster_matrix_classifier'))
-        self.right_axis_cb = Network_UI.Add_element(Analytics_Results_Select_ComboBox(Network_UI.network.NeuronGroups[1], 'labeler', first_entry=''))
+        self.left_axis_cb = Network_UI.Add_element(Analytics_Results_Select_ComboBox(Network_UI.network.NeuronGroups[0], 'labeler', first_entry=''))
+        self.content_cb = Network_UI.Add_element(Analytics_Results_Select_ComboBox(Network_UI.network.NeuronGroups[0], 'cluster_matrix_classifier'))
+        self.right_axis_cb = Network_UI.Add_element(Analytics_Results_Select_ComboBox(Network_UI.network.NeuronGroups[0], 'labeler', first_entry=''))
 
 
         def update_btn_clicked(event):
@@ -148,7 +148,7 @@ class similarity_matrix_tab(TabBase):
 
     def update(self, Network_UI):
         if self.similarity_matrix_tab.isVisible():
-            self.current_group = Network_UI.network[Network_UI.neuron_select_group, 0]
+            self.current_group = Network_UI.selected_neuron_group()
 
 
 

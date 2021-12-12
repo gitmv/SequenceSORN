@@ -1,52 +1,94 @@
-from PymoNNto import *
-from Grammar.SORN_Grammar.Behaviours_in_use import *
+from Grammar.SORN_Grammar._common import *
 
-#set_genome({'GABAE': 1.1057403610397172, 'IP': 0.007223298098309225, 'LIM': 195.9931369624642, 'STDP': 0.001025817650992625, 'GLUI': 17.450647503029778, 'PO': 1.0507630664072505, 'IED': 0.48737926313028035, 'gen': 38.0, 'score': 9.39619585134594})
-#set_genome({'GABAE': 1.171293350006476, 'IP': 0.007284819283376444, 'LIM': 159.03562916675344, 'STDP': 0.001081502318114489, 'GLUI': 11.505736726725017, 'PO': 1.6664744313778532, 'IED': 0.45052399449750585, 'gen': 23.0, 'score': 6.866036947462384})
-#{'GABAE': 1.0, 'IP': 0.007, 'LIM': 200.0, 'STDP': 0.0015, 'GLUI': 10.0, 'PO': 2.0, 'IED': 0.5}
-#set_genome({'GABAE': 1.118021772738199, 'IP': 0.008224797756181379, 'LIM': 208.7539498796273, 'STDP': 0.0008528586868285881, 'GLUI': 17.460488750338744, 'PO': 2.2872364608557265, 'IED': 0.43959733787779914, 'gen': 62.0, 'score': 6.955774245055846})
-set_genome({'GABAE': 1.853888950370442, 'IP': 0.00907738308945769, 'LIM': 341.17623451186614, 'STDP': 0.0006437913343690012, 'GLUI': 23.512299265794823, 'PO': 4.270647892248294, 'IED': 0.5524304942357359, 'gen': 199.0, 'score': 6.954308498976853})
+#set_genome({'IS': 0.6936991055040443, 'mate_chance': 1.0, 'IP': 0.006409149741503022, 'S': 3.534731611981756, 'D': 1.8617429663315919, 'exp': 0.9706315901624851, 'LIM': 201.7765421059013, 'STDP': 0.0014231302922128892, 'evo_name': 'abstact_inh_evo', 'gen': 1, 'id': 273555})
 
+#set_genome({'IS': 0.8665002381794471, 'IP': 0.006654017643968699, 'S': 5.025925897276355, 'D': 1.5961401737386358, 'exp': 0.81688717995202, 'LIM': 176.98109110411784, 'STDP': 0.0015246122509244239, 'gen': 20.0, 'score': 6.9706985526873595})
 
-ui = False
+ui = True
 neuron_count = 2400
 plastic_steps = 30000#50000
 recovery_steps = 10000#10000#1000
 
 SORN = Network(tag='SORN')
 
-exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
+exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
     #init
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
+    #1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
-    #input
-    #15: Line_Patterns(center_x=20, center_y=np.arange(10,30), degree=0, line_length=30),
-    #15: MNIST_Patterns(center_x=20, center_y=20, pattern_count=10),
-
-    15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.']),#, ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims' #
-    16: Text_Activator(input_density=0.04, strength=0.75),#1.0
+    15: Text_Generator(text_blocks=get_default_grammar(3)),
+    16: Text_Activator(input_density=0.04, strength='[0.75#IS]'),#1.0
     18: Synapse_Operation(transmitter='GLU', strength=1.0),
-    19: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+    #19: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
 
     #stability
+    #20: SH_act(sliding_window=0, speed='[0.007#IP]', SH_target_activity='lognormal_rm(0.1,0.3)'),
     21: IP(sliding_window=0, speed='[0.007#IP]'),
     22: Refractory_D(steps=4.0),
 
+    #23: inhibition_test(strength=4.5),
+    24: inhibition_test_long(strength='[10.0#S]', duration='[2#D]', slope='[20#E]'),#4 2'[0.2#E]'
+    #24: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+
     #output
-    30: ReLu_Output_Prob(),
+    30: variable_slope_relu_exp(exp='[1.0#exp]'),
+    #30: ReLu_Output_Prob(),
 
     #learning
     41: Buffer_Variables(),#for STDP
     #41.5: Learning_Inhibition(transmitter='GABA', strength=-2),
     41.5: Learning_Inhibition_mean(strength='-[200#LIM]'),
     42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),
-    45: Normalization(syn_type='GLU'),#, exec_every_x_step=1
+    45: Normalization(syn_type='GLU', exec_every_x_step=10),
+    46: Out_Normalization(syn_type='GLU', exec_every_x_step=10),
 
     #reconstruction
     50: Text_Reconstructor(),
 })
 
-inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='EE,GLU', behaviour={
+    #init
+    1: Box_Receptive_Fields(range=18, remove_autapses=True),
+    2: Partition(split_size='auto'),
+    3: create_weights(distribution='lognormal(1.0,0.6)', density=0.9)
+})
+
+
+
+#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+#    2: Init_Neurons(),
+#    20: Synapse_Operation(transmitter='GLU', strength='1'),
+#    21: ID_Output_no_clip_prob(),
+#})
+
+#SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='IE,GLU', behaviour={
+#    3: create_weights(distribution='uniform(1.0,1.0)', density=1.0)
+#})
+
+#SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='EI,GABA', behaviour={
+#    3: create_weights(distribution='uniform(1.0,1.0)', density=1.0)
+#})
+
+
+sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
+SORN.initialize(info=True, storage_manager=sm)
+
+#User interface
+if __name__ == '__main__' and ui:
+    show_UI(SORN, sm)
+else:
+    train_and_generate_text(SORN, plastic_steps, recovery_steps, sm=sm)
+
+
+
+
+
+
+
+#old
+
+'''
+inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
     2: Init_Neurons(),
     31: Synapse_Operation(transmitter='GLU', strength='[10.0#GLUI]'),#approximately: (mean_e+oscillation_e)*10.0=(0.02+0.06)*10=0.8 (nearly 1)
     32: Power_Output(exp='[2.0#PO]'),
@@ -64,7 +106,7 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
     #3: create_weights(distribution='uniform(0.9,1.0)', density=1.0)#0.9
     3: create_weights(distribution='uniform(1.0,1.0)', density=1.0)#0.9
 })
-
+'''
 
 #inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
     #init
@@ -78,12 +120,7 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 #    32: ReLu_Output(),
 #})
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
-    #init
-    1: Box_Receptive_Fields(range=18, remove_autapses=True),
-    2: Partition(split_size='auto'),
-    3: create_weights(distribution='lognormal(1.0,0.6)', density=0.9)
-})
+
 
 #SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,IE', behaviour={
 #    3: create_weights(distribution='uniform(0.9,1.0)', density=0.5)
@@ -94,51 +131,62 @@ SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour
 #})
 
 
-sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
-
-SORN.initialize(info=True, storage_manager=sm)
 
 
 
-load_learned_state=True
-if load_learned_state:
-    load_state(SORN, '60ks_stable')
-
-    # deactivate STDP and Input
-    SORN.deactivate_mechanisms('STDP')
-    SORN.deactivate_mechanisms('Normalization')
-    SORN.deactivate_mechanisms('Text_Activator')
 
 
-#User interface
-if __name__ == '__main__' and ui:
-    exc_neurons.color = blue
-    inh_neurons.color = red
-    show_UI(SORN, sm, 2)
 
-plot_corellation_matrix(SORN)
 
-if not load_learned_state:
-    # learning
-    SORN.simulate_iterations(plastic_steps, 100)
 
-    # deactivate STDP and Input
-    SORN.deactivate_mechanisms('STDP')
-    SORN.deactivate_mechanisms('Normalization')
-    SORN.deactivate_mechanisms('Text_Activator')
+
+
+
+
+
+
+
+    #input
+    #15: Line_Patterns(center_x=20, center_y=np.arange(10,30), degree=0, line_length=30),
+    #15: MNIST_Patterns(center_x=20, center_y=20, pattern_count=10),
+
+
+#set_genome({'GABAE': 1.1057403610397172, 'IP': 0.007223298098309225, 'LIM': 195.9931369624642, 'STDP': 0.001025817650992625, 'GLUI': 17.450647503029778, 'PO': 1.0507630664072505, 'IED': 0.48737926313028035, 'gen': 38.0, 'score': 9.39619585134594})
+#set_genome({'GABAE': 1.171293350006476, 'IP': 0.007284819283376444, 'LIM': 159.03562916675344, 'STDP': 0.001081502318114489, 'GLUI': 11.505736726725017, 'PO': 1.6664744313778532, 'IED': 0.45052399449750585, 'gen': 23.0, 'score': 6.866036947462384})
+#{'GABAE': 1.0, 'IP': 0.007, 'LIM': 200.0, 'STDP': 0.0015, 'GLUI': 10.0, 'PO': 2.0, 'IED': 0.5}
+#set_genome({'GABAE': 1.118021772738199, 'IP': 0.008224797756181379, 'LIM': 208.7539498796273, 'STDP': 0.0008528586868285881, 'GLUI': 17.460488750338744, 'PO': 2.2872364608557265, 'IED': 0.43959733787779914, 'gen': 62.0, 'score': 6.955774245055846})
+#set_genome({'GABAE': 1.853888950370442, 'IP': 0.00907738308945769, 'LIM': 341.17623451186614, 'STDP': 0.0006437913343690012, 'GLUI': 23.512299265794823, 'PO': 4.270647892248294, 'IED': 0.5524304942357359, 'gen': 199.0, 'score': 6.954308498976853})
+
+
+
+#load_state(SORN, '60ks_stable')
+
+
+#plot_corellation_matrix(SORN)
+
+#if not load_learned_state:
+# learning
+
+#SORN.simulate_iterations(plastic_steps, 100)
+
+# deactivate STDP and Input
+#SORN.deactivate_mechanisms('STDP')
+#SORN.deactivate_mechanisms('Normalization')
+#SORN.deactivate_mechanisms('Text_Activator')
+
 
 #recovery phase
-SORN.simulate_iterations(recovery_steps, 100)
+#SORN.simulate_iterations(recovery_steps, 100)
 
 #text generation
-tr = SORN['Text_Reconstructor', 0]
-tr.reconstruction_history = ''
-SORN.simulate_iterations(5000, 100)
-print(tr.reconstruction_history)
+#tr = SORN['Text_Reconstructor', 0]
+#tr.reconstruction_history = ''
+#SORN.simulate_iterations(5000, 100)
+#print(tr.reconstruction_history)
 
 #scoring
-score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
-set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
+#score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
+#set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
 
 

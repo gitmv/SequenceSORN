@@ -1,18 +1,18 @@
-from PymoNNto import *
-from Grammar.SORN_Grammar.Behaviours_in_use import *
+from Grammar.SORN_Grammar._common import *
 
-ui = True
+ui = False
 neuron_count = 2400#2400
 plastic_steps = 30000#30000
+recovery_steps = 5000
 
 SORN = Network(tag='SORN_Layer_cluster')
 
-input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour={
+input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, color=yellow, behaviour={
     #init
     1: Init_Neurons(),
 
     #input
-    11: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True),
+    11: Text_Generator(text_blocks=get_default_grammar(3), set_network_size_to_alphabet_size=True),
     12: Text_Activator_Simple(),
     13: Synapse_Operation(transmitter='GLU', strength='1.0'),
     13.5: Char_Cluster_Compensation(strength=1.0),
@@ -31,7 +31,7 @@ class reset_act(Behaviour):
     def new_iteration(self, neurons):
         neurons.activity.fill(0)
 
-exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
+exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
     #init
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
@@ -75,7 +75,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
 #exc_neurons.visualize_module()
 
-#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
+#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
     #init
 #    2: Init_Neurons(),
 
@@ -120,18 +120,39 @@ SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', 
 })
 
 sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
-
 SORN.initialize(info=True, storage_manager=sm)
 
 #User interface
 if __name__ == '__main__' and ui:
-    exc_neurons.color = blue
-    #inh_neurons.color = red
-    input_neurons.color = yellow
-    show_UI(SORN, sm, 2)
+    show_UI(SORN, sm)
+else:
+    train_and_generate_text(SORN, plastic_steps, recovery_steps, sm=sm)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 #learning
 SORN.simulate_iterations(plastic_steps, 100)
 
@@ -153,7 +174,7 @@ print(tr.reconstruction_history)
 score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
 set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
-
+'''
 
 
 

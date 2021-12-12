@@ -6,7 +6,7 @@ from Grammar.SORN_Grammar.Analysis_Modules.Labeler_Activity_Response import *
 from Grammar.SORN_Grammar.Analysis_Modules.Labeler_Backpropagation import *
 
 
-def add_all(ng):
+def add_all_analysis_modules(ng):
     Classifier_Weights_Pre(ng)
     Classifier_Weights_Post(ng)
     Classifier_Backpropagation(ng)

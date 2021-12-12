@@ -45,4 +45,62 @@ class Classifier_base(AnalysisModule):
         result = np.zeros(data.shape[0]) - 1
         result[mask] = idx_to_cluster_array
 
+
+        #match_groups
+        if self.current_key in self.result_storage:
+            old = self.result_storage[self.current_key]
+            new = result.copy()
+
+            oc = np.max(old) + 1
+            nc = np.max(new) + 1
+            mc = np.maximum(oc, nc)
+            map_matrix = np.zeros((int(mc), int(mc)))
+
+            for c in np.unique(old):
+                old_c_indx = np.where(old == c)[0]
+                values = new[old_c_indx]
+                for v in values:
+                    map_matrix[int(c), int(v)] += 1
+
+            mapping = {}
+            for _ in range(int(nc)):
+                oi, ni = np.unravel_index(map_matrix.argmax(), map_matrix.shape)
+                map_matrix[oi, :] = -1
+                map_matrix[:, ni] = -1
+                mapping[ni] = oi
+                result[new == ni] = oi
+            print('applied class mapping from old state (new_c:old_c)', mapping)
         return result
+
+'''
+old = np.array([2,3,2,1,1,0])
+new = np.array([1,0,1,2,1,0])
+
+oc = np.max(old) + 1
+nc = np.max(new) + 1
+mc = np.maximum(oc, nc)
+map_matrix = np.zeros((int(mc), int(mc)))
+
+for c in np.unique(old):
+    old_c_indx = np.where(old == c)[0]
+    values = new[old_c_indx]
+    for v in values:
+        map_matrix[int(c), int(v)] += 1
+
+result = np.zeros(new.shape)
+
+mapping = {}
+for _ in range(int(nc)):
+    oi, ni = np.unravel_index(map_matrix.argmax(), map_matrix.shape)
+    print(oi, ni)
+    map_matrix[oi, :] = -1
+    map_matrix[:, ni] = -1
+    mapping[ni] = oi
+    result[new == ni] = oi
+
+print(result)
+print(mapping)
+'''
+
+
+

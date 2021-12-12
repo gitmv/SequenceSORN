@@ -12,9 +12,9 @@ class isi_module_tab(TabBase):
     def update(self, Network_UI):
         if self.isi_tab.isVisible():
 
-            group = Network_UI.network[Network_UI.neuron_select_group, 0]
+            group = Network_UI.selected_neuron_group()
 
             if len(group['isi_reaction_module']) > 0:
-                self.cruves[0].setData(list(range(100)), group['isi_reaction_module', 0].isi_history[Network_UI.neuron_select_id])
+                self.cruves[0].setData(list(range(100)), group['isi_reaction_module', 0].isi_history[Network_UI.selected_neuron_id()])
                 self.cruves[1].setData(list(range(100)), group['isi_reaction_module', 0].target_distribution)
-                self.inh_cruve.setData(list(range(100)), group['isi_reaction_module', 0].isi_inhibition[Network_UI.neuron_select_id])
+                self.inh_cruve.setData(list(range(100)), group['isi_reaction_module', 0].isi_inhibition[Network_UI.selected_neuron_id()])
