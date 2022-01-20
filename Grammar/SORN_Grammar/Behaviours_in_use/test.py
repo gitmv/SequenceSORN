@@ -1,7 +1,7 @@
 from PymoNNto import *
 
 
-
+#strength='[4.75#S]', duration='[2#D]', slope='[29.4#E]'
 class inhibition_test_long(Behaviour):
 
     def set_variables(self, neurons):
@@ -11,17 +11,21 @@ class inhibition_test_long(Behaviour):
         self.avg_act = 0
 
     def new_iteration(self, neurons):
+        #print(np.mean(neurons.output))
+
         self.avg_act = (self.avg_act*self.duration+np.mean(neurons.output))/(self.duration+1)
 
         adj = (self.avg_act - np.mean(neurons.target_activity))*self.slope
-
-        #adj = adj*np.power(np.abs(adj), self.exp)*10
-
         adj = adj/np.sqrt(1+np.power(adj, 2.0))*0.1
 
+        print(np.mean(neurons.activity), np.mean(self.avg_act), self.duration, self.slope, np.mean(adj))
+
+        #print(adj)
+
+        #if adj>0:
         neurons.activity -= adj * self.strength
 
-
+        #print(adj * self.strength)
 
 
 

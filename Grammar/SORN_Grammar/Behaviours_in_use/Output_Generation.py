@@ -16,7 +16,7 @@ class variable_slope_relu_exp(Behaviour):
         self.exp = self.get_init_attr('exp', 1.5, neurons)
 
     def f(self, x):
-        return np.power((x - 0.5) * 2, self.exp) * (x > 0.5)
+        return np.power(np.abs(x - 0.5) * 2, self.exp) * (x > 0.5)
 
     def new_iteration(self, neurons):
         chance = self.f(neurons.activity)
@@ -132,6 +132,47 @@ class norm_output(Behaviour):
         s=np.sum(neurons.output)
         if s>0:
             neurons.output = neurons.output/s*self.factor
+
+
+
+
+
+
+#duration='[2#D]', slope='[29.4#E]'
+
+class inh_sigmoid_response(Behaviour):
+
+
+    def set_variables(self, neurons):
+        self.duration = self.get_init_attr('duration', 2.0, neurons)
+        self.slope = self.get_init_attr('slope', 20, neurons)
+        self.avg_act = 0
+
+
+    def new_iteration(self, neurons):
+        #print(np.mean(neurons.activity))
+
+        self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
+        adj = (self.avg_act - 0.02) * self.slope #np.mean(neurons.target_activity)
+        adj = adj / np.sqrt(1 + np.power(adj, 2.0)) * 0.1
+
+        print(np.mean(neurons.activity), np.mean(self.avg_act), self.duration, self.slope, np.mean(adj))
+
+        #adj = adj#+0.05#+0.24
+
+        neurons.output = adj * 4.75
+
+        #neurons.output = neurons.get_neuron_vec('uniform') < adj
+
+
+
+
+
+
+
+
+
+
 
 
 

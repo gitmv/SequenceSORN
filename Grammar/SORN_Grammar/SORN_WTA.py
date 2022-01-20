@@ -1,6 +1,6 @@
 from Grammar.SORN_Grammar._common import *
 
-ui = True
+ui = False
 neuron_count = 2400
 plastic_steps = 30000
 recovery_steps = 5000
@@ -33,9 +33,9 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 })
 
 SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
-    1: Box_Receptive_Fields(range=18, remove_autapses=True),
-    2: Partition(split_size='auto'),
-    3: create_weights(distribution='uniform(0.1,1.0)', density=0.9)#lognormal(1.0,0.6)
+    #1: Box_Receptive_Fields(range=18, remove_autapses=True),
+    #2: Partition(split_size='auto'),
+    3: create_weights(distribution='uniform(0.1,1.0)', density=get_gene('sd', 1.0))#lognormal(1.0,0.6)
 })
 
 sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
