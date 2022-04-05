@@ -4,7 +4,7 @@ from Input_Behaviours.Images.Helper import *
 mnist_folder = '../../../EMNIST'
 import numpy as np
 
-from mnist.loader import MNIST  # pip install python-mnist
+#from mnist.loader import MNIST  # pip install python-mnist
 import matplotlib.pyplot as plt
 
 def draw_mnist(mnist_img, width, height, centerx, centery):

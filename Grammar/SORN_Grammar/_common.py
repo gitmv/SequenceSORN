@@ -60,7 +60,7 @@ def show_UI(SORN, sm):
 
     # modify some modules
     # my_modules[UI_sidebar_activity_module].__init__(1, add_color_dict={'output': (255, 255, 255), 'Input_Mask': (-100, -100, -100)})#
-    my_modules[multi_group_plot_tab].__init__(['output|target_activity|b|t', 'activity', 'sensitivity', 'weight_norm_factor'])  #buffers["output"][1]|linh 'input_isi_inh' , 'total_dw*1000' , 'sliding_average_activity|target_activity'
+    my_modules[multi_group_plot_tab].__init__(['output|target_activity|b|t', 'activity', 'sensitivity', 'inh'])  #buffers["output"][1]|linh 'input_isi_inh' , 'total_dw*1000' , 'sliding_average_activity|target_activity'
     my_modules[single_group_plot_tab].__init__(['output', 'activity', 'input_GLU', 'input_GABA', 'input_grammar', 'sensitivity', 'weight_norm_factor'], net_lines=[0.02], neuron_lines=[0, 0.5, 1.0])
     my_modules[reconstruction_tab].__init__(recon_groups_tag='exc_neurons')
 
@@ -68,9 +68,14 @@ def show_UI(SORN, sm):
     Network_UI(SORN, modules=my_modules, label=SORN.tags[0], storage_manager=sm, group_display_count=len(SORN.NeuronGroups), reduced_layout=False).show()
 
 
-def get_default_grammar(n_sentences):
-    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.',
+def new_grammar(n_sentences):
+    sentences = [' fox eats meat.', ' boy eats bread.', ' man drinks coffee.', ' man drives car.',
                  ' plant loves rain.', ' parrots can fly.', 'the fish swims']
+    return [sentences[i] for i in range(n_sentences)]
+
+#sentences = [' fox eats meat.', ' boy drinks juice.', 'the fish swims', ' plant loves rain.', ' penguin likes ice.', ' parrots can fly.', ' man drives car.']
+def get_default_grammar(n_sentences):
+    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims']
     return [sentences[i] for i in range(n_sentences)]
 
 

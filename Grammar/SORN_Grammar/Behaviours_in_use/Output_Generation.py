@@ -22,7 +22,6 @@ class variable_slope_relu_exp(Behaviour):
         chance = self.f(neurons.activity)
         neurons.output = neurons.get_neuron_vec("uniform") < chance
 
-
 class ReLu_Output(Behaviour):
 
     def relu(self, x):
@@ -136,33 +135,62 @@ class norm_output(Behaviour):
 
 
 
+from Grammar.SORN_Grammar.Behaviours_in_use.test import *
+
+
+def get_a(neurons):
+    return np.mean(neurons.afferent_synapses['GLU'][0].src.output)
+
+def set_a(neurons, a):
+    neurons.afferent_synapses['GLU'][0].src.activity -= a
 
 
 #duration='[2#D]', slope='[29.4#E]'
+
+#print(inhibition_func(0, 29.4, 1.0))
 
 class inh_sigmoid_response(Behaviour):
 
 
     def set_variables(self, neurons):
-        self.duration = self.get_init_attr('duration', 2.0, neurons)
+        #self.strength = self.get_init_attr('strength', 10.0, neurons)
+        self.duration = self.get_init_attr('duration', 1.0, neurons)
         self.slope = self.get_init_attr('slope', 20, neurons)
         self.avg_act = 0
 
 
     def new_iteration(self, neurons):
-        #print(np.mean(neurons.activity))
 
         self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
+        neurons.inh = np.tanh(self.avg_act * self.slope)
+
+        #neurons.inh = np.tanh(neurons.activity*self.slope)
+
+        neurons.output = neurons.get_neuron_vec('uniform') < neurons.inh
+
+
+        '''
+                #inhibition_func(self.avg_act, self.slope, self.strength, 0.050686943101760265)
+
+        #neurons.output = neurons.inh
+        
+            #set_a(neurons, neurons.inh)
+        #print(get_a(neurons), np.mean(neurons.activity))
         adj = (self.avg_act - 0.02) * self.slope #np.mean(neurons.target_activity)
         adj = adj / np.sqrt(1 + np.power(adj, 2.0)) * 0.1
 
-        print(np.mean(neurons.activity), np.mean(self.avg_act), self.duration, self.slope, np.mean(adj))
+        #print(np.mean(neurons.activity), np.mean(self.avg_act), self.duration, self.strength, self.slope, np.mean(adj))
 
         #adj = adj#+0.05#+0.24
 
-        neurons.output = adj * 4.75
+        neurons.output = adj * self.strength * 0.1
+
+        neurons.inh = adj * self.strength * 0.1
 
         #neurons.output = neurons.get_neuron_vec('uniform') < adj
+        '''
+
+        #print(np.mean(neurons.activity), np.mean(self.avg_act), np.mean(neurons.inh), self.duration, self.strength, self.slope)
 
 
 

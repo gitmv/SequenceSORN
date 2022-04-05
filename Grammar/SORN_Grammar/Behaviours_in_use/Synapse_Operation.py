@@ -53,8 +53,32 @@ class Learning_Inhibition_mean(Behaviour):
 
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)
+        self.threshold = self.get_init_attr('threshold', 0.02, neurons)
 
     def new_iteration(self, neurons):
-        neurons.linh = np.clip(np.mean(neurons.output)-0.02, 0, None)*self.strength
+
+        #o = - neurons.input_GABA - 0.13909244787#tanh(self.threshold * 7)  #gaba is negative
+
+
+        #print(np.mean(neurons.input_GABA), np.mean(o))
+
+        o = np.mean(neurons.inh) - self.threshold#0.13909244787
+
+        #o = np.mean(neurons.output)-self.threshold
+
+        neurons.linh = np.clip(o, 0, None)*self.strength
         buffer = neurons.buffers['output']
         buffer[1] = np.clip(buffer[1] + neurons.linh, 0.0, 1.0)
+
+
+class Learning_Inhibition_GABA(Behaviour):
+
+    def set_variables(self, neurons):
+        self.const = np.tanh(neurons.target_activity*20)
+
+    def new_iteration(self, neurons):
+        neurons.linh = neurons.input_GABA < self.const
+        # np.clip(neurons.input_GABA-neurons.target_activity, 0, None)*(-170)
+        buffer = neurons.buffers['output']
+        #buffer[1] = np.clip(buffer[1] + neurons.linh, 0.0, 1.0)
+        buffer[1] = buffer[1] + neurons.linh * neurons.linh

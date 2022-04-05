@@ -1,51 +1,35 @@
 from Grammar.SORN_Grammar._common import *
 
-#set_genome({'IS': 0.6936991055040443, 'mate_chance': 1.0, 'IP': 0.006409149741503022, 'S': 3.534731611981756, 'D': 1.8617429663315919, 'exp': 0.9706315901624851, 'LIM': 201.7765421059013, 'STDP': 0.0014231302922128892, 'evo_name': 'abstact_inh_evo', 'gen': 1, 'id': 273555})
-
-#set_genome({'IS': 0.8665002381794471, 'IP': 0.006654017643968699, 'S': 5.025925897276355, 'D': 1.5961401737386358, 'exp': 0.81688717995202, 'LIM': 176.98109110411784, 'STDP': 0.0015246122509244239, 'gen': 20.0, 'score': 6.9706985526873595})
-
-#set_genome({'S': 4.7464756458591575, 'D': 2.042081612301938, 'E': 29.391792454679823, 'exp': 0.6140642657418552})
-#set_genome({'S': 5.181629200456907, 'D': 1.6450642091603505, 'E': 33.32058826330038, 'exp': 0.4280868861352353, 'id': 539.0, 'gen': 29.0, 'score': 7.644548000064141})
-
-#set_genome({'S': 4.7464756458591575, 'D': 2.042081612301938, 'E': 29.391792454679823, 'exp': 0.6140642657418552})
-
-ui = True
-neuron_count = 2400#2400
-plastic_steps = 30000#50000
-recovery_steps = 10000#10000#1000
+ui = False
+neuron_count = 2400
+plastic_steps = 30000
+recovery_steps = 10000
 
 SORN = Network(tag='SORN')
 
 exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
     #init
-    1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
-    #1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
+    1: Init_Neurons(target_activity='0.02'),#0.02#lognormal_rm(0.02,0.3)
 
-    15: Text_Generator(text_blocks=get_default_grammar(3)),#get_default_grammar(3) get_bruno_grammar(20)
-    16: Text_Activator(input_density=0.04, strength='[0.9#IS]'),#1.0 #0.75
-    18: Synapse_Operation(transmitter='GLU', strength=1.0),
-    #19: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+    15: Text_Generator(text_blocks=get_default_grammar(3)),#get_bruno_grammar(20)
+    16: Text_Activator(input_density='0.04', strength='1.0'),
+    18: Synapse_Operation(transmitter='GLU', strength='1.0'),
 
     #stability
-    #20: SH_act(sliding_window=0, speed='[0.007#IP]', SH_target_activity='lognormal_rm(0.1,0.3)'),
-    21: IP(sliding_window=0, speed='[0.007#IP]'),
-    22: Refractory_D(steps=4.0),
+    21: IP(sliding_window='0', speed='[0.007#IP]'),
 
-    #23: inhibition_test(strength=4.5),
-    24: inhibition_test_long(strength='[4.75#S]', duration='[2#D]', slope='[29.4#E]'),#s=10 #4 2'[0.2#E]'
-    #24: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+    #interneuron replacement
+    24: inhibition_test_long(slope='[20#slope]', duration='[1#D]'),#[29.4#E][4.75#S] #0.72 strength='1.0', duration='[2#D]', #7
 
     #output
-    30: variable_slope_relu_exp(exp='[0.614#exp]'),#1.0   #0.614
-    #30: ReLu_Output_Prob(),
+    30: variable_slope_relu_exp(exp='[0.614#exp]'),
 
     #learning
     41: Buffer_Variables(),#for STDP
-    #41.5: Learning_Inhibition(transmitter='GABA', strength=-2),
-    41.5: Learning_Inhibition_mean(strength='-[170#LIM]'),#-200
-    42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),
-    45: Normalization(syn_type='GLU', exec_every_x_step=10),
-    46: Out_Normalization(syn_type='GLU', exec_every_x_step=10),
+    41.5: Learning_Inhibition_mean(strength='-[18#LIM]', threshold='0.37994896225'),#'0.015'#170 #0.02 -10
+    42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),#0.0005 #0.0015
+    45: Normalization(syn_type='GLU', exec_every_x_step='10'),#100
+    46: Out_Normalization(syn_type='GLU', exec_every_x_step='10'),
 
     #reconstruction
     50: Text_Reconstructor(),
@@ -55,25 +39,8 @@ SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='EE,GLU', behaviour
     #init
     #1: Box_Receptive_Fields(range=18, remove_autapses=True),
     #2: Partition(split_size='auto'),
-    3: create_weights(distribution='lognormal(1.0,0.6)', density=get_gene('sd', 1.0))
+    3: create_weights(distribution='uniform(0.0,1.0)', density=1.0)#lognormal(1.0,0.6)#get_gene('sd', 1.0)
 })
-
-
-
-#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
-#    2: Init_Neurons(),
-#    20: Synapse_Operation(transmitter='GLU', strength='1'),
-#    21: ID_Output_no_clip_prob(),
-#})
-
-#SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='IE,GLU', behaviour={
-#    3: create_weights(distribution='uniform(1.0,1.0)', density=1.0)
-#})
-
-#SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='EI,GABA', behaviour={
-#    3: create_weights(distribution='uniform(1.0,1.0)', density=1.0)
-#})
-
 
 sm = StorageManager(SORN.tags[0], random_nr=True, print_msg=True)
 SORN.initialize(info=True, storage_manager=sm)
@@ -90,9 +57,51 @@ else:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #old
 
 '''
+
+    # 30: ReLu_Output_Prob(),
+    #41.5: Learning_Inhibition(transmitter='GABA', strength=-2),
+    #s=10 #4 2'[0.2#E]'
+    # 23: inhibition_test(strength=4.5),
+    #24: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+    # 20: SH_act(sliding_window=0, speed='[0.007#IP]', SH_target_activity='lognormal_rm(0.1,0.3)'),
+    #22: Refractory_D(steps=4.0),
+    ##1.0 #0.75 #[0.9#IS]
+    #19: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+
+    #1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
+
+#set_genome({'IS': 0.6936991055040443, 'mate_chance': 1.0, 'IP': 0.006409149741503022, 'S': 3.534731611981756, 'D': 1.8617429663315919, 'exp': 0.9706315901624851, 'LIM': 201.7765421059013, 'STDP': 0.0014231302922128892, 'evo_name': 'abstact_inh_evo', 'gen': 1, 'id': 273555})
+
+#set_genome({'IS': 0.8665002381794471, 'IP': 0.006654017643968699, 'S': 5.025925897276355, 'D': 1.5961401737386358, 'exp': 0.81688717995202, 'LIM': 176.98109110411784, 'STDP': 0.0015246122509244239, 'gen': 20.0, 'score': 6.9706985526873595})
+
+#set_genome({'S': 4.7464756458591575, 'D': 2.042081612301938, 'E': 29.391792454679823, 'exp': 0.6140642657418552})
+#set_genome({'S': 5.181629200456907, 'D': 1.6450642091603505, 'E': 33.32058826330038, 'exp': 0.4280868861352353, 'id': 539.0, 'gen': 29.0, 'score': 7.644548000064141})
+
+#set_genome({'S': 4.7464756458591575, 'D': 2.042081612301938, 'E': 29.391792454679823, 'exp': 0.6140642657418552})
+
+
 inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
     2: Init_Neurons(),
     31: Synapse_Operation(transmitter='GLU', strength='[10.0#GLUI]'),#approximately: (mean_e+oscillation_e)*10.0=(0.02+0.06)*10=0.8 (nearly 1)
