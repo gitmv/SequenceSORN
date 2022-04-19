@@ -11,6 +11,26 @@ def inhibition_func(x, slope, strength, y=0):
 def inhibition_func2(x):
     return np.tanh(x*15)/6.6 *4.75
 
+
+
+class inhibition_2_step_collect(Behaviour):
+
+    def set_variables(self, neurons):
+        self.duration = self.get_init_attr('duration', 10.0, neurons)
+        self.slope = self.get_init_attr('slope', 20, neurons)
+        self.avg_act = 0
+        neurons.inh = neurons.get_neuron_vec()
+
+    def new_iteration(self, neurons):
+        self.avg_act = (self.avg_act*self.duration+np.mean(neurons.output))/(self.duration+1)
+        neurons.inh = np.tanh(self.avg_act * self.slope)
+
+
+class inhibition_2_step_apply(Behaviour):
+
+    def new_iteration(self, neurons):
+        neurons.activity -= neurons.inh
+
 #strength='[4.75#S]', duration='[2#D]', slope='[29.4#E]'
 class inhibition_test_long(Behaviour):
 

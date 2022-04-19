@@ -1,6 +1,6 @@
 from Grammar._common import *
 
-ui = False
+ui = True
 neuron_count = 2400
 plastic_steps = 30000
 recovery_steps = 10000
@@ -26,7 +26,9 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
     #learning
     41: Buffer_Variables(),#for STDP
-    41.5: Learning_Inhibition_mean(strength='-[10#LIM]', threshold='[0.379#th]', use_inh=True),#'0.015'#170 #0.02 -10 #0.19737532022 0.37994896225
+    #41.5: Learning_Inhibition_mean(strength='[10#LIM]', threshold='[0.379#th]', use_inh=True),#'0.015'#170 #0.02 -10 #0.19737532022 0.37994896225
+    41.5: Learning_Inhibition_mean(strength='[15#LIM]', threshold='[0.43#th]', use_inh=True),#'0.015'#170 #0.02 -10 #0.19737532022 0.37994896225
+
     42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),#0.0005 #0.0015
     45: Normalization(syn_type='GLU', exec_every_x_step='10'),#100
     46: Out_Normalization(syn_type='GLU', exec_every_x_step='10'),
@@ -50,8 +52,6 @@ if __name__ == '__main__' and ui:
     show_UI(SORN, sm)
 else:
     train_and_generate_text(SORN, plastic_steps, recovery_steps, sm=sm)
-
-
 
 
 

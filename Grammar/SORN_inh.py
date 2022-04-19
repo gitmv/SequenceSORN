@@ -27,7 +27,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #learning
     41: Buffer_Variables(),#for STDP
 
-    41.5: Learning_Inhibition_mean(strength='-[200#LIM]', threshold='0.02'),#170#
+    41.5: Learning_Inhibition_mean(strength='[200#LIM]', threshold='0.02'),#170#
     #41.6: Learning_Inhibition_GABA(),
     42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),
     45: Normalization(syn_type='GLU', exec_every_x_step='10'),

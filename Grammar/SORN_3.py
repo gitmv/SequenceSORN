@@ -1,6 +1,6 @@
 from Grammar._common import *
 
-ui = False
+ui = True
 neuron_count = 2400
 plastic_steps = 30000
 recovery_steps = 10000
@@ -11,7 +11,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #init
     1: Init_Neurons(target_activity='0.02'),#0.02#lognormal_rm(0.02,0.3)
 
-    15: Text_Generator(text_blocks=get_default_grammar(3)),#get_bruno_grammar(20)
+    15: Text_Generator(text_blocks=get_default_grammar(4)),#get_bruno_grammar(20)
     16: Text_Activator(input_density='0.04', strength='1.0'),
     18: Synapse_Operation(transmitter='GLU', strength='1.0'),
 
@@ -19,14 +19,18 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     21: IP(sliding_window='0', speed='[0.007#IP]'),
 
     #interneuron replacement
-    24: inhibition_test_long(slope='[20#slope]', duration='[2#D]'),#[29.4#E][4.75#S] #0.72 strength='1.0', duration='[2#D]', #7
+    24: inhibition_2_step_apply(),
+    #24: inhibition_test_long(slope='[7#slope]', duration='[0#D]'),#[29.4#E][4.75#S] #0.72 strength='1.0', duration='[2#D]', #7
 
     #output
     30: variable_slope_relu_exp(exp='[0.614#exp]'),
 
+    35: inhibition_2_step_collect(slope='[20#slope]', duration='[2#D]'),
+
     #learning
     41: Buffer_Variables(),#for STDP
-    41.5: Learning_Inhibition_mean(strength='[170#LIM]', threshold='0.02', use_inh=False),#'0.015'#170 #0.02 -10 #0.37994896225
+    #41.5: Learning_Inhibition_mean(strength='[170#LIM]', threshold='[0.02#th]', use_inh=False),#'0.015'#170 #0.02 -10 #0.19737532022 0.37994896225
+    41.5: Learning_Inhibition_mean(strength='[31#LIM]', threshold='[0.377#th]', use_inh=True),#'[25#LIM]'
     42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),#0.0005 #0.0015
     45: Normalization(syn_type='GLU', exec_every_x_step='10'),#100
     46: Out_Normalization(syn_type='GLU', exec_every_x_step='10'),

@@ -48,7 +48,7 @@ def fe(x):
 
 from Grammar.Behaviours_in_use.test import *
 
-x = np.arange(0.0, 0.3, 0.0001)#0.2
+x = np.arange(0.0, 0.1, 0.0001)#0.2
 
 plt.axhline(0, color='gray')
 
@@ -56,7 +56,17 @@ plt.axvline(0.02, color='gray')
 
 plt.plot(x, f8(x,0.02,170))
 
-plt.plot(x, f8(ft(x,20),0.37994896225,10))#0.13909244787
+plt.plot(x, f8(ft(x,20),0.37698282278421735,31))
+
+#plt.plot(x, f8(ft(x,7),0.13909244787,25))#0.13909244787
+
+#plt.plot(x, ft(x,7))
+#plt.plot(x, ft(x,7)-0.13909244787)
+plt.plot(x, x-0.02)
+plt.plot(x, ft(x,20)-0.37698282278421735)#
+
+
+
 
 #plt.plot(x, f1(x))
 #plt.plot(x, f2(x, 0.3))

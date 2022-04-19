@@ -19,14 +19,18 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     21: IP(sliding_window='0', speed='[0.007#IP]'),
 
     #interneuron replacement
-    24: inhibition_test_long(slope='[20#slope]', duration='[2#D]'),#[29.4#E][4.75#S] #0.72 strength='1.0', duration='[2#D]', #7
+    24: inhibition_2_step_apply(),
+    #24: inhibition_test_long(slope='[7#slope]', duration='[0#D]'),#[29.4#E][4.75#S] #0.72 strength='1.0', duration='[2#D]', #7
 
     #output
     30: variable_slope_relu_exp(exp='[0.614#exp]'),
 
+    35: inhibition_2_step_collect(slope='[7#slope]', duration='[0#D]'),
+
     #learning
     41: Buffer_Variables(),#for STDP
-    41.5: Learning_Inhibition_mean(strength='[170#LIM]', threshold='0.02', use_inh=False),#'0.015'#170 #0.02 -10 #0.37994896225
+    #41.5: Learning_Inhibition_mean(strength='[170#LIM]', threshold='[0.02#th]', use_inh=False),#'0.015'#170 #0.02 -10 #0.19737532022 0.37994896225
+    41.5: Learning_Inhibition_mean(strength='[25#LIM]', threshold='[0.13909244787#th]', use_inh=True),
     42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),#0.0005 #0.0015
     45: Normalization(syn_type='GLU', exec_every_x_step='10'),#100
     46: Out_Normalization(syn_type='GLU', exec_every_x_step='10'),
