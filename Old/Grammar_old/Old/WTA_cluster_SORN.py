@@ -4,10 +4,7 @@ import random
 np.random.seed(1)
 random.seed(1)
 
-from PymoNNto import *
-
-from Grammar.Behaviours_in_use.SORN_experimental import *
-from Grammar.Behaviours_in_use.SORN_WTA import *
+from Old.Grammar.Behaviours_in_use import *
 
 #set_genome({'rs': 0.09232235756570088, 'k': 0.021807067918146617, 'IP_mean': 0.023220131242858984, 'IP_sigma': 0.21982802505096785, 'IP_eta': 0.00815087665686908, 'STDP_eta': 0.00013768152104864887, 'STDP_eta_c': 0.00014898516237234308, 'snf': 0.24012377371983357, 'gen': 25.0, 'score': 0.4770888756503841})
 #set_genome({'rs': 0.09778653264537968, 'k': 0.025169953249611018, 'IP_mean': 0.019455150509071956, 'IP_sigma': 0.23481957924540256, 'IP_eta': 0.008174544080912168, 'STDP_eta': 0.00017537585575069396, 'STDP_eta_c': 0.00017149686127492485, 'snf': 0.23159342538253455})

@@ -1,5 +1,4 @@
-from PymoNNto import *
-from Grammar.Behaviours_in_use import *
+from Old.Grammar.Behaviours_in_use import *
 
 class frequency_activator(Behaviour):
 

@@ -1,8 +1,6 @@
 from PymoNNto_Dev.Behaviour.TensorflowBehaviour import *
-import numpy as np
 
 from PymoNNto.NetworkBehaviour.Input.Activator import *
-from Grammar.Behaviours.SORN_advanced_buffer import *
 
 dtype = 'float32'
 

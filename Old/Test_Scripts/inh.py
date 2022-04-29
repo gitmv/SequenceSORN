@@ -1,7 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
-
 def f1(x):
     return x-0.02
 
@@ -46,7 +42,7 @@ def fe(x):
 
 
 
-from Grammar.Behaviours_in_use.test import *
+from Old.Grammar.Behaviours_in_use.test import *
 
 x = np.arange(0.0, 0.1, 0.0001)#0.2
 

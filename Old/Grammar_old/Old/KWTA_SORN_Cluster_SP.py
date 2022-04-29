@@ -5,8 +5,6 @@ from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
 from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
 from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
 
-from Grammar.Behaviours.Structural_Plasticity import *
-
 if __name__ == '__main__':
     from PymoNNto.Exploration.Network_UI import *
     from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *

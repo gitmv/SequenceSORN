@@ -1,9 +1,3 @@
-from Grammar.Behaviours_in_use.SORN_experimental import *
-from Grammar.Behaviours_in_use.SORN_WTA import *
-
-from Grammar.Behaviours.Structural_Plasticity import *
-
-
 ui = False
 so = True
 print_info = True

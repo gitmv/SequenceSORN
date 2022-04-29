@@ -1,4 +1,4 @@
-from Grammar._common import *
+from Old.Grammar._common import *
 
 ui = True
 neuron_count = 2400#2400
