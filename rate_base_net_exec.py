@@ -3,16 +3,16 @@ from UI.UI_Helper import *
 from Behaviour_Modules import *
 from Behaviour_Text_Modules import *
 
+#set_genome({'TA': 22.887450040644385, 'EXP': 0.25695914078666543, 'S': 6.191223446297756, 'id': 65, 'gen': 7, 'score': 1.7086251783231419})#({'TA': 3.988351708556492, 'EXP': 0.5004156607096197, 'S': 15.274553117050054})#{'TA': 3.617607251026159, 'EXP': 0.526794854151458, 'S': 15.517577277732101}#{'TA': 3.617607251026159, 'EXP': 0.526794854151458, 'S': 15.517577277732101})
+#get_char_sequence(2)##get_long_text()split_into_words()#get_long_text()get_char_sequence(56)get_long_text()get_default_grammar(3)##calculate_parameters(0.99, grammar, True)#get_char_sequence(56)
+
 ui = True
-neuron_count = 2400
+neuron_count = 1400#1500#2400
 plastic_steps = 30000
 recovery_steps = 10000
 text_gen_steps = 5000
 
-#grammar = get_char_sequence(5)     #A
-#grammar = get_char_sequence(23)    #B
-#grammar = get_long_text()          #C
-grammar = get_default_grammar(3)    #D
+grammar = get_default_grammar(2)
 
 input_density=0.92#7#92
 target_activity = 1.0 / len(''.join(grammar))# * input_density 0.066666#
@@ -42,7 +42,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     43: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10),
 
     # output
-    50: Generate_Output(exp=exc_output_exponent), #'[0.614#EXP]'
+    50: Generate_Output_Analog(exp=exc_output_exponent), #'[0.614#EXP]'
 
     # reconstruction
     80: Text_Reconstructor()
@@ -55,7 +55,7 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
     60: Synapse_Operation(transmitter='GLUI', strength=1.0),
 
     # output
-    70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'
+    70: Generate_Output_Inh_Analog(slope=inh_output_slope, duration=2), #'[20.0#S]'
 
 })
 

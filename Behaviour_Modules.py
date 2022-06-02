@@ -1,35 +1,46 @@
+import matplotlib.pyplot as plt
+import numpy as np
 from PymoNNto import *
 from PymoNNto.NetworkBehaviour.Basics.Normalization import *
 
 class Generate_Output(Behaviour):
 
     def set_variables(self, neurons):
-        self.exp = self.get_init_attr('exp', 1.5, neurons)
+        self.exp = self.get_init_attr('exp', 1.5)
         neurons.activity = neurons.get_neuron_vec()
         neurons.output = neurons.get_neuron_vec().astype(bool)
         neurons.output_old = neurons.get_neuron_vec().astype(bool)
 
+    def activation_function(self, a):
+        return np.power(np.abs(a - 0.5) * 2, self.exp) * (a > 0.5)
+
     def new_iteration(self, neurons):
         neurons.output_old = neurons.output.copy()
-        chance = np.power(np.abs(neurons.activity - 0.5) * 2, self.exp) * (neurons.activity > 0.5)
-        neurons.output = neurons.get_neuron_vec("uniform") < chance
+        #chance = np.power(np.abs(neurons.activity - 0.5) * 2, self.exp) * (neurons.activity > 0.5)
+        neurons.output = neurons.get_neuron_vec("uniform") < self.activation_function(neurons.activity) #chance
+        neurons._activity = neurons.activity.copy() #for plotting
         neurons.activity.fill(0)
 
 
 class Generate_Output_Inh(Behaviour):
 
     def set_variables(self, neurons):
-        self.duration = self.get_init_attr('duration', 1.0, neurons)
-        self.slope = self.get_init_attr('slope', 20, neurons)
+        self.duration = self.get_init_attr('duration', 1.0)
+        self.slope = self.get_init_attr('slope', 20.0)
         self.avg_act = 0
         neurons.activity = neurons.get_neuron_vec()
         neurons.output = neurons.get_neuron_vec().astype(bool)
 
+    def activation_function(self, a):
+        return np.tanh(a * self.slope)
+
     def new_iteration(self, neurons):
         self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
-        neurons.inh = np.tanh(self.avg_act * self.slope)
-        neurons.output = neurons.get_neuron_vec('uniform') < neurons.inh
+        #neurons.inh = np.tanh(self.avg_act * self.slope)
+        neurons.output = neurons.get_neuron_vec('uniform') < self.activation_function(self.avg_act)#neurons.inh
+        neurons._activity = neurons.activity.copy()  # for plotting
         neurons.activity.fill(0)
+
 
 
 class Synapse_Operation(Behaviour):
@@ -52,39 +63,38 @@ class Learning_Inhibition(Behaviour):
 
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)
-        self.threshold = self.get_init_attr('threshold', 0.02, neurons)
+        self.threshold = self.get_init_attr('threshold', np.tanh(0.02*20), neurons)
         self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)
         self.input_tag = 'input_' + self.transmitter
 
     def new_iteration(self, neurons):
-        o = np.abs(getattr(neurons, self.input_tag)) - self.threshold #np.mean()
-        neurons.linh = np.clip(1 - o * self.strength, 0.0, 1.0)
-
+        o = np.abs(getattr(neurons, self.input_tag))
+        neurons.linh = np.clip(1 - (o - self.threshold) * self.strength, 0.0, 1.0)
 
 class Intrinsic_Plasticity(Behaviour):
 
     def set_variables(self, neurons):
-        self.speed = self.get_init_attr('speed', 0.01, neurons)
-        neurons.target_activity = self.get_init_attr('target_activity', None, neurons)
+        self.strength = self.get_init_attr('strength', 0.01, neurons)
+        neurons.target_activity = self.get_init_attr('target_activity', 0.02)
         neurons.sensitivity = neurons.get_neuron_vec()
 
     def new_iteration(self, neurons):
-        neurons.sensitivity -= (neurons.output - neurons.target_activity) * self.speed
+        neurons.sensitivity -= (neurons.output - neurons.target_activity) * self.strength
         neurons.activity += neurons.sensitivity
 
 
-class STDP_simple(Behaviour):
+class STDP(Behaviour):
 
     def set_variables(self, neurons):
-        self.add_tag('STDP')
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
-        self.eta_stdp = self.get_init_attr('eta_stdp', 0.005, neurons)
+        self.eta_stdp = self.get_init_attr('strength', 0.005)
 
     def new_iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
-            mul = self.eta_stdp * neurons.linh * s.enabled
-            dw = s.dst.output[:, None] * s.src.output_old[None, :] * mul
+            mul = self.eta_stdp * s.enabled
+            dw = (s.dst.linh * s.dst.output)[:, None] * s.src.output_old[None, :] * mul
             s.W += dw
+            #s.W.clip(0.0, None, out=s.W)#TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 class Normalization(Behaviour):
@@ -119,3 +129,51 @@ class create_weights(Behaviour):
 
     def new_iteration(self, synapses):
         synapses.W = synapses.W * synapses.enabled
+
+
+
+
+
+
+
+##################################################Experimental
+
+
+class Generate_Output_Analog(Generate_Output):
+
+    def new_iteration(self, neurons):
+        neurons.output_old = neurons.output.copy()
+        neurons.output = np.clip(self.activation_function(neurons.activity),0,1) #chance
+        neurons._activity = neurons.activity.copy() #for plotting
+        neurons.activity.fill(0)
+
+class Generate_Output_Inh_Analog(Generate_Output_Inh):
+
+    def new_iteration(self, neurons):
+        self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
+        neurons.output = np.clip(self.activation_function(self.avg_act),0,1)
+        neurons._activity = neurons.activity.copy()  # for plotting
+        neurons.activity.fill(0)
+
+class Learning_Inhibition_test(Behaviour):
+
+    def set_variables(self, neurons):
+        self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)
+        self.input_tag = 'input_' + self.transmitter
+
+        self.a = self.get_init_attr('a', 0.44)  # not needed
+        self.b=self.get_init_attr('b', 0.0)#not needed
+        self.c=self.get_init_attr('c', 10.0)
+        self.d=self.get_init_attr('d', 1.0)
+
+        #x=np.arange(0,1,0.01)
+        #plt.plot(x, self.sig_f(x))
+        #plt.show()
+
+    def sig_f(self,x):
+        return 1/(1+np.power(np.e, -self.c*(x-self.a)))*self.d+self.b
+
+    def new_iteration(self, neurons):
+        #neurons.linh=1
+        neurons.linh = 1-self.sig_f(np.abs(getattr(neurons, self.input_tag)))
+

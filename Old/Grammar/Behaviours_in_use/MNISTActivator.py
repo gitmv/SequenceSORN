@@ -1,7 +1,9 @@
 from PymoNNto import *
-
-mnist_folder = '../../../EMNIST'
+from mnist.loader import MNIST  # pip install python-mnist
+mnist_folder = '../../EMNIST'
 import numpy as np
+
+from Old.Input_Behaviours.Images.Helper import *
 
 #from mnist.loader import MNIST  # pip install python-mnist
 
@@ -20,6 +22,7 @@ class MNIST_Patterns(Behaviour):
         return np.array(mnist_pictures[indx]).reshape(28, 28)
 
     def set_variables(self, neurons):
+        self.add_tag('Input')
 
         mndata = MNIST(mnist_folder)
         mndata.select_emnist('balanced')
@@ -27,11 +30,13 @@ class MNIST_Patterns(Behaviour):
 
         self.strength=self.get_init_attr('strength', 1.0)
 
-        center_x = self.get_init_attr('center_x', 1)
-        center_y = self.get_init_attr('center_y', 1)
+        center_x = self.get_init_attr('center_x', int(neurons.width/2))
+        center_y = self.get_init_attr('center_y', int(neurons.height/2))
 
         self.class_ids = self.get_init_attr('class_ids', np.array(list(range(26)))+10)#all chars upper case
-        patterns_per_class = self.get_init_attr('pattern_count', 1)
+        patterns_per_class = self.get_init_attr('patterns_per_class', 1)
+
+        self.patterns = []
 
         self.chars = {}
         for c in self.class_ids:
@@ -41,9 +46,13 @@ class MNIST_Patterns(Behaviour):
             while ct < patterns_per_class:
                 if mnist_labels[i] == c:
                     mnist_img = self.get_images(mnist_pictures, i)
-                    self.chars[c].append(draw_mnist(mnist_img, neurons.width, neurons.height, center_x, center_y))
+                    img = draw_mnist(mnist_img, neurons.width, neurons.height, center_x, center_y)
+                    self.chars[c].append(img)
+                    self.patterns.append(img)
                     ct += 1
                 i += 1
+
+        neurons.Input_Mask = get_Input_Mask(neurons, self.patterns)
 
 
 
@@ -71,9 +80,9 @@ class MNIST_Patterns_On_Off(MNIST_Patterns):
     def get_images(self, mnist_pictures, indx):
         data = np.array(mnist_pictures[indx]).reshape(28, 28)
 
-        on, off = get_LOG_On_Off(data, 1)
+        on, off = get_LOG_On_Off(data, 0.5)
 
-        res = np.concatenate([on, off], axis=1)
+        res = np.concatenate([on, off], axis=0)
 
         #plt.matshow(res)
         #plt.show()

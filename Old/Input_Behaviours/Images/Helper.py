@@ -2,6 +2,15 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
+def get_Input_Mask(neurons, patterns):
+    Input_Mask = neurons.get_neuron_vec()
+
+    for pattern in patterns:
+        Input_Mask += pattern.flatten()
+
+    return Input_Mask > 0
+
+
 
 def rotatearoundpoint(p, rot, middle):
     aa = p[0] - middle[0]

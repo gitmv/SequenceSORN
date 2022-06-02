@@ -27,7 +27,9 @@ class Reaction_Analysis_Tab(TabBase):
                     label = QLabel('<font color='+('#%02x%02x%02x'% (timestep*25,timestep*25,timestep*25)).upper()+'>'+char.replace(' ','_')+'</font>')
                     label.char=char
                     self.labels[-1].append(label)
-                    #label.setFont(QFont())
+                    font = label.font()
+                    font.setPointSizeF(12-len(generator.alphabet)/10)
+                    label.setFont(font)
                     self.grid.addWidget(label, y, timestep)
 
             self.img = Network_UI.Add_Image_Item(False, False, title=' neuron rec')

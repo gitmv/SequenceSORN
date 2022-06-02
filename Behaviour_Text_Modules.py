@@ -1,13 +1,6 @@
 from PymoNNto import *
 import random
 
-def unique(l):
-    return list(sorted(set(l)))
-
-def get_default_grammar(n_sentences):
-    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims']
-    return sentences[0:n_sentences]
-
 class Text_Generator(Behaviour):
 
     set_variables_on_init = True
@@ -20,7 +13,7 @@ class Text_Generator(Behaviour):
         self.text_blocks = self.get_text_blocks()
         self.current_block_index = -1
         self.position_in_current_block = -1
-        self.alphabet = unique(' '.join(self.text_blocks)) #list not string!!!!
+        self.alphabet = unique(''.join(self.text_blocks)) #list not string!!!!
         self.history = ''
 
         # output
@@ -99,24 +92,27 @@ class Text_Generator(Behaviour):
             score += np.sqrt(bs)
         return score
 
-
 class Text_Activator(Behaviour):
 
     def set_variables(self, neurons):
         self.text_generator = neurons['Text_Generator', 0]
 
-        input_density = self.get_init_attr('input_density', 1 / 60)
-        if input_density < 1:
-            activation_size = int(neurons.size * input_density)
-        else:
-            activation_size = int(input_density)
+        #input_density = self.get_init_attr('input_density', 1 / 60)
+        #if input_density < 1:
+        #    activation_size = int(neurons.size * input_density)
+        #else:
+        #    activation_size = int(input_density)
 
-        neurons.mean_network_activity = activation_size/neurons.size #optional/ can be used by other (homeostatic) modules
+        input_density = self.get_init_attr('input_density', 0.5)
+        activation_size = np.floor((neurons.size * input_density) / len(self.text_generator.alphabet)) #average char cluster size
+
+        neurons.mean_network_activity = activation_size / neurons.size  # optional/ can be used by other (homeostatic) modules
 
         if self.get_init_attr('char_weighting', True):
             cw = self.text_generator.char_weighting
         else:
             cw = None
+
 
         neurons.Input_Weights = self.one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, cw)
         neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
@@ -149,7 +145,6 @@ class Text_Activator(Behaviour):
 
         return result
 
-
 class Text_Reconstructor(Behaviour):
 
     def set_variables(self, neurons):
@@ -165,3 +160,62 @@ class Text_Reconstructor(Behaviour):
             self.current_reconstruction_char = neurons['Text_Activator', 0].text_generator.index_to_char(self.current_reconstruction_char_index)
 
             self.reconstruction_history += self.current_reconstruction_char
+
+def unique(l):
+    return list(sorted(set(l)))
+
+def get_default_grammar(n_sentences):
+    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims']
+    return sentences[0:n_sentences]
+
+
+
+####################################
+
+def calculate_parameters(h):
+    b = 0.01/h+0.22 #1
+    c = 0.4/h+3.6   #40
+    th = np.tanh(c*h) #/100.0
+    return b, c, th
+
+def calculate_parameters(input_density, text, add_to_genome):
+    h = 1.0 / len(''.join(text)) * 100.0 * input_density #(net_size / len(text)) / net_size unique()
+
+    #b = 0.8161848682830884 + h * -0.07234259731194208
+    #c = 32.31685851663226 + h * -4.175914850479309
+
+    b = 0.7179041071061821 + h * -0.04398732037836847
+    c = 25.220023435454422 + h * -2.0929686503913683
+
+    if add_to_genome:
+        set_genome({'TA': h, 'EXP': b, 'S': c})
+
+    return h,b,c
+
+def get_char_sequence(n_chars):
+    #return [' abc.']#5
+    #return [' abcdefghi.']#11
+    #return [' abcdefghijklmnopqrstu.']#23
+    #return [' abcdefghijklmnopqrstuvwxyz.']#28
+    #return [' abcdefghijklmnopqrstuvwxyz0123456789.']#38
+    #return [' abcdefghijklmnopqrstuvwxyz0123456789!$%&/(){}[]<>=?-_,.']#56
+
+    #sequence = '. abcdefghijklmnopqrstuvwxyz0123456789!$%&/(){}[]<>=?-_,ABCDEFGHIJKLMNOPQRSTUVWXYZ§|;:+-*#'
+
+    sequence = '. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[](){}<>'#!$%&/(){}[]<>=?-_,§|;:+-*#
+
+    return [sequence[0:n_chars]]
+
+
+def get_long_text():
+    return [' fox eats meat. boy drinks juice. penguin likes ice.']
+    #return [' boy drinks juice. penguin likes ice. man drives car.']
+    #return [' this is a test to see wether the network can learn longer sequences.']
+
+def split_into_words(sentences):
+    result = []
+    for s in sentences:
+        for w in s.split(' '):
+            if w!='':
+                result.append(' ' + w)
+    return result

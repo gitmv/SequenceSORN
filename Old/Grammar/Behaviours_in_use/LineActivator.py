@@ -1,5 +1,5 @@
 from PymoNNto import *
-
+from Old.Input_Behaviours.Images.Helper import *
 
 def cart2pol(x, y):
     rho = np.sqrt(x**2 + y**2)
@@ -23,6 +23,7 @@ def getLinePicture2(deg, center_x, center_y, length, width, height):
 class Line_Patterns(Behaviour):
 
     def set_variables(self, neurons):
+        self.add_tag('Input')
 
         self.strength=self.get_init_attr('strength', 1.0)
 
@@ -30,6 +31,9 @@ class Line_Patterns(Behaviour):
         center_y = self.get_init_attr('center_y', 1)#self.kwargs.get('center_y', 1)
         degree = self.get_init_attr('degree', 1)#self.kwargs.get('degree', 1)
         line_length = self.get_init_attr('line_length', 1)#self.kwargs.get('line_length', 1)
+
+        self.random_order = self.get_init_attr('random_order', True)
+        #self.random_order = self.get_init_attr('random_order', True)
 
         pattern_count=0
         if type(center_x) in [list, np.ndarray]: pattern_count = np.maximum(pattern_count, len(center_x))
@@ -47,11 +51,26 @@ class Line_Patterns(Behaviour):
             self.patterns.append(np.array([getLinePicture2(degree[i], center_x[i], center_y[i], line_length/2, neurons.width, neurons.height)]))
             self.labels.append('deg{}cy{}cx{}'.format(degree[i], center_x[i], center_y[i]))
 
+        neurons.Input_Mask = get_Input_Mask(neurons, self.patterns)
+
         self.pattern_count = pattern_count
+        self.pattern_indx=0
+
+        self.pattern_indices = np.array(np.arange(self.pattern_count))
+
 
     def new_iteration(self, neurons):
-        pattern_indx = np.random.choice(np.arange(self.pattern_count))
-        pattern = self.patterns[pattern_indx][0]
+        if self.random_order:
+            if len(self.pattern_indices)==0:
+                self.pattern_indices = np.array(np.arange(self.pattern_count))
+            self.pattern_indx = np.random.choice(self.pattern_indices)
+            #self.pattern_indx = np.random.choice(np.arange(self.pattern_count))
+        else:
+            self.pattern_indx += 1
+            if self.pattern_indx>=len(self.patterns):
+                self.pattern_indx=0
+
+        pattern = self.patterns[self.pattern_indx][0]
         neurons.activity += pattern.flatten()*self.strength
 
 

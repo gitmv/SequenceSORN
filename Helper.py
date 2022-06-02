@@ -1,6 +1,7 @@
 from PymoNNto.Exploration.Evolution.Interface_Functions import *
 
 def train_and_generate_text(net, plastic_steps, recovery_steps=None, text_gen_steps=5000, sm=None, pretrained=False):
+
     net.simulate_iterations(plastic_steps, 100)
 
     # deactivate STDP and Input

@@ -11,7 +11,7 @@ class Classifier_base(AnalysisModule):
         if key in self.corrMatrices:
             classification = self.get_results()[key]#self.last_call_result()
             idx = np.argsort(classification)
-            return self.corrMatrices[key].iloc[idx, :].T.iloc[idx, :], idx
+            return self.corrMatrices[key].iloc[idx, :].T.iloc[idx, :], idx #[idx, :].T.iloc[idx, :]
         else:
             print('module has to be executed first.')
 
@@ -26,9 +26,11 @@ class Classifier_base(AnalysisModule):
         data = self.get_data_matrix(neurons)
 
         mask = np.sum(data, axis=1) > 0
+        #mask = np.sum(data, axis=0) > 0#test!
         self.update_progress(10)
 
         df = pd.DataFrame(data[mask])  # .T
+        #df = pd.DataFrame(data[:, mask])  # .T#test!
         self.corrMatrix = df.corr()
         self.update_progress(40)
 
@@ -43,8 +45,11 @@ class Classifier_base(AnalysisModule):
         self.update_progress(90)
 
         result = np.zeros(data.shape[0]) - 1
-        result[mask] = idx_to_cluster_array
+        #result = np.zeros(data.shape[1]) - 1#test!
 
+        print(result.shape, mask, idx_to_cluster_array)
+        result = idx_to_cluster_array
+        #result[mask] = idx_to_cluster_array
 
         #match_groups
         if self.current_key in self.result_storage:
