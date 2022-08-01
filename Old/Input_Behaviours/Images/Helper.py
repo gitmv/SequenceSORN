@@ -2,35 +2,7 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
-def get_Input_Mask(neurons, patterns):
-    Input_Mask = neurons.get_neuron_vec()
 
-    for pattern in patterns:
-        Input_Mask += pattern.flatten()
-
-    return Input_Mask > 0
-
-
-
-def rotatearoundpoint(p, rot, middle):
-    aa = p[0] - middle[0]
-    bb = p[1] - middle[1]
-    cc = np.sqrt(aa * aa + bb * bb)
-    a = 0
-    if cc != 0:
-        a = np.rad2deg(np.arcsin(aa / cc))
-    if bb < 0:
-        a = 180 - a
-    a = np.deg2rad(a + rot)
-    aa = np.sin(a) * cc
-    bb = np.cos(a) * cc
-    return (middle[0] + aa, middle[1] + bb)
-
-
-def picture_to_array(image, max=1):
-    pil_image_gray = image.convert('L')
-    result = np.array(pil_image_gray).astype(np.float64)
-    return result/np.maximum(max, np.max(image))
 
 
 #def picture_to_array(image, max=1):

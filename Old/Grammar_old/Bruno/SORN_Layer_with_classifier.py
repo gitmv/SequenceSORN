@@ -1,4 +1,5 @@
 from Old.Grammar.Behaviours_in_use import *
+from Old.Grammar_old.Bruno.Logistic_Regression_Reconstruction import *
 
 ui = False
 neuron_count = 2400#2400
@@ -212,7 +213,6 @@ set_score(score, sm)
 
 #21: ip_new(sliding_window='[100#sw]', speed='[0.01#sp]'),#0.01#uniform(0.01,0.05) #
 
-'''
 
 import matplotlib.pyplot as plt
 SORN.simulate_iteration()
@@ -226,7 +226,7 @@ for x in range(X):
         axs[x, y].matshow(neuron_syn)
 plt.show()
 
-'''
+
 
 #SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
 #    1: Box_Receptive_Fields(range=18, remove_autapses=True),

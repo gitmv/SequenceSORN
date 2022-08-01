@@ -1,7 +1,9 @@
 from Old.Grammar.Behaviours_in_use import *
+from Old.Grammar_old.Bruno.Logistic_Regression_Reconstruction import *
+from UI.UI_Helper import *
 
-ui = True
-neuron_count = 900#1600
+ui = False
+neuron_count = 2400#900#1600
 plastic_steps = 10000#100000
 train_steps = 5000#10000
 spont_steps = 1000#10000
@@ -66,7 +68,7 @@ SORN.initialize(info=True, storage_manager=sm)
 if __name__ == '__main__' and ui:
     exc_neurons.color = blue
     inh_neurons.color = red
-    show_UI(SORN, sm, 2)
+    show_UI(SORN, sm)
 
 
 #learning
@@ -82,11 +84,11 @@ SORN.simulate_iterations(train_steps, 100)
 SORN.deactivate_mechanisms('Text_Activator')
 SORN['Classifier_Text_Reconstructor', 0].train()#starts activating after training/stops recording automatically
 
-import matplotlib.pyplot as plt
-plt.matshow(SORN['Classifier_Text_Reconstructor', 0].classifier.coef_[:, 0:200])
+#import matplotlib.pyplot as plt
+#plt.matshow(SORN['Classifier_Text_Reconstructor', 0].classifier.coef_[:, 0:200])
 # with bias:
 # np.hstack((clf.intercept_[:,None], clf.coef_))
-plt.show()
+#plt.show()
 
 SORN.simulate_iterations(spont_steps, 100)
 print(SORN['Classifier_Text_Reconstructor', 0].reconstruction_history)
@@ -94,3 +96,26 @@ print(SORN['Classifier_Text_Reconstructor', 0].reconstruction_history)
 #scoring
 #score = SORN['Text_Generator', 0].get_text_score(recon_text)
 #set_score(score, sm)
+
+
+'''
+import matplotlib.pyplot as plt
+
+for i in range(100):
+    SORN.simulate_iterations(100)
+
+    SORN.simulate_iteration()
+    W = SORN['EE', 0].W
+    X = 4
+    Y = 4
+    fig, axs = plt.subplots(X, Y)
+    for x in range(X):
+        for y in range(Y):
+            neuron_syn = W[(y * Y + x)*80, :].reshape(50, 48)
+            axs[x, y].matshow(neuron_syn)
+    plt.savefig(str(i)+'k.png', dpi=500)
+    plt.cla()
+    plt.clf()
+    plt.close()
+    #plt.show()
+'''

@@ -5,7 +5,7 @@ class SORN_signal_propagation_base(Behaviour):
 
     def set_variables(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
-        self.strength = self.get_init_attr('strength', 1, neurons)  # 1 or -1
+        self.strength = self.get_init_attr('strength', 1.0, neurons)  # 1 or -1
 
         if self.transmitter==None:
             print('warning no transmitter defined')

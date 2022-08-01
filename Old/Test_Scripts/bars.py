@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+'''
 r=np.random.randint(0,20,2000)
 nr=[np.sum(r==i) for i in range(20)]
 #print(np.sum(r==0))
@@ -11,6 +11,20 @@ plt.bar(range(20), np.sort(nr))
 
 #plt.plot(np.sort(nr))
 
+plt.show()
+'''
+
+import matplotlib.pyplot as plt
+
+# create an array of 20 "1" values
+values = [1] * 20
+# use pyplot to plot the array of values as a barchart
+plt.bar(range(len(values)), values)
+plt.show()
+
+
+height = [80] + [20] * 19
+plt.bar(range(20), height)
 plt.show()
 
 '''

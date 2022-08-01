@@ -1,7 +1,6 @@
 from Behaviour_Modules import *
-from Experimental.Exp_helper import *
-from Old.Grammar.Behaviours_in_use.MNISTActivator import *
-from Old.Grammar.Behaviours_in_use.LineActivator import *
+from recurrent_unsupervised_stdp_learning.Exp_helper import *
+from Old.Grammar.Behaviours_in_use.Behaviour_Bar_Activator import *
 
 #set_genome({'TA': 3.988351708556492, 'EXP': 0.5004156607096197, 'S': 15.274553117050054})#{'TA': 3.617607251026159, 'EXP': 0.526794854151458, 'S': 15.517577277732101}#{'TA': 3.617607251026159, 'EXP': 0.526794854151458, 'S': 15.517577277732101})
 #{'a': 0.7922513600022001, 'c': 6.195336615158932, 'd': 0.37000460400309465, 'S': 0.13848295213418618}

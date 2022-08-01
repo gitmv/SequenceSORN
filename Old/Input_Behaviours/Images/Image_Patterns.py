@@ -13,14 +13,6 @@ from PymoNNto.NetworkBehaviour.Input.Images.PixelPattern import *
 
 class TNAP_Image_Patches(Pixel_Pattern):
 
-    def dim_contains(self, str):
-        for dim in self.dimensions:
-            for s in str:
-                if s in dim:
-                    return True
-        return False
-
-
     def get_filters(self):
 
         print('rendering images...')
