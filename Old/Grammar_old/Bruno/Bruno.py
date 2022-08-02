@@ -1,6 +1,5 @@
-from Old.Grammar.Behaviours_in_use import *
 from Old.Grammar_old.Bruno.Logistic_Regression_Reconstruction import *
-from UI.UI_Helper import *
+from UI_Helper import *
 
 ui = False
 neuron_count = 2400#900#1600

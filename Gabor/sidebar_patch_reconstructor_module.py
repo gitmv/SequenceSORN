@@ -3,6 +3,8 @@ from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
 #from UI.Tabs import *
 #from UI.Analysis_Modules import *
 
+
+
 class sidebar_patch_reconstructor_module(TabBase):
 
     def initialize(self, Network_UI):
@@ -79,12 +81,12 @@ class sidebar_patch_reconstructor_module(TabBase):
             img_area=W[Network_UI.network['exc_neurons', 0].Input_Mask]
             c_recon=Network_UI.network['Image_Patch_Reconstructor', 0].reconstruct_image(img_area)
 
-            c_recon/=np.max(c_recon)
+            c_recon /= np.max(c_recon)
 
             self.clicked_reconstruction_image.setImage(np.rot90(c_recon, k=3), levels=(0, 1))
 
             gen=Network_UI.network['Image_Patch_Generator', 0]
             img=gen.white.copy()#gen.on_center_white.copy()*20.0
             x,y=int(gen.py),int(gen.px)
-            img[x-10:x+Network_UI.network.patch_w+10,y-10:y+Network_UI.network.patch_h+10]=255
+            img[x-10:x+Network_UI.network.patch_w+10,y-10:y+Network_UI.network.patch_h+10] = 255
             self.image.setImage(np.rot90(img, k=3), levels=(0, 255))

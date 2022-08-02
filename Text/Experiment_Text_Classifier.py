@@ -1,5 +1,5 @@
 from Helper import *
-from UI.UI_Helper import *
+from UI_Helper import *
 from Behaviour_Modules import *
 from Behaviour_Text_Modules import *
 from Old.Grammar_old.Bruno.Logistic_Regression_Reconstruction import *

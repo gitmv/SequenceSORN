@@ -123,6 +123,11 @@ class create_weights(Behaviour):
         if self.get_init_attr('update_enabled', False):
             synapses.enabled *= synapses.W > 0
 
+        if self.get_init_attr('remove autapses', True) and synapses.src == synapses.dst:
+            diag = synapses.get_synapse_mat('ones')>0.0
+            np.fill_diagonal(diag, False)
+            synapses.enabled *= diag
+
         if self.get_init_attr('normalize', True):
             synapses.W /= np.sum(synapses.W, axis=1)[:, None]
 
