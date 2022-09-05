@@ -7,6 +7,7 @@ class Generate_Output(Behaviour):
 
     def set_variables(self, neurons):
         self.exp = self.get_init_attr('exp', 1.5)
+        self.act_mul = self.get_init_attr('act_mul', 0.0)
         neurons.activity = neurons.get_neuron_vec()
         neurons.output = neurons.get_neuron_vec().astype(bool)
         neurons.output_old = neurons.get_neuron_vec().astype(bool)
@@ -18,7 +19,12 @@ class Generate_Output(Behaviour):
         neurons.output_old = neurons.output.copy()
         neurons.output = neurons.get_neuron_vec("uniform") < self.activation_function(neurons.activity)
         neurons._activity = neurons.activity.copy() #for plotting
-        neurons.activity.fill(0)
+        neurons.activity *= self.act_mul
+        #neurons.activity.fill(0)
+
+    def get_UI_Preview_Plots(self):
+        x=np.arange(0,1,0.01)
+        return [[x,self.activation_function(x)]]
 
 
 class Generate_Output_Inh(Behaviour):
@@ -39,6 +45,10 @@ class Generate_Output_Inh(Behaviour):
         neurons.output = neurons.get_neuron_vec('uniform') < self.activation_function(self.avg_act)#neurons.inh
         neurons._activity = neurons.activity.copy()  # for plotting
         neurons.activity.fill(0)
+
+    def get_UI_Preview_Plots(self):
+        x=np.arange(0,1,0.01)
+        return [[x,self.activation_function(x)]]
 
 
 
@@ -62,13 +72,16 @@ class Learning_Inhibition(Behaviour):
 
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)
-        self.threshold = self.get_init_attr('threshold', np.tanh(0.02*20), neurons)
+        neurons.LI_threshold = self.get_init_attr('threshold', np.tanh(0.02*20), neurons)
         self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)
         self.input_tag = 'input_' + self.transmitter
 
+        #neuron.LTH = -self.threshold
+
     def new_iteration(self, neurons):
         o = np.abs(getattr(neurons, self.input_tag))
-        neurons.linh = np.clip(1 - (o - self.threshold) * self.strength, 0.0, 1.0)
+        #print(np.mean(o), neurons.LI_threshold)
+        neurons.linh = np.clip(1 - (o - neurons.LI_threshold) * self.strength, 0.0, 1.0)
 
 class Intrinsic_Plasticity(Behaviour):
 

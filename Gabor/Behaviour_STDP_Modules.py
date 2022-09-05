@@ -70,3 +70,9 @@ class Complex_STDP(Behaviour):
             s.W += dw * s.enabled
 
             s.W.clip(0.0, None, out=s.W)
+
+    def get_UI_Preview_Plots(self):
+        x = np.arange(0, len(self.LTP_function), 1) - self.STDP_f_center
+        return [[x, self.LTP_function],
+                [x, self.LTD_function],
+                [x, self.LTP_function+self.LTD_function]]

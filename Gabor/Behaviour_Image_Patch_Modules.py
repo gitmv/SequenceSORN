@@ -37,6 +37,8 @@ class Image_Patch_Generator(Behaviour):
         network.patch_w = self.get_init_attr('patch_w', 1)
         network.patch_h = self.get_init_attr('patch_h', 1)
 
+        self.patch_min = self.get_init_attr('patch_min', 20)
+
         pil_image = Image.open(image_path)
         pil_image_gray = pil_image.convert('L')
         #pil_image_gray.show()
@@ -101,7 +103,7 @@ class Image_Patch_Generator(Behaviour):
 
         m = -1
 
-        while m < 20:#10:#20
+        while m < self.patch_min:#10:#20
 
             #x, y = self.get_random_frame_position(network)
             #x, y = self.get_moving_frame_position(network)
@@ -118,8 +120,8 @@ class Image_Patch_Generator(Behaviour):
         #network.on_center_white = network.on_center_white.astype('float64') / s / 255.0 * 3000.0#4000.0
         #network.off_center_white = network.off_center_white.astype('float64') / s / 255.0 * 3000.0#4000.0
 
-        network.on_center_white = network.on_center_white.astype('float64') / 255.0 * 10.0
-        network.off_center_white = network.off_center_white.astype('float64') / 255.0 * 10.0
+        network.on_center_white = network.on_center_white.astype('float64') / 255.0 * 5.0
+        network.off_center_white = network.off_center_white.astype('float64') / 255.0 * 5.0
 
         network.on_off_center_white = np.hstack([network.on_center_white, network.off_center_white])
 
@@ -163,6 +165,7 @@ class Image_Patch_Reconstructor(Behaviour):
 
     def set_variables(self, neurons):
         self.reconstruction_image = np.zeros([patch_h, patch_w, 3])
+        self.one_step_reconstruction_image = np.zeros([patch_h, patch_w, 3])
 
     def reconstruct_image(self, data):
         shaped_data=data.reshape((neurons_per_pixel, patch_h, patch_w*2))
@@ -174,8 +177,8 @@ class Image_Patch_Reconstructor(Behaviour):
     def new_iteration(self, network):
         neurons = network['exc_neurons', 0]
 
-        data = neurons.output[neurons.Input_Mask]
-        self.reconstruction_image = (self.reconstruction_image*9 +  self.reconstruct_image(data))/10
+        self.one_step_reconstruction_image = self.reconstruct_image(neurons.output[neurons.Input_Mask])
+        self.reconstruction_image = (self.reconstruction_image*9 +  self.one_step_reconstruction_image)/10
 
 
 
