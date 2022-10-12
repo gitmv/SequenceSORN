@@ -31,7 +31,7 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
     network.simulate_iterations(steps_plastic, 100, measure_block_time=display)
 
     if stdp_off:
-        network.deactivate_mechanisms('STDP')
+        network.deactivate_behaviours('STDP')
 
     network['grammar_act', 0].behaviour_enabled = False
     #network['Text_Activator', 0].behaviour_enabled = False
@@ -48,7 +48,7 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
     #network['Text_Activator', 0].behaviour_enabled = True
 
     if stdp_off:
-        network.activate_mechanisms('STDP')
+        network.activate_behaviours('STDP')
 
     return text
 
@@ -119,7 +119,7 @@ def train_and_generate_text(SORN, steps_plastic, steps_train, steps_spont, steps
     #    np.save('Data/W{}.npy'.format(i), syn.W)
 
     if stdp_off:
-        SORN.deactivate_mechanisms('STDP')
+        SORN.deactivate_behaviours('STDP')
 
     for ng in SORN['prediction_source']:
         SORN.add_behaviours_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
@@ -200,7 +200,7 @@ def train_and_generate_text(SORN, steps_plastic, steps_train, steps_spont, steps
     SORN.recording_on()
 
     if stdp_off:
-        SORN.activate_mechanisms('STDP')
+        SORN.activate_behaviours('STDP')
 
     score_dict = SORN['grammar_act', 0].get_text_score(spont_output)
 

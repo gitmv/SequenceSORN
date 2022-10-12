@@ -2,10 +2,8 @@ from PymoNNto.Exploration.Network_UI import *
 from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
 from PymoNNto.Exploration.AnalysisModules import *
 
-blue = (0.0, 0.0, 255.0, 255.0)
-red = (255.0, 0.0, 0.0, 255.0)
-yellow = (255.0, 150.0, 0.0, 255.0)
-black = (0.0, 0.0, 0.0, 255.0)
+from PymoNNto.Exploration.Network_UI.Advanced_Tabs import *
+from Plots.iterative_map_plot import *
 
 class activity_to_volts(Behaviour):
 
@@ -34,12 +32,17 @@ def show_UI(net, sm, qa=['STDP', 'Text_Activator'], additional_modules=None):
         additional_modules
     )
 
+    my_modules['sc1'] = iterative_map_tab("sensitivity", "_activity", title='IM s-a')
+    my_modules['imp1'] = iterative_map_tab("_activity", "_activity", title='IM a-a')
+    my_modules['imp2'] = iterative_map_tab("output", "output", title='IM o-o')
+
     #modify some tabs
     my_modules[multi_group_plot_tab].__init__(['output|target_activity|0.0|target_activity*2', '_activity', 'sensitivity', 'input_GABA*(-1)|LI_threshold', 'linh'])
-    my_modules[single_group_plot_tab].__init__(['output', '_activity', 'input_GLU', 'input_GABA', 'input_grammar', 'sensitivity', 'weight_norm_factor', 'refrac_spike_chance'], net_lines=[0.02], neuron_lines=[0, 0.5, 1.0])
+    my_modules[single_group_plot_tab].__init__(['output', '_activity', 'input_GLU', 'input_GABA', 'input_grammar', 'sensitivity'], net_lines=[0.02], neuron_lines=[0, 0.5, 1.0])
     my_modules[reconstruction_tab].__init__(recon_groups_tag='exc_neurons')
 
     #create classification AnalysisModules to classify characters and input-non-input neuron classification
+
     neurons = net.exc_neurons
 
     if hasattr(neurons, 'Input_Weights'):
@@ -49,8 +52,9 @@ def show_UI(net, sm, qa=['STDP', 'Text_Activator'], additional_modules=None):
     if hasattr(neurons, 'Input_Mask'):
         Static_Classification(parent=neurons, name='input class', classes=neurons.Input_Mask)
 
-    net.add_behaviours_to_object({100:activity_to_volts()}, net.exc_neurons)
-    my_modules['mV'] = multi_group_plot_tab(['mV', 'output', '_activity'])
+    #net.exc_neurons.add_behaviour(100, activity_to_volts())
+    #net.add_behaviours_to_object({100:}, net.exc_neurons)
+    #my_modules['mV'] = multi_group_plot_tab(['mV', 'output', '_activity'])
 
     # launch ui
     Network_UI(net, modules=my_modules, title=net.tags[0], storage_manager=sm, group_display_count=len(net.NeuronGroups), reduced_layout=False).show()

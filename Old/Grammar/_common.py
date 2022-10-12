@@ -14,9 +14,9 @@ def train_and_generate_text(SORN, plastic_steps, recovery_steps=None, text_gen_s
     SORN.simulate_iterations(plastic_steps, 100)
 
     # deactivate STDP and Input
-    SORN.deactivate_mechanisms('STDP')
-    SORN.deactivate_mechanisms('Normalization')
-    SORN.deactivate_mechanisms('Text_Activator')
+    SORN.deactivate_behaviours('STDP')
+    SORN.deactivate_behaviours('Normalization')
+    SORN.deactivate_behaviours('Text_Activator')
 
     # recovery phase
     if recovery_steps is not None:
@@ -30,7 +30,7 @@ def train_and_generate_text(SORN, plastic_steps, recovery_steps=None, text_gen_s
 
     # scoring
     score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
-    set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations': SORN.iteration})
+    set_score(score, info={'text': tr.reconstruction_history, 'simulated_iterations': SORN.iteration})
 
 
 def show_UI(SORN, sm):
@@ -189,9 +189,9 @@ def load_state(SORN, subfolder):
     SORN['exc_neurons', 0].Input_Mask = np.load(folder + '_ENm.npy')
     SORN['exc_neurons', 0].sensitivity = np.load(folder + '_ENs.npy')
 
-    SORN.deactivate_mechanisms('STDP')
-    SORN.deactivate_mechanisms('Normalization')
-    SORN.deactivate_mechanisms('Text_Activator')
+    SORN.deactivate_behaviours('STDP')
+    SORN.deactivate_behaviours('Normalization')
+    SORN.deactivate_behaviours('Text_Activator')
 
 
 def plot_corellation_matrix(network):

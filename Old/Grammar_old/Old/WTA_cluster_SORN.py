@@ -122,4 +122,4 @@ if __name__ == '__main__' and ui:
 
 score = get_max_text_score(SORN, plastic_steps, 5000, 5000, display=True, stdp_off=True, return_key='right_word_square_score')
 
-set_score(score, sm)
+set_score(score)

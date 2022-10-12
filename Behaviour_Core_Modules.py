@@ -143,13 +143,25 @@ class create_weights(Behaviour):
 
         if self.get_init_attr('normalize', True):
             synapses.W /= np.sum(synapses.W, axis=1)[:, None]
+            synapses.W *= self.get_init_attr('nomr_fac', 1.0)
 
     def new_iteration(self, synapses):
         synapses.W = synapses.W * synapses.enabled
 
 
 
+#####################################
 
+class Refrac_New(Behaviour):
+
+    def set_variables(self, neurons):
+        neurons.exhaustion = neurons.get_neuron_vec()
+        self.exh_add = self.get_init_attr('exh_add', 0.1, neurons)
+
+    def new_iteration(self, neurons):
+        neurons.exhaustion += neurons.output + (neurons.output - 1)
+        neurons.exhaustion = np.clip(neurons.exhaustion, 0, None)
+        neurons.activity -= neurons.exhaustion * self.exh_add
 
 
 

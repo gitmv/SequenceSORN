@@ -12,9 +12,9 @@ class init(TensorflowBehaviour):
         neurons.voltage = tf.Variable(neurons.get_neuron_vec()+1, dtype='float32')
         neurons.decrease = tf.constant(0.9, dtype='float32')
 
-        print('shape', neurons.voltage.shape)
+        #print('shape', neurons.voltage.shape)
 
-        print(type(neurons.voltage), type(neurons.decrease))
+        #print(type(neurons.voltage), type(neurons.decrease))
 
 
 

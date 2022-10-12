@@ -8,11 +8,11 @@ def get_oscillation_score_hierarchical(SORN_Global, simulation_steps, evaluation
 
         if mode == 'free activity without learning':
             SORN_Global['activator', 0].behaviour_enabled = False
-            SORN_Global.deactivate_mechanisms('STDP')
+            SORN_Global.deactivate_behaviours('STDP')
 
         if mode == 'free activity with learning':
             SORN_Global['activator', 0].behaviour_enabled = False
-            SORN_Global.activate_mechanisms('STDP')
+            SORN_Global.activate_behaviours('STDP')
 
         SORN_Global.simulate_iterations(simulation_steps+evaluation_steps, 100, measure_block_time=True)
 
@@ -46,10 +46,10 @@ def get_evolution_score(SORN_Global, simulation_steps, evaluation_steps, inh_tar
     exc_score = np.power(np.sum(np.abs(exc_avg - exc_avg_tar)), 2)
     inh_score = np.power(np.sum(np.abs(inh_avg - inh_avg_tar)), 2)
 
-    print(exc_score, inh_score/20)
+    #print(exc_score, inh_score/20)
     score1 = -(exc_score + inh_score/20)
 
-    SORN_Global.deactivate_mechanisms('STDP')
+    SORN_Global.deactivate_behaviours('STDP')
 
     SORN_Global.simulate_iterations(simulation_steps, 100, measure_block_time=False)
     exc_avg_tar = np.mean((e_ng['IPTI'][0].min_th + e_ng['IPTI'][0].max_th) / 2)

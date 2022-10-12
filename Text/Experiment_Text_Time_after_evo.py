@@ -1,25 +1,17 @@
 from PymoNNto import *
-from PymoNNto.Exploration.AnalysisModules.Weight_Classifier_Pre import *
+from PymoNNto.Exploration.AnalysisModules import *
 from Behaviour_Core_Modules import *
 from Gabor.Behaviour_Image_Patch_Modules import *
 from Gabor.Behaviour_STDP_Modules import *
 from Gabor.sidebar_patch_reconstructor_module import *
 from Text.Behaviour_Text_Modules import *
-from UI_Helper import *
 from Helper import *
 
-class Refrac_New(Behaviour):
 
-    def set_variables(self, neurons):
-        neurons.exhaustion = neurons.get_neuron_vec()
-        self.exh_add = self.get_init_attr('exh_add', 0.1, neurons)
-
-    def new_iteration(self, neurons):
-        neurons.exhaustion += neurons.output + (neurons.output - 1)
-        neurons.exhaustion = np.clip(neurons.exhaustion, 0, None)
-        neurons.activity -= neurons.exhaustion * self.exh_add
 
 #set_genome({'EE': 1.1976511689225946, 'IS': 45.18634856759456, 'I': 0.007171712492137172, 'R': 0.17320492857467587})
+
+#set_genome({'EE': 1.5797593883794177, 'IS': 48.181668522381685, 'I': 0.009834236226210418, 'R': 0.4216672798960566})
 
 ui = False
 neuron_count = 1400
@@ -32,6 +24,8 @@ free_steps = 5000
 #grammar = get_char_sequence(23)    #Experiment B
 #grammar = get_long_text()          #Experiment C
 grammar = get_random_sentences(1)    #Experiment D
+
+
 
 input_density = 0.92
 
@@ -124,6 +118,7 @@ net.initialize(info=True, storage_manager=sm)
 
 #User interface
 if __name__ == '__main__' and ui:
+    from UI_Helper import *
     Weight_Classifier_Pre(net.exc_neurons, syn_tag='EE')
     show_UI(net, sm)
 else:

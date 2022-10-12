@@ -116,7 +116,7 @@ print(tr.reconstruction_history)
 
 #scoring
 score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
-set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
+set_score(score, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
 '''
 

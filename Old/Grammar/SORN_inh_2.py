@@ -219,7 +219,7 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 
 #scoring
 #score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
-#set_score(score, sm, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
+#set_score(score, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
 
 
@@ -257,7 +257,7 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 
 #score = 1-np.mean(np.abs(SORN['np.mean(n.output)', 0, 'np'][1000:]-0.02))
 
-#set_score(score, sm)
+#set_score(score)
 
 #30: Threshold_Output(threshold=0.5),
 
@@ -311,6 +311,6 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 
 #scoring
 #score = SORN['Text_Generator', 0].get_text_score(recon_text)
-#set_score(score, sm)
+#set_score(score)
 
 

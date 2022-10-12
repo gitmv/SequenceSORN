@@ -1,0 +1,181 @@
+from Behaviour_Core_Modules import *
+from UI_Helper import *
+from Text.Behaviour_Text_Modules import *
+from Helper import *
+
+
+class Text_Activator_IL(Behaviour):
+
+    def set_variables(self, neurons):
+        self.add_tag('Text_Activator')
+        self.text_generator = neurons['Text_Generator', 0]
+        self.strength = self.get_init_attr('strength', 1, neurons)
+
+    def new_iteration(self, neurons):
+        neurons.input_grammar = (neurons.y == neurons.current_char_index)*self.strength
+        neurons.activity += neurons.input_grammar
+        #neurons.output = neurons.activity>0
+        #print(neurons.input_grammar)
+
+
+
+class Text_Reconstructor_IL(Behaviour):
+
+    def set_variables(self, neurons):
+        self.add_tag('Text_Reconstructor')
+        self.current_reconstruction_char = ''
+        self.current_reconstruction_char_index = ''
+        self.reconstruction_history = ''
+
+    def new_iteration(self, neurons):
+        if neurons['Text_Activator_IL', 0] is not None:
+
+            neurons.rec_act = neurons.get_neuron_vec()
+            for s in neurons.efferent_synapses['GLU']:
+                s.src.rec_act += s.W.T.dot(s.dst.output)
+
+            if np.sum(neurons.rec_act)==0:
+                self.current_reconstruction_char_index = -1
+                self.current_reconstruction_char = '#'
+            else:
+                index_act = np.sum(neurons.rec_act.reshape((neurons.height, neurons.width)), axis=1)
+                self.current_reconstruction_char_index = np.argmax(index_act)
+                self.current_reconstruction_char = neurons['Text_Activator_IL', 0].text_generator.index_to_char(self.current_reconstruction_char_index)
+
+            self.reconstruction_history += self.current_reconstruction_char
+
+
+
+class Out(Behaviour):
+
+    def set_variables(self, neurons):
+        neurons.activity = neurons.get_neuron_vec()
+        neurons.output = neurons.get_neuron_vec().astype(bool)
+        neurons.output_old = neurons.get_neuron_vec().astype(bool)
+        neurons.linh=1.0
+
+    def new_iteration(self, neurons):
+        neurons.output_old = neurons.output.copy()
+        neurons.output = neurons.activity>0.0
+        neurons._activity = neurons.activity.copy()  # for plotting
+        neurons.activity.fill(0)
+
+
+
+ui = True
+neuron_count = 2400
+plastic_steps = 30000
+recovery_steps = 10000
+text_gen_steps = 5000
+
+#grammar = get_char_sequence(5)     #Experiment A
+#grammar = get_char_sequence(23)    #Experiment B
+#grammar = get_long_text()          #Experiment C
+grammar = get_random_sentences(2)    #Experiment D
+
+net = Network(tag='Cluster Formation Network')
+
+#different h parameters for experiment
+#target_activity = 0.05
+#target_activity = 0.0125
+
+#target_activity = 0.00625
+#exc_output_exponent = 0.01 / target_activity + 0.22
+#inh_output_slope = 0.4 / target_activity + 3.6
+#LI_threshold = np.tanh(inh_output_slope * target_activity)
+
+target_activity = 1.0 / len(''.join(grammar))
+
+exc_output_exponent = 0.01 / target_activity + 0.22
+inh_output_slope = 0.4 / target_activity + 3.6
+
+print(exc_output_exponent)
+print(inh_output_slope)
+
+LI_threshold = np.tanh(inh_output_slope * target_activity)
+
+
+
+NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behaviour={
+
+    10: Text_Generator(iterations_per_char=1, text_blocks=grammar),
+    11: Text_Activator_IL(strength=1),
+
+    #42.1: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10, norm_factor=100),
+
+    50: Out(),
+
+    80: Text_Reconstructor_IL()
+})
+
+
+NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={#60 30#NeuronDimension(width=10, height=10, depth=1)
+
+    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+
+    # inhibitory input
+    20: Synapse_Operation(transmitter='GABA', strength=-1.0),
+
+    # stability
+    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007), #0.02
+
+    # learning
+    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
+    41: STDP(transmitter='EE', strength=0.0015),
+    41.1: STDP(transmitter='ES', strength=0.0015),
+
+    42: Normalization(syn_direction='afferent', syn_type='EE', exec_every_x_step=10),
+    42.1: Normalization(syn_direction='afferent', syn_type='ES', exec_every_x_step=10, norm_factor=10),#10
+    43: Normalization(syn_direction='efferent', syn_type='EE', exec_every_x_step=10),
+
+    #42: Normalization(syn_direction='afferent', syn_type='EE', exec_every_x_step=10),
+    #43: Normalization(syn_direction='efferent', syn_type='EE', exec_every_x_step=10),
+
+    # output
+    50: Generate_Output(exp=exc_output_exponent),
+})
+
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+
+    # excitatory input
+    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+
+    # output
+    70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'
+})
+
+SynapseGroup(net=net, tag='ES,GLU', src='inp_neurons', dst='exc_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0, nomr_fac=10)
+})
+
+SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+sm = StorageManager(net.tags[0], random_nr=True)
+net.initialize(info=True, storage_manager=sm)
+
+net.exc_neurons.sensitivity += 0.49
+
+#net['Text_Generator',0].plot_char_distribution()
+
+#User interface
+if __name__ == '__main__' and ui:
+    from UI_Helper import *
+    Weight_Classifier_Pre(net.exc_neurons, syn_tag='EE')
+    Weight_Classifier_Pre(net.exc_neurons, syn_tag='ES')
+    show_UI(net, sm)
+else:
+    print('please use UI')

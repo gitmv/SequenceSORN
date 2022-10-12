@@ -83,6 +83,6 @@ Classifier_Weights_Post(net['exc_neurons', 0]),
 if __name__ == '__main__' and ui:
     show_UI_2(net, sm)
 else:
-    set_score(measure_stability_score(net), sm, info={'simulated_iterations': net.iteration})
+    set_score(measure_stability_score(net), info={'simulated_iterations': net.iteration})
 
 

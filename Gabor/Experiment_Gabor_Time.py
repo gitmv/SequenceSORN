@@ -127,7 +127,7 @@ else:
     neurons = net['exc_neurons', 0]
     net.recording_off()
     net.simulate_iterations(50000,100)
-    net.deactivate_mechanisms(['Input', 'Complex_STDP'])
+    net.deactivate_behaviours(['Input', 'Complex_STDP'])
     net.recording_on()
     steps = 30000
     net.simulate_iterations(steps, 100)
@@ -137,5 +137,5 @@ else:
     temp=mean - neurons.target_activity*1.5
     score = -np.sum(temp[temp>0])
 
-    set_score(score, sm)
+    set_score(score)
 

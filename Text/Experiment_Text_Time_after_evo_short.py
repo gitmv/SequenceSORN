@@ -1,16 +1,19 @@
 from PymoNNto import *
-from PymoNNto.Exploration.AnalysisModules.Weight_Classifier_Pre import *
+from PymoNNto.Exploration.AnalysisModules import *
 from Behaviour_Core_Modules import *
 from Gabor.Behaviour_Image_Patch_Modules import *
 from Gabor.Behaviour_STDP_Modules import *
 from Gabor.sidebar_patch_reconstructor_module import *
 from Text.Behaviour_Text_Modules import *
-from UI_Helper import *
 from Helper import *
 
 
 
-ui = True
+#set_genome({'EE': 1.1976511689225946, 'IS': 45.18634856759456, 'I': 0.007171712492137172, 'R': 0.17320492857467587})
+
+#set_genome({'EE': 1.5797593883794177, 'IS': 48.181668522381685, 'I': 0.009834236226210418, 'R': 0.4216672798960566})
+
+ui = False
 neuron_count = 1400
 
 input_steps = 30000
@@ -20,15 +23,20 @@ free_steps = 5000
 #grammar = get_char_sequence(5)     #Experiment A
 #grammar = get_char_sequence(23)    #Experiment B
 #grammar = get_long_text()          #Experiment C
-grammar = get_random_sentences(1)    #Experiment D
+grammar = get_random_sentences(3)    #Experiment D
 
 input_density = 0.92
 
-#{'T': 0.008943824840703636, 'G': 0.26273380412713637, 'I': 0.006265887162771, 'P': 2.2558826074623983, 'A': 0.8582753875874077, 'R': 0.10407832172006712
-
 target_activity = 0.008311759039259207#1.0 / len(''.join(grammar))
-exc_output_exponent = 0.01 / target_activity + 0.22
-inh_output_slope = 0.4 / target_activity + 3.6
+#exc_output_exponent = 0.01 / target_activity + 0.22
+#inh_output_slope = 0.4 / target_activity + 3.6
+
+#print('ex', exc_output_exponent)
+#print('in', inh_output_slope)
+
+exc_output_exponent=get_gene('EE', 1.4231147622021607)
+inh_output_slope=get_gene('IS', 51.72459048808643)
+
 
 GABA_strength = 0.25579281223890693#0.1#0.3#!!!!!!!!!!!!!!!!!!!!!!!!!
 LI_threshold = np.tanh(inh_output_slope * target_activity)*GABA_strength#0.12#0.43757758126023955
@@ -45,7 +53,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     #9: Exception_Activator(), # use for manual text input with GUI code tab...
 
     # excitatory input
-    10: Text_Generator(text_blocks=grammar, iterations_per_char=10),
+    10: Text_Generator(text_blocks=grammar, iterations_per_char=5),
     11: Text_Activator(input_density=input_density, strength=0.1),#remove for non input tests
     12: Synapse_Operation(transmitter='GLU', strength=1.0),
 
@@ -53,14 +61,14 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     20: Synapse_Operation(transmitter='GABA', strength=-GABA_strength),#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! changes LI_threshold
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.005967758933694278),
-    31: Refrac_New(exh_add=0.10700595454949832),
+    30: Intrinsic_Plasticity(target_activity=target_activity, strength=get_gene('I', 0.005967758933694278)),
+    31: Refrac_New(exh_add=get_gene('R', 0.10700595454949832)),
 
     # learning
     40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
     41: Complex_STDP(transmitter='GLU', strength=0.0002,
-                     LTP=np.array([+0.0, +0.0, +0.0, +0.0, 0.0, 0.0, 0.0, -0.0, get_gene('s1', 0.1), get_gene('s2', 0.2), get_gene('s3', 0.3), get_gene('s4', 0.4), get_gene('s5', 0.5), get_gene('s6', 0.5), get_gene('s7', 0.5)])*2.686458399827205,#2.0
-                     LTD = np.array([-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1]) * 0.006169886444089567,  # *1.5
+                     LTP=np.array([+0.0, +0.0, +0.0, +0.0, 0.0, 0.0, 0.0, -0.0, 0.116, 0.278, 0.4, 0.421, 0.79, 0.515, 0.539]) * 2.686458,#2.0
+                     LTD = np.array([-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1]) * 0.00617,  # *1.5
                      #LTP=np.array([+0.0, +0.0, +0.0, +0.0, +0.1, +0.2, +0.6, +1.0, +1.0, +1.0, +0.8, +0.7, +0.5, +0.4, +0.2]),
                      #LTD=np.array([-0.1, -0.3, -0.4, -0.5, -0.6, -0.6, -0.7, -0.6, -0.6, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1]) * 0.0,  # *1.5
                      # LTP=np.array([+0.0, +0.0, +0.0, +0.0, +0.0, +0.0, +0.0, +0.5, +1.0, +1.0, +1.0, +1.0, +1.0, +1.0, +1.0]),
@@ -104,10 +112,11 @@ SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behav
 sm = StorageManager(net.tags[0], random_nr=True)
 net.initialize(info=True, storage_manager=sm)
 
-net.exc_neurons.sensitivity += 0.3
+#net.exc_neurons.sensitivity += 0.3
 
 #User interface
 if __name__ == '__main__' and ui:
+    from UI_Helper import *
     Weight_Classifier_Pre(net.exc_neurons, syn_tag='EE')
     show_UI(net, sm)
 else:

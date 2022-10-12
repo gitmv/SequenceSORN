@@ -36,7 +36,7 @@ class Complex_STDP(Behaviour):
             s.dst._STDP_buffer_length = buffer_length
 
         self.STDP_f_center = self.get_init_attr('STDP_f_center', int(np.round(len(self.LTP_function)/2))-1)
-        print(self.STDP_f_center, np.sum(self.LTP_function+self.LTD_function))
+        #print(self.STDP_f_center, np.sum(self.LTP_function+self.LTD_function))
 
         if self.get_init_attr('plot', False):
             plt.bar(np.array([-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7]),self.LTP_function+self.LTD_function,width=0.3)

@@ -31,7 +31,7 @@ class Text_Generator(Behaviour):
         char_count_vec = self.count_chars_in_blocks()
         self.char_weighting = char_count_vec / np.mean(char_count_vec)
 
-        self.iterations_per_char = self.get_init_attr('iterations_per_char', 10)
+        self.iterations_per_char = self.get_init_attr('iterations_per_char', 1)
 
         for i in range(len(self.text_blocks)):
             new = ''
@@ -103,6 +103,18 @@ class Text_Generator(Behaviour):
         for bs in block_scores:
             score += np.sqrt(bs)
         return score
+
+    def plot_char_distribution(self):
+        import matplotlib.pyplot as plt
+
+        cw=-np.sort(-self.char_weighting)
+
+        plt.barh(np.arange(len(cw)), cw)
+        #plt.barh
+
+        #self.char_weighting
+        plt.show()
+
 
 class Text_Activator(Behaviour):
 

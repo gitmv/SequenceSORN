@@ -121,7 +121,7 @@ exc_neurons['Normalization', 0].behaviour_enabled = False
 
 SORN['Classifier_Text_Reconstructor', 0].start_recording()
 SORN.simulate_iterations(10000, 100)
-SORN.deactivate_mechanisms('Text_Activator')
+SORN.deactivate_behaviours('Text_Activator')
 input_neurons['STDP_C', 0].behaviour_enabled = False
 input_neurons['Normalization', 0].behaviour_enabled = False
 SORN['Classifier_Text_Reconstructor', 0].train()#starts activating after training/stops recording automatically
@@ -146,7 +146,7 @@ print('swapped layer', SORN['Text_Reconstructor', 0].reconstruction_history)
 
 
 #classifier
-SORN.deactivate_mechanisms('input_synapse_operation')
+SORN.deactivate_behaviours('input_synapse_operation')
 SORN['Classifier_Text_Reconstructor', 0].activate_predicted_char = True
 
 SORN['Classifier_Text_Reconstructor', 0].reconstruction_history = ''
@@ -162,7 +162,7 @@ print('swapped classifier', SORN['Classifier_Text_Reconstructor', 0].reconstruct
 
 #scoring
 score = SORN['Text_Generator', 0].get_text_score(SORN['Text_Reconstructor', 0].reconstruction_history)
-set_score(score, sm)
+set_score(score)
 
 import matplotlib.pyplot as plt
 plt.matshow(SORN['Classifier_Text_Reconstructor', 0].classifier.coef_[:, 0:200])
@@ -198,7 +198,7 @@ print(recon_text)
 
 #scoring
 score = SORN['Text_Generator', 0].get_text_score(recon_text)
-set_score(score, sm)
+set_score(score)
 '''
 
 

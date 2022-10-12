@@ -126,10 +126,10 @@ def run_plastic_phase(SORN, steps_plastic, display=True, storage_manager=None):
     if display:
         print("Plastic phase...")
     SORN.clear_recorder()
-    SORN.activate_mechanisms('STDP')
+    SORN.activate_behaviours('STDP')
     SORN.simulate_iterations(steps_plastic, 100, measure_block_time=display, disable_recording=True)
 
-    SORN.deactivate_mechanisms('STDP')
+    SORN.deactivate_behaviours('STDP')
     #SORN.clear_recorder()
     #SORN.recording_off()
     return SORN
@@ -140,7 +140,7 @@ def train_readout(SORN, steps_train, steps_test, source, display=True, stdp_off=
         print("\nRecord predictions...")
 
     if stdp_off:
-        SORN.deactivate_mechanisms('STDP')
+        SORN.deactivate_behaviours('STDP')
 
     for ng in SORN['prediction_source']:
         SORN.add_behaviours_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
@@ -166,8 +166,8 @@ def train_readout(SORN, steps_train, steps_test, source, display=True, stdp_off=
 
 
     SORN.clear_recorder(['prediction_rec', 'index_rec'])
-    SORN.deactivate_mechanisms(['prediction_rec', 'index_rec'])
-
+    SORN.deactivate_behaviours('prediction_rec')
+    SORN.deactivate_behaviours('index_rec')
 
     return readout_layer, X_train, Y_train, X_test, Y_test
 
@@ -216,7 +216,7 @@ def get_score_predict_next_step(SORN, source, readout_layer, X_test, Y_test, lag
         print("\nTesting prediction performance...")
 
     if stdp_off:
-        SORN.deactivate_mechanisms('STDP')
+        SORN.deactivate_behaviours('STDP')
 
     #SORN.clear_recorder()
     #SORN.recording_on()
@@ -267,7 +267,7 @@ def get_score_spontaneous_music(SORN, source, readout_layer, steps_spont, split_
         print('\nGenerate spontaneous output...')
     
     if stdp_off:
-        SORN.deactivate_mechanisms('STDP')
+        SORN.deactivate_behaviours('STDP')
 
     for ng in SORN['prediction_source']:
         SORN.add_behaviours_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
@@ -415,15 +415,15 @@ def get_score_spontaneous_music(SORN, source, readout_layer, steps_spont, split_
     SORN.recording_on()
 
     if stdp_off:
-        SORN.activate_mechanisms('STDP') 
+        SORN.activate_behaviours('STDP')
 
     score_dict = source.get_music_score(spont_output, pianoroll) 
     #print(score_dict)
     if storage_manager is not None:
         storage_manager.save_param_dict(score_dict)
 
-    SORN.clear_recorder(['prediction_rec', 'index_rec'])
-    SORN.deactivate_mechanisms(['prediction_rec', 'index_rec'])
+    SORN.clear_recorder('prediction_rec')
+    SORN.deactivate_behaviours('index_rec')
 
 
     return score_dict

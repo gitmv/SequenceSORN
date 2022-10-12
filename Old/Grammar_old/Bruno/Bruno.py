@@ -74,13 +74,13 @@ if __name__ == '__main__' and ui:
 SORN.simulate_iterations(plastic_steps, 100)
 
 #deactivate STDP and Input
-SORN.deactivate_mechanisms('STDP')
-SORN.deactivate_mechanisms('Normalization')
-#SORN.deactivate_mechanisms('Text_Activator')
+SORN.deactivate_behaviours('STDP')
+SORN.deactivate_behaviours('Normalization')
+#SORN.deactivate_behaviours('Text_Activator')
 SORN['Classifier_Text_Reconstructor', 0].start_recording()
 
 SORN.simulate_iterations(train_steps, 100)
-SORN.deactivate_mechanisms('Text_Activator')
+SORN.deactivate_behaviours('Text_Activator')
 SORN['Classifier_Text_Reconstructor', 0].train()#starts activating after training/stops recording automatically
 
 #import matplotlib.pyplot as plt
@@ -94,7 +94,7 @@ print(SORN['Classifier_Text_Reconstructor', 0].reconstruction_history)
 
 #scoring
 #score = SORN['Text_Generator', 0].get_text_score(recon_text)
-#set_score(score, sm)
+#set_score(score)
 
 
 '''

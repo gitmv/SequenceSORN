@@ -143,13 +143,13 @@ else:
     net.simulate_iterations(plastic_steps, 100)
 
     # deactivate STDP and Input
-    net.deactivate_mechanisms('STDP')
-    net.deactivate_mechanisms('Normalization')
+    net.deactivate_behaviours('STDP')
+    net.deactivate_behaviours('Normalization')
     # SORN.deactivate_mechanisms('Text_Activator')
     net['Classifier_Text_Reconstructor', 0].start_recording()
 
     net.simulate_iterations(train_steps, 100)
-    net.deactivate_mechanisms('Text_Activator')
+    net.deactivate_behaviours('Text_Activator')
     net['Classifier_Text_Reconstructor', 0].train()  # starts activating after training/stops recording automatically
 
     # import matplotlib.pyplot as plt
@@ -163,4 +163,4 @@ else:
 
     # scoring
     # score = SORN['Text_Generator', 0].get_text_score(recon_text)
-    # set_score(score, sm)
+    # set_score(score)
