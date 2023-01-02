@@ -1,7 +1,44 @@
+from PymoNNto import *
 from Helper import *
 from UI_Helper import *
 from Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
+
+class Text_Activator_custom(Text_Activator):
+
+    def set_variables(self, neurons):
+        self.add_tag('Text_Activator')
+        self.text_generator = neurons['Text_Generator', 0]
+
+        input_density = self.get_init_attr('input_density', 0.5)
+        activation_size = np.floor((neurons.size * input_density) / len(self.text_generator.alphabet)) #average char cluster size
+
+        neurons.mean_network_activity = activation_size / neurons.size  # optional/ can be used by other (homeostatic) modules
+
+        if self.get_init_attr('char_weighting', True):
+            cw = self.text_generator.char_weighting
+        else:
+            cw = None
+
+        print(cw)
+
+        ccw = self.get_init_attr('custom_cw', None)
+        if ccw is not None:
+            ccw = np.array(ccw)
+            i = [0, 6, 9, 1, 14, 18, 2, 4, 11, 15, 19, 20, 3, 5, 7, 8, 10, 12, 13, 16, 17, 21, 22]#resort sorted distribution
+            cw[i] = ccw
+            cw = cw/np.sum(cw)*len(self.text_generator.alphabet)
+
+        print(cw)
+
+        neurons.Input_Weights = self.one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, cw)
+        neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
+
+        neurons.input_grammar = neurons.get_neuron_vec()
+
+        self.strength = self.get_init_attr('strength', 1, neurons)
+
+
 
 ui = True
 neuron_count = 2400
@@ -17,19 +54,23 @@ grammar = get_random_sentences(3)    #Experiment D
 
 input_density=0.92
 target_activity = 1.0 / len(''.join(grammar))
-exc_output_exponent = 0.01 / target_activity + 0.22
-inh_output_slope = 0.4 / target_activity + 3.6
-LI_threshold = np.tanh(inh_output_slope * target_activity)
+exc_output_exponent = 0.01 / target_activity + 0.22 #gene('E', 0.55)
+inh_output_slope = 0.4 / target_activity + 3.6 #gene('I', 18.222202430254626)
+LI_threshold = np.tanh(inh_output_slope * target_activity) #gene('L', 0.31)
 
 net = Network(tag='Text Learning Network')
+
+custom_cw = [367, 296, 252, 147, 130, 126, 114,  99,  99,  94,  83,  71,  65, 63,  50,  46,  46,  46,  44,  41,  41,  41,  39]
 
 NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
 
     #9: Exception_Activator(), # use for manual text input with GUI code tab...
 
+
+
     # excitatory input
     10: Text_Generator(text_blocks=grammar),
-    11: Text_Activator(input_density=input_density, strength=1.0),#remove for non input tests
+    11: Text_Activator_custom(input_density=input_density, strength=1.0, custom_cw=custom_cw),#remove for non input tests
     12: Synapse_Operation(transmitter='GLU', strength=1.0),
 
     # inhibitory input

@@ -109,6 +109,8 @@ class Text_Generator(Behaviour):
 
         cw=-np.sort(-self.char_weighting)
 
+        print(cw)
+
         plt.barh(np.arange(len(cw)), cw)
         #plt.barh
 
@@ -146,7 +148,7 @@ class Text_Activator(Behaviour):
 
         result = np.zeros((output_size, input_size))
 
-        available = set(range(output_size))
+        available = range(output_size)#set()
 
         for a in range(input_size):
 
@@ -157,7 +159,7 @@ class Text_Activator(Behaviour):
 
             temp = random.sample(available, int(char_activiation_size))
             result[temp, a] = 1
-            available = set([n for n in available if n not in temp])
+            available = [n for n in available if n not in temp]#set()
             assert len(available) > 0, 'Input too big for non-overlapping neurons'
 
         return result

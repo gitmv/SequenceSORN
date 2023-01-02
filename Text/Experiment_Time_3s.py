@@ -1,3 +1,4 @@
+#Experiment_Time_after_evo_short.py old name
 from PymoNNto import *
 from PymoNNto.Exploration.AnalysisModules import *
 from Behaviour_Core_Modules import *
@@ -10,8 +11,12 @@ from Helper import *
 
 
 #set_genome({'EE': 1.1976511689225946, 'IS': 45.18634856759456, 'I': 0.007171712492137172, 'R': 0.17320492857467587})
-
 #set_genome({'EE': 1.5797593883794177, 'IS': 48.181668522381685, 'I': 0.009834236226210418, 'R': 0.4216672798960566})
+
+#best evo so far 3s (short training time):
+set_genome({'EE': 1.5158069990711018, 'IS': 45.773283884389144, 'I': 0.011145505816734255, 'R': 0.4772179567617313})
+set_genome({'EE': 1.6204152719648817, 'IS': 46.37808407740042, 'I': 0.010683873950857455, 'R': 0.527982696611237})
+set_genome({'EE': 1.7960945697396091, 'IS': 48.609035488314525, 'I': 0.00756693766120186, 'R': 0.5056546841467859})
 
 ui = False
 neuron_count = 1400

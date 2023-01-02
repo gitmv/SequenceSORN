@@ -36,6 +36,11 @@ def show_UI(net, sm, qa=['STDP', 'Text_Activator'], additional_modules=None):
     my_modules['imp1'] = iterative_map_tab("_activity", "_activity", title='IM a-a')
     my_modules['imp2'] = iterative_map_tab("output", "output", title='IM o-o')
 
+    my_modules['imp3'] = iterative_map_tab("input_GLU", "input_GLU", title='IM iglu-iglu')
+    my_modules['imp4'] = iterative_map_tab("input_GABA", "input_GABA", title='IM iga-iga')
+    my_modules['imp5'] = iterative_map_tab("n.input_GLU+n.input_GABA", "n.input_GLU+n.input_GABA", title='IM igluga-igluga')
+    my_modules['imp6'] = iterative_map_tab("n.input_GLU+n.input_GABA+n.sensitivity", "n.input_GLU+n.input_GABA+n.sensitivity", title='IM iglugas-iglugas')
+
     #modify some tabs
     my_modules[multi_group_plot_tab].__init__(['output|target_activity|0.0|target_activity*2', '_activity', 'sensitivity', 'input_GABA*(-1)|LI_threshold', 'linh'])
     my_modules[single_group_plot_tab].__init__(['output', '_activity', 'input_GLU', 'input_GABA', 'input_grammar', 'sensitivity'], net_lines=[0.02], neuron_lines=[0, 0.5, 1.0])
