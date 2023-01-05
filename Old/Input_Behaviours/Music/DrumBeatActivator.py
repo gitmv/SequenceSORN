@@ -233,7 +233,7 @@ class DrumBeatActivator(PatternGroup):
 
     def convert_sequence_to_pianoroll(self, sequence):
         'conerts a sequence of MIDI indices to a pianoroll'
-        pianoroll = np.zeros((len(sequence), 128)).astype(np.bool_)
+        pianoroll = np.zeros((len(sequence), 128)).astype(bool)
         alphabet = self.alphabet
         if self.ontoken:
             alphabet = np.setdiff1d(alphabet, 1)

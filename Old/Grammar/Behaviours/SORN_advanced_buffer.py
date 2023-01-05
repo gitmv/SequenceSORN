@@ -376,8 +376,8 @@ class SORN_fast_syn(SORN_signal_propagation_base):
         if last_cycle_step(neurons) and self.strength!=0:
             for s in neurons.afferent_synapses[self.transmitter]:
                 #if self.sparse_optimization:
-                #    s.fast_add = (np.sum(s.W[:, s.src.activation_function(s.src).astype(np.bool)], axis=1) * self.strength) / neurons.timescale
-                #    #add = (np.sum(s.W.transpose()[s.src.output.astype(np.bool)], axis=0) * self.strength) / neurons.timescale
+                #    s.fast_add = (np.sum(s.W[:, s.src.activation_function(s.src).astype(bool)], axis=1) * self.strength) / neurons.timescale
+                #    #add = (np.sum(s.W.transpose()[s.src.output.astype(bool)], axis=0) * self.strength) / neurons.timescale
                 #else:
 
                 mask = True

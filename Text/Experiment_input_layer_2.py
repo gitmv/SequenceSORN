@@ -68,7 +68,7 @@ set_genome({'T': 0.018375060660013355, 'I': 17.642840216020584, 'L': 0.282760299
 
 
 
-ui = False
+ui = True
 neuron_count = 2400
 plastic_steps = 30000+30000
 recovery_steps = 10000

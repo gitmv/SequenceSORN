@@ -253,8 +253,8 @@ class SORN_slow_syn(SORN_signal_propagation_base):
         if self.strength!=0:
             for s in neurons.afferent_synapses[self.transmitter]:
                 if self.sparse_optimization:
-                    s.slow_add = (np.sum(s.W[:, s.src.output.astype(np.bool)], axis=1) * self.strength) / neurons.iteration_lag
-                    #add = (np.sum(s.W.transpose()[s.src.output.astype(np.bool)], axis=0) * self.strength) / neurons.iteration_lag
+                    s.slow_add = (np.sum(s.W[:, s.src.output.astype(bool)], axis=1) * self.strength) / neurons.iteration_lag
+                    #add = (np.sum(s.W.transpose()[s.src.output.astype(bool)], axis=0) * self.strength) / neurons.iteration_lag
                 else:
                     s.slow_add = (s.W.dot(s.src.output) * self.strength) / neurons.iteration_lag
 
@@ -287,8 +287,8 @@ class SORN_fast_syn(SORN_signal_propagation_base):
         if self.strength!=0:
             for s in neurons.afferent_synapses[self.transmitter]:
                 if self.sparse_optimization:
-                    s.fast_add = (np.sum(s.W[:, s.src.activation_function(s.src).astype(np.bool)], axis=1) * self.strength) / neurons.iteration_lag
-                    #add = (np.sum(s.W.transpose()[s.src.output.astype(np.bool)], axis=0) * self.strength) / neurons.iteration_lag
+                    s.fast_add = (np.sum(s.W[:, s.src.activation_function(s.src).astype(bool)], axis=1) * self.strength) / neurons.iteration_lag
+                    #add = (np.sum(s.W.transpose()[s.src.output.astype(bool)], axis=0) * self.strength) / neurons.iteration_lag
                 else:
                     s.fast_add = s.W.dot(s.src.activation_function(s.src)) * self.strength / neurons.iteration_lag
 

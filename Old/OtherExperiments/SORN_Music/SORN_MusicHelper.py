@@ -34,9 +34,9 @@ def predict_vector_sequence(linear_model, prediction_neuron_groups, inp_param_na
     symbol = None
 
     if source.is_drum:
-        pianoroll = np.zeros((iterations, len(source.alphabet))).astype(np.bool_) # we work with the drum beat matrix
+        pianoroll = np.zeros((iterations, len(source.alphabet))).astype(bool) # we work with the drum beat matrix
     else:
-        pianoroll = np.zeros((iterations, 128)).astype(np.bool_) # we have just one instrument, directly create MIDI pianoroll 
+        pianoroll = np.zeros((iterations, 128)).astype(bool) # we have just one instrument, directly create MIDI pianoroll
 
     for i in range(iterations):
         vector = predict_vector(linear_model, prediction_neuron_groups, inp_param_name)
@@ -73,7 +73,7 @@ def predict_scalar_sequence(linear_model, prediction_neuron_groups, inp_param_na
 
     spont_output = ''
     symbol = None
-    pianoroll = np.zeros((iterations, 128)).astype(np.bool_)
+    pianoroll = np.zeros((iterations, 128)).astype(bool)
 
     for i in range(iterations):
 
@@ -108,7 +108,7 @@ def predict_scalar_sequence(linear_model, prediction_neuron_groups, inp_param_na
 def get_simu_music_sequence(SORN, prediction_neuron_groups, output_param_name, readout_classifyer, seq_length, source):
     # do not feed external input back in (predict current time step)
     result=''
-    pianoroll = np.zeros((seq_length, 128)).astype(np.bool_)
+    pianoroll = np.zeros((seq_length, 128)).astype(bool)
     for _ in range(seq_length):
         SORN.simulate_iteration()
         symbol = predict_note(readout_classifyer, prediction_neuron_groups, output_param_name)

@@ -309,7 +309,7 @@ class PolyphonicActivator(MusicActivator):
 
     def convert_sequence_to_pianoroll(self, sequence):
             'conerts a sequence of MIDI indices to a pianoroll'
-            pianoroll = np.zeros((len(sequence), 128)).astype(np.bool_)
+            pianoroll = np.zeros((len(sequence), 128)).astype(bool)
             pianoroll[:, self.alphabet] = sequence
             return pianoroll
 
