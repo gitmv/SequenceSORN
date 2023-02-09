@@ -69,7 +69,7 @@ class Generate_Output_Inh(Behaviour):
 
 
 
-class Synapse_Operation(Behaviour):
+class Synapse_Operation_old(Behaviour):
 
     def set_variables(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
@@ -85,6 +85,22 @@ class Synapse_Operation(Behaviour):
             setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
 
 
+class Synapse_Operation(Behaviour):
+
+    def set_variables(self, neurons):
+        self.transmitter = self.get_init_attr('transmitter', None, neurons)
+        self.strength = self.get_init_attr('strength', 1.0, neurons)  # 1 or -1
+        self.input_tag = 'input_' + self.transmitter
+        setattr(neurons, self.input_tag, neurons.get_neuron_vec())
+
+    def new_iteration(self, neurons):
+        setattr(neurons, self.input_tag, neurons.get_neuron_vec())
+        for s in neurons.afferent_synapses[self.transmitter]:
+            s.add = np.sum(s.W[:, s.src.output], axis=1) * self.strength
+            s.dst.activity += s.add
+            setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
+
+
 class Learning_Inhibition(Behaviour):
 
     def set_variables(self, neurons):
@@ -92,6 +108,7 @@ class Learning_Inhibition(Behaviour):
         neurons.LI_threshold = self.get_init_attr('threshold', np.tanh(0.02*20), neurons)
         self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)
         self.input_tag = 'input_' + self.transmitter
+        neurons.linh = 0.0
 
         #neuron.LTH = -self.threshold
 
@@ -112,7 +129,7 @@ class Intrinsic_Plasticity(Behaviour):
         neurons.activity += neurons.sensitivity
 
 
-class STDP(Behaviour):
+class STDP_old(Behaviour):
 
     def set_variables(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
@@ -124,6 +141,35 @@ class STDP(Behaviour):
             dw = (s.dst.linh * s.dst.output)[:, None] * s.src.output_old[None, :] * mul
             s.W += dw
             #s.W.clip(0.0, None, out=s.W)
+
+
+
+############################################
+class STDP(Behaviour):
+
+    def set_variables(self, neurons):
+        self.transmitter = self.get_init_attr('transmitter', None, neurons)
+        self.eta_stdp = self.get_init_attr('strength', 0.005)
+
+    def new_iteration(self, neurons):
+        for s in neurons.afferent_synapses[self.transmitter]:
+            src_len = np.sum(s.src.output_old)
+
+            #active_synapses = s.W[np.ix_(s.dst.output, s.src.output_old)]
+
+            weight_change = s.dst.linh[s.dst.output]*self.eta_stdp
+
+            dw = np.tile(weight_change[:,None],(1, src_len))
+
+            s.W[np.ix_(s.dst.output, s.src.output_old)] += dw
+
+            #for speed increase
+            s._dst_sum[s.dst.output] += np.sum(dw, axis=1)
+            s._src_sum[s.src.output_old] += np.sum(dw, axis=0)
+
+############################################
+
+
 
 
 class Normalization(Behaviour):
@@ -142,28 +188,88 @@ class Normalization(Behaviour):
                 normalize_synapse_attr_efferent('W', 'W', neurons.weight_norm_factor, neurons, self.syn_type)
 
 
+class Normalization2(Behaviour):
+
+    def set_variables(self, neurons):
+        self.syn_type = self.get_init_attr('syn_type', 'GLU', neurons)
+        self.exec_every_x_step = self.get_init_attr('exec_every_x_step', 1)
+        self.aff_eff = self.get_init_attr('syn_direction', 'afferent')
+
+    def new_iteration(self, neurons):
+        if (neurons.iteration-1) % self.exec_every_x_step == 0:
+            if self.aff_eff=='afferent':
+                self.norm_aff(neurons)
+            #if self.aff_eff=='efferent':
+            #    self.norm_eff(neurons)
+
+
+    def norm_aff(self, neurons):
+        neurons._temp_ws = neurons.get_neuron_vec()
+
+        for s in neurons.afferent_synapses[self.syn_type]:
+            #print('aff1', np.mean(s._dst_sum), np.mean(np.sum(s.W, axis=1)))
+            neurons._temp_ws += s._dst_sum
+
+        neurons._temp_ws[neurons._temp_ws == 0] = 1 #avoid division by zero error
+
+        for s in neurons.afferent_synapses[self.syn_type]:
+            s.W /= neurons._temp_ws[:, None]
+            s._dst_sum.fill(1.0) # /= neurons._temp_ws
+
+            #print('aff2', np.mean(s._dst_sum), np.mean(np.sum(s.W, axis=1)))
+
+
+    def norm_eff(self, neurons):
+        neurons._temp_ws = neurons.get_neuron_vec()
+
+        for s in neurons.afferent_synapses[self.syn_type]:
+            #print('eff1', np.mean(s._src_sum), np.mean(np.sum(s.W, axis=0)))
+            neurons._temp_ws += s._src_sum
+
+        neurons._temp_ws[neurons._temp_ws == 0] = 1 #avoid division by zero error
+
+        for s in neurons.afferent_synapses[self.syn_type]:
+            s.W /= neurons._temp_ws
+            s._src_sum /= neurons._temp_ws
+
+            #print('eff2', np.mean(s._src_sum), np.mean(np.sum(s.W, axis=0)))
+
+
+
 class create_weights(Behaviour):
 
     def set_variables(self, synapses):
-        distribution = self.get_init_attr('distribution', 'uniform(1.0,1.0)')#ones
-        density = self.get_init_attr('density', 1)
+        distribution = self.get_init_attr('distribution', 'uniform(0.0,1.0)')#ones
+        density = self.get_init_attr('density', 1.0)
 
         synapses.W = synapses.get_synapse_mat(distribution, density=density) * synapses.enabled
 
-        if self.get_init_attr('update_enabled', False):
-            synapses.enabled *= synapses.W > 0
+        #if self.get_init_attr('update_enabled', False):
+        #    synapses.enabled *= synapses.W > 0
 
-        if self.get_init_attr('remove autapses', True) and synapses.src == synapses.dst:
-            diag = synapses.get_synapse_mat('ones')>0.0
-            np.fill_diagonal(diag, False)
-            synapses.enabled *= diag
+        #if self.get_init_attr('remove_autapses', False) and synapses.src == synapses.dst:
+        #    diag = synapses.get_synapse_mat('ones')>0.0
+        #    np.fill_diagonal(diag, False)
+        #    synapses.enabled *= diag
+        self.remove_autapses = self.get_init_attr('remove_autapses', False) and synapses.src == synapses.dst
 
         if self.get_init_attr('normalize', True):
             synapses.W /= np.sum(synapses.W, axis=1)[:, None]
             synapses.W *= self.get_init_attr('nomr_fac', 1.0)
 
+        synapses._dst_sum = np.sum(synapses.W, axis=1)
+        synapses._src_sum = np.sum(synapses.W, axis=0)
+
+        #print(synapses._dst_sum)
+        #print(synapses._src_sum)
+
     def new_iteration(self, synapses):
-        synapses.W = synapses.W * synapses.enabled
+        #if type(synapses.enabled)!=bool or synapses.enabled!=True:
+        #    synapses.W = synapses.W * synapses.enabled
+
+        if self.remove_autapses:
+            np.fill_diagonal(synapses.W, 0.0)
+
 
 
 

@@ -1,9 +1,56 @@
-import matplotlib.pyplot as plt
 from PymoNNto import *
 from Behaviour_Core_Modules import *
+#from UI_Helper import *
 from Text.Behaviour_Text_Modules import *
 from Behaviour_Input_layer_Modules import *
 from Helper import *
+
+def f_i(x, ci):
+    return np.tanh(x * ci)
+
+def f_i_derivative(x, ci):
+    return (4 * ci) / np.power(np.exp(-ci * x) + np.exp(ci * x), 2)
+
+def fi_2(x, ci, px):
+    fx = f_i(px, ci)
+    fdx = f_i_derivative(px, ci)
+    return fx + (x - px) * fdx
+
+def fi_3(x, ci, px):
+    fdx = f_i_derivative(px, ci)
+    print(fdx)
+    return x * fdx
+
+def fi_4(x):
+    return x * 15.75816306522857
+
+
+#x=np.arange(0,0.1,0.0001)
+#plt.plot(x, fi_2(x, ci, px))
+#plt.plot(x, fi_4())
+#plt.plot(x, )
+#plt.show()
+
+class Generate_Output_Inh2(Behaviour):
+
+    def set_variables(self, neurons):
+        self.duration = self.get_init_attr('duration', 1.0)
+        self.slope = self.get_init_attr('slope', 20.0)
+        self.avg_act = 0
+        neurons.activity = neurons.get_neuron_vec()
+        neurons.output = neurons.get_neuron_vec().astype(bool)
+
+    def activation_function(self, a):
+        #return fi_4(a)
+        #return fi_2(a, self.slope, 0.019230769230769232)
+        #return np.tanh(a * self.slope)
+        return fi_4(a)+0.023797672885760568*2.0
+
+    def new_iteration(self, neurons):
+        self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
+        neurons.output = neurons.get_neuron_vec('uniform') < self.activation_function(self.avg_act)#neurons.inh
+        neurons._activity = neurons.activity.copy()  # for plotting
+        neurons.activity.fill(0)
 
 #set_genome({'E': '0.4887617702816654', 'I': '20.939463630168248', 'L': '0.18462995264097187', 'S': '0.0021527580600582286'})
 
@@ -58,6 +105,12 @@ LI_threshold = gene('L', 0.2)#0.25
 
 #print(LI_threshold) 0.3122864360921645
 
+b_temp = Generate_Output_Inh()
+b_temp.slope = inh_output_slope
+LI_threshold = b_temp.activation_function(target_activity)*0.9 #np.tanh(inh_output_slope * target_activity)*0.9
+#-0.x?
+print(LI_threshold)
+
 NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behaviour={
 
     10: Text_Generator(iterations_per_char=1, text_blocks=grammar),
@@ -103,19 +156,19 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
     60: Synapse_Operation(transmitter='GLUI', strength=1.0),
 
     # output
-    70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'
+    70: Generate_Output_Inh2(slope=inh_output_slope, duration=2), #'[20.0#S]'
 })
 
 SynapseGroup(net=net, tag='ES,GLU', src='inp_neurons', dst='exc_neurons', behaviour={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0, nomr_fac=10)
 })
 
-#SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behaviour={
-#    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
-#})
+SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
 
 SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
-    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0, remove_autapses=True)
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
 SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
@@ -127,12 +180,9 @@ SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behav
 })
 
 sm = StorageManager(net.tags[0], random_nr=True)
-sm.backup_execued_file()
 net.initialize(info=True, storage_manager=sm)
 
 net.exc_neurons.sensitivity += 0.49
-
-#print(net.simulate_iteration(measure_behaviour_execution_time=True))
 
 #net.exc_neurons.sensitivity += 0.3
 
@@ -149,40 +199,4 @@ else:
     #    train_ES_and_get_distribution_score(net, 5000, deactivateEE=True)
 
     #train_ES_and_get_distribution_score(net, 40000)#30000 #int(gene('T', 20000))
-
     train_and_generate_text(net, plastic_steps, recovery_steps, text_gen_steps, sm=sm)
-
-    '''
-    import copy
-    import random
-
-    net.exc_neurons.add_behaviour(90, Recorder(variables=['np.mean(n.output)', 'n.iteration']))
-    net['Text_Reconstructor', 0].reconstruction_history = ''
-
-    net_snapshot = copy.deepcopy(net)
-
-    for influence_c, influence_strength in [['#',None], ['#',None], ['#',None], ['f',1], ['f',0.5], ['f',0.1], ['b',1], ['b',0.5], ['b',0.1], ['p',1], ['p',0.5], ['p',0.1]]:
-        np.random.seed(190)
-        random.seed(190)
-        net = copy.deepcopy(net_snapshot)#restore original
-
-        for i in range(100):
-            if influence_c != '#':
-                if net['Text_Reconstructor', 0].reconstruction_history.endswith('. '):
-                    influence_char_index = net['Text_Generator', 0].char_to_index(influence_c)
-                    inp = net['ES', 0].W.dot((net.inp_neurons.y == influence_char_index) * influence_strength)
-                    net.exc_neurons.activity += inp
-
-            net.simulate_iteration()
-
-
-        plt.plot(net['n.iteration',0], net['np.mean(n.output)',0], label=net['Text_Reconstructor', 0].reconstruction_history)
-
-    plt.legend()
-    plt.show()
-    '''
-
-
-
-
-

@@ -73,12 +73,12 @@ class sidebar_patch_reconstructor_module(TabBase):
 
             if not Network_UI.update_without_state_change:
                 input_image = Network_UI.network['Image_Patch_Generator', 0].input_image
-                osreconstruction_image = Network_UI.network['Image_Patch_Reconstructor', 0].one_step_reconstruction_image
+                #osreconstruction_image = Network_UI.network['Image_Patch_Reconstructor', 0].osreconstruction_image
                 reconstruction_image = Network_UI.network['Image_Patch_Reconstructor', 0].reconstruction_image
 
 
                 self.input_image.setImage(np.rot90(input_image, k=3), levels=(0, 1))
-                self.osri.setImage(np.rot90(osreconstruction_image, k=3), levels=(0, 1))
+                #self.osri.setImage(np.rot90(osreconstruction_image, k=3), levels=(0, 1))
                 self.reconstruction_image.setImage(np.rot90(reconstruction_image, k=3), levels=(0, 1))
 
 

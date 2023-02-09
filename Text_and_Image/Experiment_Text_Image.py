@@ -1,35 +1,114 @@
-import matplotlib.pyplot as plt
 from PymoNNto import *
 from Behaviour_Core_Modules import *
+from UI_Helper import *
 from Text.Behaviour_Text_Modules import *
 from Behaviour_Input_layer_Modules import *
 from Helper import *
+from Old.Grammar.Behaviours_in_use.MNISTActivator import *
+from Gabor.sidebar_patch_reconstructor_module import *
+from Text_and_Image.Behaviour_Image_Modules import *
 
 #set_genome({'E': '0.4887617702816654', 'I': '20.939463630168248', 'L': '0.18462995264097187', 'S': '0.0021527580600582286'})
 
 set_genome({'T': 0.018375060660013355, 'I': 17.642840216020584, 'L': 0.28276029930786767, 'S': 0.0018671765337737584, 'E': 0.55})
-
 #set_genome({'T': 0.018431720759132134, 'I': 18.87445616966079, 'L': 0.3216325389993774, 'S': 0.0019649003173716696, 'E': 0.55})
 #set_genome({'T': 0.019, 'I': 18.222202430254626, 'L': 0.31, 'S': 0.0019, 'E': 0.55})
 
 
-
-ui = False
+ui = True
 neuron_count = 2400
-plastic_steps = 30000+30000
-recovery_steps = 10000
-text_gen_steps = 5000
+
 
 #grammar = get_char_sequence(5)     #Experiment A
 #grammar = get_char_sequence(23)    #Experiment B
 #grammar = get_long_text()          #Experiment C
 grammar = get_random_sentences(3)    #Experiment D
 
-print(grammar)
 
-#print(len(''.join(grammar)))
 
-net = Network(tag='Cluster Formation Network')
+net = Network(tag='Text-Image-Network', behaviour={
+
+    10: Text_Generator(iterations_per_char=1, text_blocks=grammar),
+
+    1: Image_Patch_Generator(strength=1, img_path='../../Images/Lenna_(test_image).png', patch_w=patch_w, patch_h=patch_h),
+
+    100: Image_Patch_Reconstructor()
+
+})
+
+
+
+
+
+
+################################################################
+#Image
+################################################################
+
+patch_w = 7#7#10
+patch_h = 7#7#10
+neurons_per_pixel = 5
+w_multiply = 4
+
+target_activity = 0.0275#0.075#0.11#0.02#0.00625#0.01#0.025#5#0.05
+exc_output_exponent = 0.01 / target_activity + 0.22
+inh_output_slope = 0.4 / target_activity + 3.6
+LI_threshold = np.tanh(inh_output_slope * target_activity)
+
+
+
+NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_multiply, height=patch_h, depth=neurons_per_pixel), color=blue, behaviour={#60 30#NeuronDimension(width=10, height=10, depth=1)
+
+    10: Image_Patch_Activator(strength=1, patch_name='on_off_center_white'),
+
+
+    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+
+    # inhibitory input
+    20: Synapse_Operation(transmitter='GABA', strength=-1.0),#
+
+    # stability
+    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007), #0.02
+    #31: Refractory_D(steps=4.0),
+
+    # learning
+    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
+    41: STDP(transmitter='GLU', strength=0.0015),#0.0015
+    1: Normalization(syn_direction='afferent', syn_type='GLU', exec_every_x_step=10),
+    2: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10),
+
+    # output
+    50: Generate_Output(exp=exc_output_exponent),#[0.614#EXP]
+
+})
+
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(net['exc_neurons',0].size/10), color=red, behaviour={
+    # excitatory input
+    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    # output
+    70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'
+})
+
+
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+
+
+################################################################
+#Text
+################################################################
+
+
 
 #different h parameters for experiment
 #target_activity = 0.05
@@ -60,7 +139,6 @@ LI_threshold = gene('L', 0.2)#0.25
 
 NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behaviour={
 
-    10: Text_Generator(iterations_per_char=1, text_blocks=grammar),
     11: Text_Activator_IL(strength=1),
 
     #42.1: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10, norm_factor=100),
@@ -110,12 +188,12 @@ SynapseGroup(net=net, tag='ES,GLU', src='inp_neurons', dst='exc_neurons', behavi
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0, nomr_fac=10)
 })
 
-#SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behaviour={
-#    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
-#})
+SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
 
 SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
-    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0, remove_autapses=True)
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
 SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
@@ -126,17 +204,29 @@ SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behav
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
+
+
+################################################################
+#Text-Image-Connection
+################################################################
+
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
 sm = StorageManager(net.tags[0], random_nr=True)
-sm.backup_execued_file()
 net.initialize(info=True, storage_manager=sm)
 
 net.exc_neurons.sensitivity += 0.49
 
-#print(net.simulate_iteration(measure_behaviour_execution_time=True))
 
-#net.exc_neurons.sensitivity += 0.3
-
-#net['Text_Generator',0].plot_char_distribution()
+plastic_steps = 30000+30000
+recovery_steps = 10000
+text_gen_steps = 5000
 
 #User interface
 if __name__ == '__main__' and ui:
@@ -149,40 +239,4 @@ else:
     #    train_ES_and_get_distribution_score(net, 5000, deactivateEE=True)
 
     #train_ES_and_get_distribution_score(net, 40000)#30000 #int(gene('T', 20000))
-
     train_and_generate_text(net, plastic_steps, recovery_steps, text_gen_steps, sm=sm)
-
-    '''
-    import copy
-    import random
-
-    net.exc_neurons.add_behaviour(90, Recorder(variables=['np.mean(n.output)', 'n.iteration']))
-    net['Text_Reconstructor', 0].reconstruction_history = ''
-
-    net_snapshot = copy.deepcopy(net)
-
-    for influence_c, influence_strength in [['#',None], ['#',None], ['#',None], ['f',1], ['f',0.5], ['f',0.1], ['b',1], ['b',0.5], ['b',0.1], ['p',1], ['p',0.5], ['p',0.1]]:
-        np.random.seed(190)
-        random.seed(190)
-        net = copy.deepcopy(net_snapshot)#restore original
-
-        for i in range(100):
-            if influence_c != '#':
-                if net['Text_Reconstructor', 0].reconstruction_history.endswith('. '):
-                    influence_char_index = net['Text_Generator', 0].char_to_index(influence_c)
-                    inp = net['ES', 0].W.dot((net.inp_neurons.y == influence_char_index) * influence_strength)
-                    net.exc_neurons.activity += inp
-
-            net.simulate_iteration()
-
-
-        plt.plot(net['n.iteration',0], net['np.mean(n.output)',0], label=net['Text_Reconstructor', 0].reconstruction_history)
-
-    plt.legend()
-    plt.show()
-    '''
-
-
-
-
-

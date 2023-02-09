@@ -40,7 +40,7 @@ def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=Non
         'classes': str(classes),
         'text': tr.reconstruction_history,
         'simulated_iterations': net.iteration
-    })
+    }, sm=sm)
 
 def get_class_score(net):
     if net['ES', 0] is None:

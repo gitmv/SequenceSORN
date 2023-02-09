@@ -1,10 +1,10 @@
 from PymoNNto import *
 from Helper import *
-from UI_Helper import *
+#from UI_Helper import *
 from Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
 
-ui = True
+ui = False
 neuron_count = 2400
 
 input_steps = 30000
@@ -89,15 +89,19 @@ if __name__ == '__main__' and ui:
     show_UI(net, sm)
 else:
     #net.exc_neurons.add_behaviour(200, Recorder(variables=['np.mean(n.output)']))
-    #train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=sm)
+    net.exc_neurons.add_behaviour(200, Recorder(variables=['np.mean(n.sensitivity)', 'n.iteration']))
+    train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=sm)
+    plt.plot(net['n.iteration', 0], net['np.mean(n.sensitivity)', 0])
+    plt.show()
     #plot_output_trace(net['np.mean(n.output)', 0], input_steps, recovery_steps, net.exc_neurons.target_activity)
 
+    '''
     vars = ['n.sensitivity', 'n._activity', 'n.output', 'n.input_GLU', 'n.input_GLUI', 'n.input_GABA', 'n.input_grammar']
 
     re=net.exc_neurons.add_behaviour(200, Recorder(variables=vars))
     ri=net.inh_neurons.add_behaviour(201, Recorder(variables=vars))
 
-    '''
+    
     for i in range(300+150):
 
         if i==300:
@@ -117,7 +121,7 @@ else:
 
         re.clear()
         ri.clear()
-    '''
+    
 
     #net.simulate_iterations(input_steps, 100)
 
@@ -150,6 +154,6 @@ else:
         #sm.save_np('EE_'+str(i), net['EE', 0].W)
         #sm.save_np('IE_'+str(i), net['IE', 0].W)
         #sm.save_np('EI_'+str(i), net['EI', 0].W)
-
+    '''
 
 

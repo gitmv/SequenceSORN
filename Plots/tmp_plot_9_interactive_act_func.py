@@ -90,9 +90,12 @@ i_plot_line2_new, = plt.plot([],[])
 e_scatter = plt.scatter([], [])
 i_scatter = plt.scatter([], [])
 
+plt.xlabel('activity (voltage)')
+plt.ylabel('spike chance')
+
 a_slider = Slider(ax=plt.axes([0.06, 0.95, 0.1, 0.05]), label='h', valmin=0.002, valmax=0.2, valinit=0.02)
-b_slider = Slider(ax=plt.axes([0.3, 0.95, 0.1, 0.05]), label='avg(a_E)', valmin=0, valmax=1, valinit=0.4)
-c_slider = Slider(ax=plt.axes([0.5, 0.95, 0.1, 0.05]), label='I_scale', valmin=1, valmax=25, valinit=1)
+b_slider = Slider(ax=plt.axes([0.3, 0.95, 0.1, 0.05]), label='avg(a_E)', valmin=0.5, valmax=1.0, valinit=0.6)
+#c_slider = Slider(ax=plt.axes([0.5, 0.95, 0.1, 0.05]), label='I_scale', valmin=1, valmax=25, valinit=1)
 #d_slider = Slider(ax=plt.axes([0.84, 0.95, 0.1, 0.05]), label='d', valmin=-1, valmax=2, valinit=0)
 
 
@@ -101,7 +104,7 @@ c_slider = Slider(ax=plt.axes([0.5, 0.95, 0.1, 0.05]), label='I_scale', valmin=1
 def update(val):
        a = a_slider.val
        b = b_slider.val
-       c = c_slider.val
+       #c = c_slider.val
        #d = d_slider.val
 
        h = a
@@ -114,9 +117,11 @@ def update(val):
        ci=get_ci(h)#23.6
 
 
-       e_h_pos_y = b
-       e_h_pos_x = f_e_inverted(e_h_pos_y, ce)
+       #e_h_pos_y = b
+       #e_h_pos_x = f_e_inverted(e_h_pos_y, ce)
 
+       e_h_pos_x = b# + 0.5
+       e_h_pos_y = f_e(e_h_pos_x, ce)
 
        e_x = x - e_h_pos_x
        e_y = f_e(x, ce) - e_h_pos_y
@@ -133,17 +138,17 @@ def update(val):
 
 
        i_x = (x - i_h_pos_x) * i_scale_x
-       i_y = (f_i(x, ci) - i_h_pos_y) * c
+       i_y = (f_i(x, ci) - i_h_pos_y) #* c
 
        i_plot_line.set_xdata(i_x)
        i_plot_line.set_ydata(i_y)
 
 
        i_x_new = (x - i_h_pos_x) * i_scale_x
-       i_y_new = (fi_2(x, ci, i_h_pos_x) - i_h_pos_y) * c
+       i_y_new = (fi_2(x, ci, i_h_pos_x) - i_h_pos_y) #* c
 
-       i_plot_line_new.set_xdata(i_x_new)
-       i_plot_line_new.set_ydata(i_y_new)
+       #i_plot_line_new.set_xdata(i_x_new)
+       #i_plot_line_new.set_ydata(i_y_new)
 
 
 
@@ -153,8 +158,8 @@ def update(val):
        i_plot_line2.set_xdata(x)
        i_plot_line2.set_ydata(f_i(x, ci))
 
-       i_plot_line2_new.set_xdata(x)
-       i_plot_line2_new.set_ydata(fi_2(x, ci, i_h_pos_x))
+       #i_plot_line2_new.set_xdata(x)
+       #i_plot_line2_new.set_ydata(fi_2(x, ci, i_h_pos_x))
 
 
        e_scatter.set_offsets(np.c_[e_h_pos_x, e_h_pos_y])
@@ -166,7 +171,7 @@ def update(val):
 
 a_slider.on_changed(update)
 b_slider.on_changed(update)
-c_slider.on_changed(update)
+#c_slider.on_changed(update)
 #d_slider.on_changed(update)
 
 #ax.set_xlabel('$\Delta$ t')
