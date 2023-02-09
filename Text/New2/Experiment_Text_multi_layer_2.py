@@ -1,10 +1,10 @@
 from PymoNNto import *
-from Behaviour_Core_Modules import *
-from Text.Behaviour_Text_Modules import *
-from Behaviour_Input_layer_Modules import *
+from Text.New2.Behaviour_Core_Modules import *
+from Text.New2.Behaviour_Text_Modules import *
+from Text.New2.Behaviour_Input_layer_Modules import *
 from Helper import *
 
-ui = True
+ui = False
 
 layer_sizes=[2400, 2400]#[1000, 1000]#
 

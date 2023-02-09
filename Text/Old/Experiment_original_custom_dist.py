@@ -1,7 +1,7 @@
 from PymoNNto import *
 from Helper import *
 from UI_Helper import *
-from Behaviour_Core_Modules import *
+from Text.New2.Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
 
 class Text_Activator_custom(Text_Activator):

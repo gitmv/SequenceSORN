@@ -3,6 +3,18 @@ from PymoNNto import *
 
 from PymoNNto.Exploration.AnalysisModules import *
 
+def get_random_sentences(n_sentences):
+    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims']
+    return sentences[0:n_sentences]
+
+def get_char_sequence(n_chars):
+    sequence = '. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[](){}<>'
+    return [sequence[0:n_chars]]
+
+def get_long_text():
+    return [' fox eats meat. boy drinks juice. penguin likes ice.']
+
+
 def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=None, pretrained=False):
 
     net.simulate_iterations(input_steps, 100)
@@ -20,7 +32,7 @@ def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=Non
     tr = net['Text_Reconstructor', 0]
     tr.reconstruction_history = ''
     net.simulate_iterations(free_steps, 100)
-    print(tr.reconstruction_history)
+    #print(tr.reconstruction_history)
 
     # scoring
     txt_score = net['Text_Generator', 0].get_text_score(tr.reconstruction_history)
@@ -34,11 +46,11 @@ def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=Non
     dist_score, classes = get_class_score(net)
 
     set_score(txt_score * osc_score * dist_score, info={
+        'text': tr.reconstruction_history,
         'osc_score': osc_score,
         'txt_score': txt_score,
         'dist_score': dist_score,
         'classes': str(classes),
-        'text': tr.reconstruction_history,
         'simulated_iterations': net.iteration
     }, sm=sm)
 
@@ -59,7 +71,7 @@ def get_class_score(net):
     cw = net.exc_neurons.size / len(tg.alphabet) * cw
     score = 1.0 - np.sum(np.abs(classes - cw)) / net.exc_neurons.size / 2.0
 
-    print(np.array2string(classes, separator=", "), net.iteration, score)  # repr: with commas
+    #print(np.array2string(classes, separator=", "), net.iteration, score)  # repr: with commas
 
     return score, classes
 

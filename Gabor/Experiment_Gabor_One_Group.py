@@ -1,4 +1,4 @@
-from Behaviour_Core_Modules import *
+from Text.New2.Behaviour_Core_Modules import *
 from UI_Helper import *
 from Old.Grammar.Behaviours_in_use.MNISTActivator import *
 from Gabor.sidebar_patch_reconstructor_module import *

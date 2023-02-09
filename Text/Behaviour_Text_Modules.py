@@ -1,6 +1,41 @@
 from PymoNNto import *
-import random
-import random
+
+class Text_Activator(Behaviour):
+
+    def set_variables(self, neurons):
+        self.text_generator = neurons['Text_Generator', 0]
+        self.strength = self.get_init_attr('strength', 1, neurons)
+
+    def new_iteration(self, neurons):
+        neurons.input_grammar = (neurons.y == neurons.current_char_index)*self.strength
+        neurons.activity += neurons.input_grammar
+
+
+class Text_Reconstructor(Behaviour):
+
+    def set_variables(self, neurons):
+        self.current_reconstruction_char = ''
+        self.current_reconstruction_char_index = ''
+        self.reconstruction_history = ''
+
+    def new_iteration(self, neurons):
+        text_activator=neurons['Text_Activator', 0]
+        if text_activator is not None:
+
+            neurons.rec_act = neurons.get_neuron_vec()
+            for s in neurons.efferent_synapses['GLU']:
+                s.src.rec_act += s.W.T.dot(s.dst.output)
+
+            if np.sum(neurons.rec_act)==0:
+                self.current_reconstruction_char_index = -1
+                self.current_reconstruction_char = '#'
+            else:
+                index_act = np.sum(neurons.rec_act.reshape((neurons.height, neurons.width)), axis=1)
+                self.current_reconstruction_char_index = np.argmax(index_act)
+                self.current_reconstruction_char = text_activator.text_generator.index_to_char(self.current_reconstruction_char_index)
+
+            self.reconstruction_history += self.current_reconstruction_char
+
 
 class Text_Generator(Behaviour):
 
@@ -9,12 +44,15 @@ class Text_Generator(Behaviour):
     def get_text_blocks(self):
         return self.get_init_attr('text_blocks', [])
 
+    def unique(self, l):
+        return list(sorted(set(l)))
+
     def set_variables(self, neurons):
 
         self.text_blocks = self.get_text_blocks()
         self.current_block_index = -1
         self.position_in_current_block = -1
-        self.alphabet = unique(''.join(self.text_blocks)) #list not string!!!!
+        self.alphabet = self.unique(''.join(self.text_blocks)) #list not string!!!!
         self.history = ''
 
         # output
@@ -118,105 +156,3 @@ class Text_Generator(Behaviour):
         plt.show()
 
 
-class Text_Activator(Behaviour):
-
-    def set_variables(self, neurons):
-        self.text_generator = neurons['Text_Generator', 0]
-
-        input_density = self.get_init_attr('input_density', 0.5)
-        activation_size = np.floor((neurons.size * input_density) / len(self.text_generator.alphabet)) #average char cluster size
-
-        neurons.mean_network_activity = activation_size / neurons.size  # optional/ can be used by other (homeostatic) modules
-
-        if self.get_init_attr('char_weighting', True):
-            cw = self.text_generator.char_weighting
-        else:
-            cw = None
-
-        neurons.Input_Weights = self.one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, cw)
-        neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
-
-        neurons.input_grammar = neurons.get_neuron_vec()
-
-        self.strength = self.get_init_attr('strength', 1, neurons)
-
-    def new_iteration(self, neurons):
-        neurons.input_grammar = neurons.Input_Weights[:, neurons.current_char_index].copy()*self.strength
-        neurons.activity += neurons.input_grammar
-
-    def one_hot_vec_to_neuron_mat(self, input_size, output_size, activation_size, input_weighting=None):
-
-        result = np.zeros((output_size, input_size))
-
-        available = range(output_size)#set()
-
-        for a in range(input_size):
-
-            char_activiation_size = activation_size
-
-            if input_weighting is not None:
-                char_activiation_size = activation_size * input_weighting[a]
-
-            temp = random.sample(available, int(char_activiation_size))
-            result[temp, a] = 1
-            available = [n for n in available if n not in temp]#set()
-            assert len(available) > 0, 'Input too big for non-overlapping neurons'
-
-        return result
-
-class Text_Reconstructor(Behaviour):
-
-    def set_variables(self, neurons):
-        self.current_reconstruction_char = ''
-        self.current_reconstruction_char_index = ''
-        self.reconstruction_history = ''
-
-        self.recon_curves = np.zeros(len(neurons['Text_Generator', 0].alphabet))
-
-
-    def new_iteration(self, neurons):
-        if neurons['Text_Activator', 0] is not None:
-
-            if np.sum(neurons.output)==0:
-                self.current_reconstruction_char_index = -1
-                self.current_reconstruction_char = '#'
-            else:
-                char_act = neurons.Input_Weights.transpose().dot(neurons.output)
-                #self.recon_curves += char_act
-                #self.recon_curves *= 0.6
-                #self.current_reconstruction_char_index = np.argmax(self.recon_curves)
-                self.current_reconstruction_char_index = np.argmax(char_act)
-                self.current_reconstruction_char = neurons['Text_Activator', 0].text_generator.index_to_char(self.current_reconstruction_char_index)
-
-            self.reconstruction_history += self.current_reconstruction_char
-
-
-
-class Exception_Activator(Behaviour):
-
-    #activate with following command
-    #neurons['Exception_Activator', 0].txt='abcdefg'
-    #neurons['Exception_Activator', 0].text_position = 0
-
-    def set_variables(self, neurons):
-        self.txt = ' exception exception. exception exception. exception exception.'
-        self.text_position = -1
-
-    def new_iteration(self, neurons):
-        if self.text_position>=0 and self.text_position<len(self.txt):
-            neurons['Text_Generator', 0].next_char = self.txt[self.text_position]
-            self.text_position += 1
-
-def unique(l):
-    return list(sorted(set(l)))
-
-def get_random_sentences(n_sentences):
-    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims']
-    return sentences[0:n_sentences]
-
-def get_char_sequence(n_chars):
-    sequence = '. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[](){}<>'
-    return [sequence[0:n_chars]]
-
-def get_long_text():
-    return [' fox eats meat. boy drinks juice. penguin likes ice.']
