@@ -28,7 +28,7 @@ NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=le
     10: Text_Generator(iterations_per_char=1, text_blocks=grammar),
     11: Text_Activator(strength=1),
 
-    50: Output_Input_Layer(),
+    50: Output_InputLayer(),
 
     80: Text_Reconstructor()
 })

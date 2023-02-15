@@ -1,10 +1,6 @@
 #Experiment_Time_after_evo_short.py old name
-from PymoNNto import *
-from PymoNNto.Exploration.AnalysisModules import *
-from Text.New2.Behaviour_Core_Modules import *
-from Gabor.Behaviour_Image_Patch_Modules import *
+from Text.New.Behaviour_Core_Modules import *
 from Gabor.Behaviour_STDP_Modules import *
-from Gabor.sidebar_patch_reconstructor_module import *
 from Text.Behaviour_Text_Modules import *
 from Helper import *
 

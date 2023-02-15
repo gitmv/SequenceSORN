@@ -1,11 +1,7 @@
-from PymoNNto import *
-from Text.New2.Behaviour_Core_Modules import *
-from UI_Helper import *
+from Text.New.Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
-from Text.New2.Behaviour_Input_layer_Modules import *
+from Text.New.Behaviour_Input_layer_Modules import *
 from Helper import *
-from Old.Grammar.Behaviours_in_use.MNISTActivator import *
-from Gabor.sidebar_patch_reconstructor_module import *
 from Image_and_Text.Behaviour_Image_Modules import *
 
 #set_genome({'E': '0.4887617702816654', 'I': '20.939463630168248', 'L': '0.18462995264097187', 'S': '0.0021527580600582286'})

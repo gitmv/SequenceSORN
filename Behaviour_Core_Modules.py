@@ -3,7 +3,7 @@ import numpy as np
 from PymoNNto import *
 from PymoNNto.NetworkBehaviour.Basics.Normalization import *
 
-class Output_Input_Layer(Behaviour):
+class Output_InputLayer(Behaviour):
 
     def set_variables(self, neurons):
         neurons.activity = neurons.get_neuron_vec()
@@ -86,7 +86,7 @@ class Synapse_Operation(Behaviour):#warning: only use for binary neuron output!
 class Learning_Inhibition(Behaviour):
 
     def set_variables(self, neurons):
-        self.strength = self.get_init_attr('strength', 1, neurons)
+        self.strength = self.get_init_attr('strength', 1.0, neurons)
         neurons.LI_threshold = self.get_init_attr('threshold', np.tanh(0.02*20), neurons)
         self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)
         self.input_tag = 'input_' + self.transmitter
@@ -102,7 +102,7 @@ class Intrinsic_Plasticity(Behaviour):
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 0.01, neurons)
         neurons.target_activity = self.get_init_attr('target_activity', 0.02)
-        neurons.sensitivity = neurons.get_neuron_vec()
+        neurons.sensitivity = neurons.get_neuron_vec()+self.get_init_attr('init_sensitivity', 0.0)
 
     def new_iteration(self, neurons):
         neurons.sensitivity -= (neurons.output - neurons.target_activity) * self.strength

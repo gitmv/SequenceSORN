@@ -3,6 +3,12 @@ from PymoNNto import *
 
 from PymoNNto.Exploration.AnalysisModules import *
 
+def n_unique_chars(grammar):
+    return len(set(''.join(grammar)))
+
+def n_chars(grammar):
+    return len(''.join(grammar)) #1.0 / ...
+
 def get_random_sentences(n_sentences):
     sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims']
     return sentences[0:n_sentences]
@@ -15,7 +21,7 @@ def get_long_text():
     return [' fox eats meat. boy drinks juice. penguin likes ice.']
 
 
-def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=None, pretrained=False):
+def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=None):
 
     net.simulate_iterations(input_steps, 100)
 
@@ -52,7 +58,7 @@ def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=Non
         'dist_score': dist_score,
         'classes': str(classes),
         'simulated_iterations': net.iteration
-    }, sm=sm)
+    })#, sm=sm
 
 def get_class_score(net):
     if net['ES', 0] is None:

@@ -21,7 +21,10 @@ net = Network(tag='Layered Cluster Formation Network')
 target_activity = gene('T', 0.018375060660013355)
 exc_output_exponent = gene('E', 0.55)
 inh_output_slope = gene('I', 17.642840216020584)
-LI_threshold = gene('L', 0.28276029930786767)
+LI_threshold = gene('LT', 0.28276029930786767)
+stdp_s=gene('S', 0.0015)
+ip_s=gene('P', 0.007)
+li_s=gene('LS', 31.0)
 
 NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behaviour={
 
@@ -46,12 +49,12 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     20: Synapse_Operation(transmitter='GABA', strength=-1.0),
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007),
+    30: Intrinsic_Plasticity(target_activity=target_activity, strength=ip_s),
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
-    41: STDP(tag='STDP_EE', transmitter='EE', strength=0.0015),
-    41.1: STDP(tag='STDP_ES', transmitter='ES', strength=gene('S', 0.0018671765337737584)),
+    40: Learning_Inhibition(transmitter='GABA', strength=li_s, threshold=LI_threshold),
+    41: STDP(tag='STDP_EE', transmitter='EE', strength=stdp_s),
+    41.1: STDP(tag='STDP_ES', transmitter='ES', strength=stdp_s),
 
     # output
     50: Output_Excitatory(exp=exc_output_exponent),

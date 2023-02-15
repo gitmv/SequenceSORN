@@ -71,7 +71,7 @@ SynapseGroup(net=net, tag='GLU,ES,FSTDP', src='inp_neurons', dst='exc_neurons', 
 })
 
 SynapseGroup(net=net, tag='GLU,EE,STDP', src='exc_neurons', dst='exc_neurons', behaviour={
-    1: create_weights(normalize=False)
+    1: create_weights(normalize=False, remove_autapses=True)
 })
 
 SynapseGroup(net=net, tag='GLUI,IE', src='exc_neurons', dst='inh_neurons', behaviour={

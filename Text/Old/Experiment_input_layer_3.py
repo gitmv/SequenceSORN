@@ -1,6 +1,4 @@
-from PymoNNto import *
-from Text.New2.Behaviour_Core_Modules import *
-from UI_Helper import *
+from Text.New.Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
 from Helper import *
 

@@ -1,6 +1,6 @@
 from Helper import *
 #from UI_Helper import *
-from Text.New.Behaviour_Core_Modules import *
+from Behaviour_Core_Modules import *
 from Text.New.Behaviour_Text_Modules import *
 
 ui = False
@@ -45,11 +45,11 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     # learning
     40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
     41: STDP(transmitter='GLU', strength=0.0015),
-    42: Normalization(syn_direction='afferent', syn_type='GLU', exec_every_x_step=10),
-    43: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10),
+    42: Normalization(direction='afferent', syn_type='GLU', exec_every_x_step=10),
+    43: Normalization(direction='efferent', syn_type='GLU', exec_every_x_step=10),
 
     # output
-    50: Generate_Output(exp=exc_output_exponent), #'[0.614#EXP]'
+    50: Output_Excitatory(exp=exc_output_exponent), #'[0.614#EXP]'
 
     # reconstruction
     80: Text_Reconstructor()
@@ -62,7 +62,7 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
     60: Synapse_Operation(transmitter='GLUI', strength=1.0),
 
     # output
-    70: Generate_Output_Inh(slope=inh_output_slope, duration=2),
+    70: Output_Inhibitory(slope=inh_output_slope, duration=2),
 
 })
 
