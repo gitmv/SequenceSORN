@@ -38,18 +38,18 @@ e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_s
                               normalize=True),
 
     # 10.0: SORN_slow_syn
-    10.0: synapse_operation(transmitter='GLU', strength='1.0'),  # todo: SORN_slow_syn_simple??????
+    10.0: SynapseOperation(transmitter='GLU', strength='1.0'),  # todo: SORN_slow_syn_simple??????
     10.1: IP_apply(),
     10.15: refrac_apply(strengthfactor='[0.1#rs]'),  # 0.1 #attrs['refrac']
     10.2: K_WTA_output_local(partition_size=7, K='[0.02#k]'),
 
-    10.3: synapse_operation(transmitter='GLU_cluster', strength='1.0'),
+    10.3: SynapseOperation(transmitter='GLU_cluster', strength='1.0'),
     10.4: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
 
-    10.5: synapse_operation(transmitter='GLU_cluster', strength='1.0'),
+    10.5: SynapseOperation(transmitter='GLU_cluster', strength='1.0'),
     10.6: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
 
-    10.7: synapse_operation(transmitter='GLU_cluster', strength='1.0'),
+    10.7: SynapseOperation(transmitter='GLU_cluster', strength='1.0'),
     10.8: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
 
     # 12.1: SORN_WTA_iSTDP(eta_iSTDP='[0.00015#2]'),

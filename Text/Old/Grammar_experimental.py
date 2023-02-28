@@ -63,6 +63,6 @@ def split_into_words(sentences):
 
 #10: MNIST_Patterns_On_Off(center_x=14, class_ids=[10,11,12,13,14], patterns_per_class=1),
 
-    #40: Learning_Inhibition_test(transmitter='GABA', a='[0.5#a]', b=0.0, c='[50.0#c]', d='[1.5#d]'),#'[0.6410769611853464#a]'
+    #40: LearningInhibition_test(transmitter='GABA', a='[0.5#a]', b=0.0, c='[50.0#c]', d='[1.5#d]'),#'[0.6410769611853464#a]'
 
 # 0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))

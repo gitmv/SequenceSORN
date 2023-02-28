@@ -52,7 +52,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(1000
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
     #input
-    18: Synapse_Operation(transmitter='GLU', strength=25.0),
+    18: SynapseOperation(transmitter='GLU', strength=25.0),
 
     #stability
     21: IP(sliding_window=0, speed='[0.007#IP]'),
@@ -63,8 +63,8 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(1000
 
     #learning
     41: Buffer_Variables(),
-    #41.5: Learning_Inhibition(transmitter='GABA', strength=-2),
-    #41.5: Learning_Inhibition_mean(strength='-[200#LIM]'),
+    #41.5: LearningInhibition(transmitter='GABA', strength=-2),
+    #41.5: LearningInhibition_mean(strength='-[200#LIM]'),
     42: STDP_C(transmitter='GLU', eta_stdp=0.015, STDP_F={-1: 1}),#0.0015
     45: Normalization(syn_type='GLU')
 })

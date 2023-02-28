@@ -1,7 +1,7 @@
 #import sys
 #sys.path.append('../')
 
-from Text.New.Behaviour_Core_Modules import *
+from Text.v0.Behaviour_Core_Modules import *
 from Gabor.Behaviour_Image_Patch_Modules import *
 from Gabor.Behaviour_STDP_Modules import *
 from Gabor.sidebar_patch_reconstructor_module import *
@@ -39,17 +39,17 @@ NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_mul
 
     10: Image_Patch_Activator(strength=1, patch_name='on_off_center_white'),
 
-    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+    12: SynapseOperation(transmitter='GLU', strength=1.0),
 
     # inhibitory input
-    20: Synapse_Operation(transmitter='GABA', strength=-1.0),#
+    20: SynapseOperation(transmitter='GABA', strength=-1.0),#
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007), #0.02
+    30: IntrinsicPlasticity(target_activity=target_activity, strength=0.007), #0.02
     #31: Refractory_D(steps=4.0),
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
+    40: LearningInhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
     #41: STDP(transmitter='GLU', strength=0.0015),#0.0015
     41: Complex_STDP(transmitter='GLU', strength=0.0002,
                      LTP=np.array([+0.0, +0.0, +0.0, +0.0, +0.1, +0.2, +0.6, +1.0, +1.0, +1.0, +0.8, +0.7, +0.5, +0.4, +0.2]),
@@ -73,7 +73,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_mul
 
 NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(net['exc_neurons',0].size/10), color=red, behaviour={
     # excitatory input
-    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    60: SynapseOperation(transmitter='GLUI', strength=1.0),
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration='[2#D]'),#2 #'[20.0#S]'
 })

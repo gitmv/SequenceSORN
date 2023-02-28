@@ -29,7 +29,7 @@ class SORN_signal_propagation_base(Behaviour):
 
 
 
-class Synapse_Operation(SORN_signal_propagation_base):
+class SynapseOperation(SORN_signal_propagation_base):
 
     def set_variables(self, neurons):
         super().set_variables(neurons)
@@ -52,7 +52,7 @@ class Synapse_Operation(SORN_signal_propagation_base):
 
 
 #requires STDP
-class Learning_Inhibition(SORN_signal_propagation_base):
+class LearningInhibition(SORN_signal_propagation_base):
 
     def new_iteration(self, neurons):
         neurons.linh = neurons.get_neuron_vec()
@@ -64,7 +64,7 @@ class Learning_Inhibition(SORN_signal_propagation_base):
 
 
 #requires STDP
-class Learning_Inhibition_mean(Behaviour):
+class LearningInhibition_mean(Behaviour):
 
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)
@@ -81,7 +81,7 @@ class Learning_Inhibition_mean(Behaviour):
         buffer = neurons.buffers['output']
         buffer[1] = np.clip(buffer[1] - neurons.linh, 0.0, 1.0)
 
-class Learning_Inhibition_GABA(Behaviour):
+class LearningInhibition_GABA(Behaviour):
 
     def set_variables(self, neurons):
         self.const = np.tanh(neurons.target_activity*20)
@@ -136,7 +136,7 @@ class Apply_Synapse_Input(Behaviour):
 
 
 
-class Learning_Inhibition_mean2(Behaviour):
+class LearningInhibition_mean2(Behaviour):
 
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)

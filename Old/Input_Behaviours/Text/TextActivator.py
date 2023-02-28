@@ -779,7 +779,7 @@ class FDTGrammarActivator_New_shuffle(FDTGrammarActivator_New):
         result = ''.join(l)
         return result
 
-class Random_Text_Activator(TextActivator_New):
+class Random_TextActivator(TextActivator_New):
 
     def initialize(self):
         self.alph = self.kwargs.get('alph', '. abcdefghijklmnopqrstuvwxyz')

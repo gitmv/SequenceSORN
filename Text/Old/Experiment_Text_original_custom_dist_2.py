@@ -1,21 +1,21 @@
 from Helper import *
 from UI_Helper import *
-from Text.New.Behaviour_Core_Modules import *
+from Text.v0.Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
 
-class Text_Activator_custom(Text_Activator):
+class TextActivator_custom(TextActivator):
 
     def set_variables(self, neurons):
-        self.add_tag('Text_Activator')
-        self.text_generator = neurons['Text_Generator', 0]
+        self.add_tag('TextActivator')
+        self.TextGenerator = neurons['TextGenerator', 0]
 
         input_density = self.get_init_attr('input_density', 0.5)
-        activation_size = np.floor((neurons.size * input_density) / len(self.text_generator.alphabet)) #average char cluster size
+        activation_size = np.floor((neurons.size * input_density) / len(self.TextGenerator.alphabet)) #average char cluster size
 
         neurons.mean_network_activity = activation_size / neurons.size  # optional/ can be used by other (homeostatic) modules
 
         if self.get_init_attr('char_weighting', True):
-            cw = self.text_generator.char_weighting
+            cw = self.TextGenerator.char_weighting
         else:
             cw = None
 
@@ -26,11 +26,11 @@ class Text_Activator_custom(Text_Activator):
             ccw = np.array(ccw)
             i = [0, 6, 9, 1, 14, 18, 2, 4, 11, 15, 19, 20, 3, 5, 7, 8, 10, 12, 13, 16, 17, 21, 22]#resort sorted distribution
             cw[i] = ccw
-            cw = cw/np.sum(cw)*len(self.text_generator.alphabet)
+            cw = cw/np.sum(cw)*len(self.TextGenerator.alphabet)
 
         print(cw)
 
-        neurons.Input_Weights = self.one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, cw)
+        neurons.Input_Weights = self.one_hot_vec_to_neuron_mat(len(self.TextGenerator.alphabet), neurons.size, activation_size, cw)
         neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
 
         neurons.input_grammar = neurons.get_neuron_vec()
@@ -68,18 +68,18 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
 
 
     # excitatory input
-    10: Text_Generator(text_blocks=grammar),
-    11: Text_Activator_custom(input_density=input_density, strength=1.0, custom_cw=custom_cw),#remove for non input tests
-    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+    10: TextGenerator(text_blocks=grammar),
+    11: TextActivator_custom(input_density=input_density, strength=1.0, custom_cw=custom_cw),#remove for non input tests
+    12: SynapseOperation(transmitter='GLU', strength=1.0),
 
     # inhibitory input
-    20: Synapse_Operation(transmitter='GABA', strength=-1.0),
+    20: SynapseOperation(transmitter='GABA', strength=-1.0),
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007),
+    30: IntrinsicPlasticity(target_activity=target_activity, strength=0.007),
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
+    40: LearningInhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
     41: STDP(transmitter='GLU', strength=0.0015),
     42: Normalization(syn_direction='afferent', syn_type='GLU', exec_every_x_step=10),
     43: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10),
@@ -88,14 +88,14 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     50: Generate_Output(exp=exc_output_exponent), #'[0.614#EXP]'
 
     # reconstruction
-    80: Text_Reconstructor()
+    80: TextReconstructor()
 
 })
 
 NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
 
     # excitatory input
-    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    60: SynapseOperation(transmitter='GLUI', strength=1.0),
 
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration=2),

@@ -3,14 +3,17 @@ from PymoNNto import *
 
 from PymoNNto.Exploration.AnalysisModules import *
 
+def ex_file_name():
+    return os.path.basename(sys.argv[0]).replace('.py','')
+
 def n_unique_chars(grammar):
-    return len(set(''.join(grammar)))
+    return len(set(''.join(grammar).replace('#','')))
 
 def n_chars(grammar):
     return len(''.join(grammar)) #1.0 / ...
 
 def get_random_sentences(n_sentences):
-    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.', ' parrots can fly.', 'the fish swims']
+    sentences = [' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' the fish swims.', ' plant loves rain.', ' parrots can fly.']
     return sentences[0:n_sentences]
 
 def get_char_sequence(n_chars):
@@ -22,29 +25,37 @@ def get_long_text():
 
 
 def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=None):
+    net.deactivate_behaviours('TextReconstructor')
 
     net.simulate_iterations(input_steps, 100)
 
     # deactivate Input
     net.deactivate_behaviours('STDP')
     net.deactivate_behaviours('Normalization')
-    net.deactivate_behaviours('Text_Activator')
+    net.deactivate_behaviours('TextActivator')
+
+    #ensure synapses are normalized
+    for neurons in net.NeuronGroups:
+        for b in neurons['Normalization']:
+            b.exec_every_x_step=1
+            b.new_iteration(neurons)
 
     net.simulate_iterations(recovery_steps, 100)
 
     # text generation
-    net.exc_neurons.add_behaviour(90, Recorder(variables=['np.mean(n.output)']))
+    net.exc_neurons1.add_behaviour(90, Recorder(variables=['np.mean(n.output)']))
 
-    tr = net['Text_Reconstructor', 0]
-    tr.reconstruction_history = ''
+    net.activate_behaviours('TextReconstructor')
+    tr = net['TextReconstructor', 0]
+    tr.clear_history()
     net.simulate_iterations(free_steps, 100)
     #print(tr.reconstruction_history)
 
     # scoring
-    txt_score = net['Text_Generator', 0].get_text_score(tr.reconstruction_history)
+    txt_score = net['TextGenerator', 0].get_text_score(tr.reconstruction_history)
 
-    mean = net.exc_neurons['np.mean(n.output)', 0, 'np']
-    osc_score = np.mean(net.exc_neurons.target_activity-np.abs(mean - net.exc_neurons.target_activity))/net.exc_neurons.target_activity
+    mean = net.exc_neurons1['np.mean(n.output)', 0, 'np']
+    osc_score = np.mean(net.exc_neurons1.target_activity-np.abs(mean - net.exc_neurons1.target_activity))/net.exc_neurons1.target_activity
 
     if osc_score<0:
         osc_score=0.00001
@@ -58,14 +69,14 @@ def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=Non
         'dist_score': dist_score,
         'classes': str(classes),
         'simulated_iterations': net.iteration
-    })#, sm=sm
+    }, sm=sm)
 
 def get_class_score(net):
     if net['ES', 0] is None:
         return 1, []
 
-    wcp = Weight_Classifier_Pre(net.exc_neurons, syn_tag='ES')
-    tg = net['Text_Generator', 0]
+    wcp = Weight_Classifier_Pre(net.exc_neurons1, syn_tag='ES')
+    tg = net['TextGenerator', 0]
 
     classification = wcp(sensitivity=3.0)
     classes = []
@@ -74,8 +85,8 @@ def get_class_score(net):
     classes = -np.sort(-np.array(classes))
 
     cw = -np.sort(-tg.char_weighting)
-    cw = net.exc_neurons.size / len(tg.alphabet) * cw
-    score = 1.0 - np.sum(np.abs(classes - cw)) / net.exc_neurons.size / 2.0
+    cw = net.exc_neurons1.size / len(tg.alphabet) * cw
+    score = 1.0 - np.sum(np.abs(classes - cw)) / net.exc_neurons1.size / 2.0
 
     #print(np.array2string(classes, separator=", "), net.iteration, score)  # repr: with commas
 
@@ -96,14 +107,14 @@ def train_ES_and_get_distribution_score(net, input_steps, sm=None, deactivateEE=
     #print(cw)
     #print(score)
 
-    # cw = -np.sort(-tg.char_weighting)*net.exc_neurons.size*net.exc_neurons.target_activity
+    # cw = -np.sort(-tg.char_weighting)*net.exc_neurons1.size*net.exc_neurons1.target_activity
 
-    #print(net.exc_neurons.target_activity)
+    #print(net.exc_neurons1.target_activity)
     #print(np.sum(classes))
     #print(np.sum(cw))
 
     #classes = -np.sort(-np.array(classes))
-    #cw = -np.sort(-tg.char_weighting)#*net.exc_neurons.size*net.exc_neurons.target_activity
+    #cw = -np.sort(-tg.char_weighting)#*net.exc_neurons1.size*net.exc_neurons1.target_activity
     #classes = classes/np.sum(classes)*len(tg.alphabet)
     #score = 1.0 - np.sum(np.abs(classes-cw))/len(tg.alphabet)/2.0
     #set_score(score, info={'classes': str(classes)})
@@ -132,7 +143,7 @@ def plot_output_trace(data, plastic_steps, recovery_steps, target_activity, w=50
     plt.show()
 
 def save_trace(it, net):
-    neurons = net['exc_neurons', 0]
+    neurons = net['exc_neurons1', 0]
     a = net['np.mean(n.output)',0][-500:]
 
     max_a = neurons.target_activity * 2.0#np.maximum(np.max(a), neurons.target_activity * 2.0)
@@ -164,7 +175,7 @@ def save_trace(it, net):
 
 
 def generate_response_images(net, input_steps, recovery_steps, free_steps):
-    neurons = net['exc_neurons', 0]
+    neurons = net['exc_neurons1', 0]
     neurons.add_analysis_module(Neuron_Classification_Colorizer())
 
     neurons.add_behaviour(100, Recorder(variables=['np.mean(n.output)']))

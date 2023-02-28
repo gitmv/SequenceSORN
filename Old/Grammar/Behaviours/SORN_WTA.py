@@ -45,7 +45,7 @@ class refrac_apply(Behaviour):
         if last_cycle_step(neurons):
             neurons.activity -= neurons.refractory_counter_analog * self.strengthfactor
 
-class synapse_operation(SORN_signal_propagation_base):
+class SynapseOperation(SORN_signal_propagation_base):
 
     def set_variables(self, neurons):
         super().set_variables(neurons)

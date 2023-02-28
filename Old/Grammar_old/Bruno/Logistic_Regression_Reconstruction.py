@@ -1,7 +1,7 @@
 from PymoNNto import *
 from sklearn import linear_model
 
-class Classifier_Text_Reconstructor(Behaviour):
+class ClassifierTextReconstructor(Behaviour):
 
     def train(self):
         self.classifier = linear_model.LogisticRegression(solver='liblinear', multi_class='auto')
@@ -21,7 +21,7 @@ class Classifier_Text_Reconstructor(Behaviour):
         self.recording = False
 
     def set_variables(self, neurons):
-        #self.add_tag('Text_Reconstructor')
+        #self.add_tag('TextReconstructor')
         self.neurons = neurons
         self.current_reconstruction_char = ''
         self.current_reconstruction_char_index = ''
@@ -30,7 +30,7 @@ class Classifier_Text_Reconstructor(Behaviour):
         self.readout_layer = None #if none: untrained
         self.recording = False
         self.strength = self.get_init_attr('strength', 1)
-        self.Text_Activator = neurons.network['Text_Activator', 0]
+        self.TextActivator = neurons.network['TextActivator', 0]
         self.activate_predicted_char=True
 
     def get_current_char_index(self, neurons):
@@ -43,12 +43,12 @@ class Classifier_Text_Reconstructor(Behaviour):
             self.x_train.append(neurons.output.copy())
             self.y_train.append(self.get_current_char_index(neurons))#(neurons.current_char_index)
 
-        if self.Text_Activator is not None:
+        if self.TextActivator is not None:
             if self.readout_layer is not None:
                 self.current_reconstruction_char_index = self.predict_char_index(neurons.output)
-                self.current_reconstruction_char = self.Text_Activator.text_generator.index_to_char(self.current_reconstruction_char_index)
+                self.current_reconstruction_char = self.TextActivator.TextGenerator.index_to_char(self.current_reconstruction_char_index)
                 self.reconstruction_history += self.current_reconstruction_char
 
-                if not self.Text_Activator.behaviour_enabled and self.activate_predicted_char:
+                if not self.TextActivator.behaviour_enabled and self.activate_predicted_char:
                     neurons.input_grammar = neurons.Input_Weights[:, self.current_reconstruction_char_index].copy()
                     neurons.activity += neurons.input_grammar * self.strength

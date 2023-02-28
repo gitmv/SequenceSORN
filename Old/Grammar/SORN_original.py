@@ -11,9 +11,9 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #init
     1: Init_Neurons(target_activity='0.02'),#0.02#lognormal_rm(0.02,0.3)
 
-    15: Text_Generator(text_blocks=get_default_grammar(3)),#get_bruno_grammar(20)
-    16: Text_Activator(input_density='0.04', strength='1.0'),
-    18: Synapse_Operation(transmitter='GLU', strength='1.0'),
+    15: TextGenerator(text_blocks=get_default_grammar(3)),#get_bruno_grammar(20)
+    16: TextActivator(input_density='0.04', strength='1.0'),
+    18: SynapseOperation(transmitter='GLU', strength='1.0'),
 
     #stability
     21: IP(sliding_window='0', speed='[0.007#IP]'),
@@ -26,13 +26,13 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
     #learning
     41: Buffer_Variables(),#for STDP
-    41.5: Learning_Inhibition_mean(strength='[170#LIM]', threshold='0.02', use_inh=False),#'0.015'#170 #0.02 -10 #0.37994896225
+    41.5: LearningInhibition_mean(strength='[170#LIM]', threshold='0.02', use_inh=False),#'0.015'#170 #0.02 -10 #0.37994896225
     42: STDP_C(transmitter='GLU', eta_stdp='[0.0015#STDP]', STDP_F={-1: 1}),#0.0005 #0.0015
     45: Normalization(syn_type='GLU', exec_every_x_step='10'),#100
     46: Out_Normalization(syn_type='GLU', exec_every_x_step='10'),
 
     #reconstruction
-    50: Text_Reconstructor(),
+    50: TextReconstructor(),
 })
 
 SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='EE,GLU', behaviour={
@@ -81,14 +81,14 @@ else:
 '''
 
     # 30: ReLu_Output_Prob(),
-    #41.5: Learning_Inhibition(transmitter='GABA', strength=-2),
+    #41.5: LearningInhibition(transmitter='GABA', strength=-2),
     #s=10 #4 2'[0.2#E]'
     # 23: inhibition_test(strength=4.5),
-    #24: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+    #24: SynapseOperation(transmitter='GABA', strength='-[1.0#GABAE]'),
     # 20: SH_act(sliding_window=0, speed='[0.007#IP]', SH_target_activity='lognormal_rm(0.1,0.3)'),
     #22: Refractory_D(steps=4.0),
     ##1.0 #0.75 #[0.9#IS]
-    #19: Synapse_Operation(transmitter='GABA', strength='-[1.0#GABAE]'),
+    #19: SynapseOperation(transmitter='GABA', strength='-[1.0#GABAE]'),
 
     #1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
@@ -104,7 +104,7 @@ else:
 
 inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
     2: Init_Neurons(),
-    31: Synapse_Operation(transmitter='GLU', strength='[10.0#GLUI]'),#approximately: (mean_e+oscillation_e)*10.0=(0.02+0.06)*10=0.8 (nearly 1)
+    31: SynapseOperation(transmitter='GLU', strength='[10.0#GLUI]'),#approximately: (mean_e+oscillation_e)*10.0=(0.02+0.06)*10=0.8 (nearly 1)
     32: Power_Output(exp='[2.0#PO]'),
     #32: Power_Output_Prob(exp='[2.0#PO]'),
     #32: ID_Output(),
@@ -127,7 +127,7 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 #    2: Init_Neurons(),
 
     #input!
-#    31: Synapse_Operation(transmitter='GLU', strength=30),
+#    31: SynapseOperation(transmitter='GLU', strength=30),
 
     #output!
     #14: Threshold_Output(threshold='uniform(0.1,0.9)'),
@@ -186,20 +186,20 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 # deactivate STDP and Input
 #SORN.deactivate_mechanisms('STDP')
 #SORN.deactivate_mechanisms('Normalization')
-#SORN.deactivate_mechanisms('Text_Activator')
+#SORN.deactivate_mechanisms('TextActivator')
 
 
 #recovery phase
 #SORN.simulate_iterations(recovery_steps, 100)
 
 #text generation
-#tr = SORN['Text_Reconstructor', 0]
+#tr = SORN['TextReconstructor', 0]
 #tr.reconstruction_history = ''
 #SORN.simulate_iterations(5000, 100)
 #print(tr.reconstruction_history)
 
 #scoring
-#score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
+#score = SORN['TextGenerator', 0].get_text_score(tr.reconstruction_history)
 #set_score(score, info={'text': tr.reconstruction_history, 'simulated_iterations':SORN.iteration})
 
 
@@ -263,8 +263,8 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 # 23: IP(h_ip='lognormal_real_mean(0.02, [0.2944#IP_sigma])', eta_ip='0.007'),#[0.07#eta_ip]
 
 # 3: init_afferent_synapses(transmitter='GLU', density='1%', distribution='uniform([0.1#iglumin],1.0)', normalize=True),
-# 8: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.']),#, ' parrots can fly.', 'the fish swims'
-# 9: Text_Activator(input_density=0.04),#0.03#0.04#0.043#0.015#0.043#0.015
+# 8: TextGenerator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.']),#, ' parrots can fly.', 'the fish swims'
+# 9: TextActivator(input_density=0.04),#0.03#0.04#0.043#0.015#0.043#0.015
 # 15: buffer_variables(),#for STDP
 # 18: refrac(decayfactor=0.5),
 # 20: IP(h_ip='lognormal_real_mean([0.02#k], [0.2944#IP_sigma])', eta_ip='[0.007#eta_ip]'),#
@@ -279,19 +279,19 @@ SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviou
 
 #deactivate STDP and Input
 #SORN.deactivate_mechanisms('STDP')
-#SORN.deactivate_mechanisms('Text_Activator')
+#SORN.deactivate_mechanisms('TextActivator')
 
 #recovery phase
 #SORN.simulate_iterations(5000, 100)
 
 #text generation
-#SORN['Text_Reconstructor', 0].reconstruction_history = ''
+#SORN['TextReconstructor', 0].reconstruction_history = ''
 #SORN.simulate_iterations(5000, 100)
-#recon_text = SORN['Text_Reconstructor', 0].reconstruction_history
+#recon_text = SORN['TextReconstructor', 0].reconstruction_history
 #print(recon_text)
 
 #scoring
-#score = SORN['Text_Generator', 0].get_text_score(recon_text)
+#score = SORN['TextGenerator', 0].get_text_score(recon_text)
 #set_score(score)
 
 

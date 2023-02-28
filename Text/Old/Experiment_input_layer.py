@@ -1,13 +1,13 @@
-from Text.New.Behaviour_Core_Modules import *
+from Text.v0.Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
 from Helper import *
 
 
-class Text_Activator_IL(Behaviour):
+class TextActivatorIL(Behaviour):
 
     def set_variables(self, neurons):
-        self.add_tag('Text_Activator')
-        self.text_generator = neurons['Text_Generator', 0]
+        self.add_tag('TextActivator')
+        self.TextGenerator = neurons['TextGenerator', 0]
         self.strength = self.get_init_attr('strength', 1, neurons)
 
     def new_iteration(self, neurons):
@@ -18,16 +18,16 @@ class Text_Activator_IL(Behaviour):
 
 
 
-class Text_Reconstructor_IL(Behaviour):
+class TextReconstructorIL(Behaviour):
 
     def set_variables(self, neurons):
-        self.add_tag('Text_Reconstructor')
+        self.add_tag('TextReconstructor')
         self.current_reconstruction_char = ''
         self.current_reconstruction_char_index = ''
         self.reconstruction_history = ''
 
     def new_iteration(self, neurons):
-        if neurons['Text_Activator_IL', 0] is not None:
+        if neurons['TextActivatorIL', 0] is not None:
 
             neurons.rec_act = neurons.get_neuron_vec()
             for s in neurons.efferent_synapses['GLU']:
@@ -39,7 +39,7 @@ class Text_Reconstructor_IL(Behaviour):
             else:
                 index_act = np.sum(neurons.rec_act.reshape((neurons.height, neurons.width)), axis=1)
                 self.current_reconstruction_char_index = np.argmax(index_act)
-                self.current_reconstruction_char = neurons['Text_Activator_IL', 0].text_generator.index_to_char(self.current_reconstruction_char_index)
+                self.current_reconstruction_char = neurons['TextActivator_IL', 0].TextGenerator.index_to_char(self.current_reconstruction_char_index)
 
             self.reconstruction_history += self.current_reconstruction_char
 
@@ -106,29 +106,29 @@ LI_threshold = gene('L', 0.25)
 
 NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behaviour={
 
-    10: Text_Generator(iterations_per_char=1, text_blocks=grammar),
-    11: Text_Activator_IL(strength=1),
+    10: TextGenerator(iterations_per_char=1, text_blocks=grammar),
+    11: TextActivator_IL(strength=1),
 
     #42.1: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10, norm_factor=100),
 
     50: Out(),
 
-    80: Text_Reconstructor_IL()
+    80: TextReconstructor_IL()
 })
 
 
 NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={#60 30#NeuronDimension(width=10, height=10, depth=1)
 
-    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+    12: SynapseOperation(transmitter='GLU', strength=1.0),
 
     # inhibitory input
-    20: Synapse_Operation(transmitter='GABA', strength=-1.0),
+    20: SynapseOperation(transmitter='GABA', strength=-1.0),
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007), #0.02
+    30: IntrinsicPlasticity(target_activity=target_activity, strength=0.007), #0.02
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
+    40: LearningInhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
     41: STDP(tag='STDP_EE', transmitter='EE', strength=0.0015),#0.0015#gene('S1',0.0015)
     41.1: STDP(tag='STDP_ES', transmitter='ES', strength=gene('S',0.0015)),#0.0015
 
@@ -146,7 +146,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
 NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
 
     # excitatory input
-    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    60: SynapseOperation(transmitter='GLUI', strength=1.0),
 
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'
@@ -179,7 +179,7 @@ net.exc_neurons.sensitivity += 0.49
 
 #net.exc_neurons.sensitivity += 0.3
 
-#net['Text_Generator',0].plot_char_distribution()
+#net['TextGenerator',0].plot_char_distribution()
 
 #User interface
 if __name__ == '__main__' and ui:

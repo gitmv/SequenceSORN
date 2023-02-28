@@ -6,7 +6,7 @@ from PymoNNto.Exploration.Analysis.WiltingPriesemann import *
 def max_source_act_text(network, steps):
 
     source = network['grammar_act', 0]
-    #source = network['Text_Generator', 0]
+    #source = network['TextGenerator', 0]
     alphabet = source.alphabet
     alphabet_length = len(alphabet)
 
@@ -17,7 +17,7 @@ def max_source_act_text(network, steps):
         char_act = np.zeros(alphabet_length)
 
         for ng in network['prediction_source']:
-            #recon = network['Text_Activator', 0].mat.transpose().dot(ng.output)
+            #recon = network['TextActivator', 0].mat.transpose().dot(ng.output)
             recon = ng.Input_Weights.transpose().dot(ng.output)
             char_act += recon#.numpy()
 
@@ -34,7 +34,7 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
         network.deactivate_behaviours('STDP')
 
     network['grammar_act', 0].behaviour_enabled = False
-    #network['Text_Activator', 0].behaviour_enabled = False
+    #network['TextActivator', 0].behaviour_enabled = False
 
     network.simulate_iterations(steps_recovery, 100, measure_block_time=display)
 
@@ -45,7 +45,7 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
     #print('\x1b[6;30;42m' + 'Success!' + '\x1b[0m')
 
     network['grammar_act', 0].behaviour_enabled = True
-    #network['Text_Activator', 0].behaviour_enabled = True
+    #network['TextActivator', 0].behaviour_enabled = True
 
     if stdp_off:
         network.activate_behaviours('STDP')

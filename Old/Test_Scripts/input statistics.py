@@ -2,7 +2,7 @@ from Old.Grammar.Behaviours_in_use import *
 
 ng = NeuronGroup(1, behaviour={}, net=None)
 
-tg = Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True)
+tg = TextGenerator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True)
 tg.set_variables(ng)
 
 x = list(range(200))

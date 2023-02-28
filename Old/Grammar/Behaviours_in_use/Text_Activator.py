@@ -26,10 +26,10 @@ def one_hot_vec_to_neuron_mat(input_size, output_size, activation_size, input_we
 
 
 
-class Text_Activator(Behaviour):
+class TextActivator(Behaviour):
 
     def set_variables(self, neurons):
-        self.text_generator = neurons['Text_Generator', 0]
+        self.TextGenerator = neurons['TextGenerator', 0]
 
         input_density = self.get_init_attr('input_density', 1 / 60)
         if input_density < 1:
@@ -39,11 +39,11 @@ class Text_Activator(Behaviour):
         neurons.mean_network_activity = activation_size/neurons.size #optional/ can be used by other (homeostatic) modules
 
         if self.get_init_attr('char_weighting', True):
-            cw = self.text_generator.char_weighting
+            cw = self.TextGenerator.char_weighting
         else:
             cw = None
 
-        neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, cw)
+        neurons.Input_Weights = one_hot_vec_to_neuron_mat(len(self.TextGenerator.alphabet), neurons.size, activation_size, cw)
         neurons.Input_Mask = np.sum(neurons.Input_Weights, axis=1) > 0
 
         neurons.add_analysis_module(Static_Classification(name='input class', classes=neurons.Input_Mask))
@@ -62,12 +62,12 @@ class Text_Activator(Behaviour):
 
 
 
-class Text_Activator_Simple(Behaviour):
+class TextActivatorSimple(Behaviour):
 
     def set_variables(self, neurons):
-        self.add_tag('Text_Activator')
-        self.text_generator = neurons['Text_Generator', 0]
-        self.alphabet_length = len(self.text_generator.alphabet)
+        self.add_tag('TextActivator')
+        self.TextGenerator = neurons['TextGenerator', 0]
+        self.alphabet_length = len(self.TextGenerator.alphabet)
         neurons.one_hot_alphabet_act_vec = np.zeros(self.alphabet_length)
 
     def new_iteration(self, neurons):
@@ -76,12 +76,12 @@ class Text_Activator_Simple(Behaviour):
 
         neurons.activity[0:self.alphabet_length] += neurons.one_hot_alphabet_act_vec
 
-class input_synapse_operation(Behaviour):
+class input_SynapseOperation(Behaviour):
 
     def set_variables(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)  # 1 or -1
 
-        self.text_generator = neurons.network['Text_Generator', 0]
+        self.TextGenerator = neurons.network['TextGenerator', 0]
 
         input_density = self.get_init_attr('input_density', 1 / 60)
         if input_density < 1:
@@ -91,7 +91,7 @@ class input_synapse_operation(Behaviour):
         neurons.mean_network_activity = activation_size/neurons.size #optional/ can be used by other (homeostatic) modules
 
         for s in neurons.afferent_synapses['Input_GLU']:
-            s.W = one_hot_vec_to_neuron_mat(len(self.text_generator.alphabet), neurons.size, activation_size, self.text_generator.char_weighting)
+            s.W = one_hot_vec_to_neuron_mat(len(self.TextGenerator.alphabet), neurons.size, activation_size, self.TextGenerator.char_weighting)
 
             s.dst.Input_Weights = s.W
 

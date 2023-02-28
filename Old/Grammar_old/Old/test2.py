@@ -31,7 +31,7 @@ e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_s
     3: init_afferent_synapses(transmitter='GLU', density='1%', distribution='uniform(0.1,1.0)', normalize=True),
 
     #10.0: SORN_slow_syn
-    10.0: synapse_operation(transmitter='GLU', strength='1.0'), #todo: SORN_slow_syn_simple??????
+    10.0: SynapseOperation(transmitter='GLU', strength='1.0'), #todo: SORN_slow_syn_simple??????
     10.1: IP_apply(),
     10.15: refrac_apply(strengthfactor='[0.1#rs]'),#0.1 #attrs['refrac']
     10.2: SORN_generate_output_K_WTA(K='[0.02#k]'),

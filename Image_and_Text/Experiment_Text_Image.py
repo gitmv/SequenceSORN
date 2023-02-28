@@ -1,6 +1,6 @@
-from Text.New.Behaviour_Core_Modules import *
+from Text.v0.Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
-from Text.New.Behaviour_Input_layer_Modules import *
+from Text.v0.Behaviour_Input_layer_Modules import *
 from Helper import *
 from Image_and_Text.Behaviour_Image_Modules import *
 
@@ -24,7 +24,7 @@ grammar = get_random_sentences(3)    #Experiment D
 
 net = Network(tag='Text-Image-Network', behaviour={
 
-    10: Text_Generator(iterations_per_char=1, text_blocks=grammar),
+    10: TextGenerator(iterations_per_char=1, text_blocks=grammar),
 
     1: Image_Patch_Generator(strength=1, img_path='../../Images/Lenna_(test_image).png', patch_w=patch_w, patch_h=patch_h),
 
@@ -58,17 +58,17 @@ NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_mul
     10: Image_Patch_Activator(strength=1, patch_name='on_off_center_white'),
 
 
-    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+    12: SynapseOperation(transmitter='GLU', strength=1.0),
 
     # inhibitory input
-    20: Synapse_Operation(transmitter='GABA', strength=-1.0),#
+    20: SynapseOperation(transmitter='GABA', strength=-1.0),#
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007), #0.02
+    30: IntrinsicPlasticity(target_activity=target_activity, strength=0.007), #0.02
     #31: Refractory_D(steps=4.0),
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
+    40: LearningInhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
     41: STDP(transmitter='GLU', strength=0.0015),#0.0015
     1: Normalization(syn_direction='afferent', syn_type='GLU', exec_every_x_step=10),
     2: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10),
@@ -80,7 +80,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_mul
 
 NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(net['exc_neurons',0].size/10), color=red, behaviour={
     # excitatory input
-    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    60: SynapseOperation(transmitter='GLUI', strength=1.0),
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'
 })
@@ -135,28 +135,28 @@ LI_threshold = gene('L', 0.2)#0.25
 
 NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behaviour={
 
-    11: Text_Activator_IL(strength=1),
+    11: TextActivatorIL(strength=1),
 
     #42.1: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10, norm_factor=100),
 
     50: Out(),
 
-    80: Text_Reconstructor_IL()
+    80: TextReconstructor_IL()
 })
 
 
 NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={#60 30#NeuronDimension(width=10, height=10, depth=1)
 
-    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+    12: SynapseOperation(transmitter='GLU', strength=1.0),
 
     # inhibitory input
-    20: Synapse_Operation(transmitter='GABA', strength=-1.0),
+    20: SynapseOperation(transmitter='GABA', strength=-1.0),
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007), #0.02
+    30: IntrinsicPlasticity(target_activity=target_activity, strength=0.007), #0.02
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
+    40: LearningInhibition(transmitter='GABA', strength=31, threshold=LI_threshold), #0.377 #0.38=np.tanh(0.02 * 20) , threshold=0.38 #np.tanh(get_gene('S',20.0)*get_gene('TA',0.03))
     41: STDP(tag='STDP_EE', transmitter='EE', strength=0.0015),#0.0015#gene('S1',0.0015)
     41.1: STDP(tag='STDP_ES', transmitter='ES', strength=gene('S',0.0015)),#0.0015
 
@@ -174,7 +174,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
 NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
 
     # excitatory input
-    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    60: SynapseOperation(transmitter='GLUI', strength=1.0),
 
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'

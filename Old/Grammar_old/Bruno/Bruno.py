@@ -14,13 +14,13 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     1: Init_Neurons(target_activity=0.1),
 
     #input
-    15: Text_Generator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.']),
-    16: Text_Activator(input_density=neuron_count/60, strength=1.0, char_weighting=False),
+    15: TextGenerator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.', ' man drives car.', ' plant loves rain.']),
+    16: TextActivator(input_density=neuron_count/60, strength=1.0, char_weighting=False),
 
-    17: Classifier_Text_Reconstructor(),
+    17: Classifier_TextReconstructor(),
 
-    18: Synapse_Operation(transmitter='GLU', strength=1.0),
-    19: Synapse_Operation(transmitter='GABA', strength=-1.0),
+    18: SynapseOperation(transmitter='GLU', strength=1.0),
+    19: SynapseOperation(transmitter='GABA', strength=-1.0),
 
     #stability
     21: IP(sliding_window='0', speed='0.001'),
@@ -40,7 +40,7 @@ inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neur
     #init
     2: Init_Neurons(),
     #input
-    31: Synapse_Operation(transmitter='GLU', strength=1.0),
+    31: SynapseOperation(transmitter='GLU', strength=1.0),
     #output
     32: Threshold_Output(threshold='uniform(0.0, 0.5)'),
 })
@@ -76,24 +76,24 @@ SORN.simulate_iterations(plastic_steps, 100)
 #deactivate STDP and Input
 SORN.deactivate_behaviours('STDP')
 SORN.deactivate_behaviours('Normalization')
-#SORN.deactivate_behaviours('Text_Activator')
-SORN['Classifier_Text_Reconstructor', 0].start_recording()
+#SORN.deactivate_behaviours('TextActivator')
+SORN['ClassifierTextReconstructor', 0].start_recording()
 
 SORN.simulate_iterations(train_steps, 100)
-SORN.deactivate_behaviours('Text_Activator')
-SORN['Classifier_Text_Reconstructor', 0].train()#starts activating after training/stops recording automatically
+SORN.deactivate_behaviours('TextActivator')
+SORN['ClassifierTextReconstructor', 0].train()#starts activating after training/stops recording automatically
 
 #import matplotlib.pyplot as plt
-#plt.matshow(SORN['Classifier_Text_Reconstructor', 0].classifier.coef_[:, 0:200])
+#plt.matshow(SORN['ClassifierTextReconstructor', 0].classifier.coef_[:, 0:200])
 # with bias:
 # np.hstack((clf.intercept_[:,None], clf.coef_))
 #plt.show()
 
 SORN.simulate_iterations(spont_steps, 100)
-print(SORN['Classifier_Text_Reconstructor', 0].reconstruction_history)
+print(SORN['ClassifierTextReconstructor', 0].reconstruction_history)
 
 #scoring
-#score = SORN['Text_Generator', 0].get_text_score(recon_text)
+#score = SORN['TextGenerator', 0].get_text_score(recon_text)
 #set_score(score)
 
 

@@ -1,28 +1,31 @@
 from PymoNNto import *
 
-class Text_Activator(Behaviour):
+class TextActivator(Behaviour):
 
     def set_variables(self, neurons):
-        self.text_generator = neurons['Text_Generator', 0]
-        self.strength = self.get_init_attr('strength', 1, neurons)
+        self.TextGenerator = neurons.TextGenerator
+        self.strength = self.parameter('strength', 1, neurons)
 
     def new_iteration(self, neurons):
         neurons.input_grammar = (neurons.y == neurons.current_char_index)*self.strength
-        neurons.activity += neurons.input_grammar
+        neurons.voltage += neurons.input_grammar.astype(neurons.def_dtype)
 
 
-class Text_Reconstructor(Behaviour):
+class TextReconstructor(Behaviour):
+
+    def clear_history(self):
+        self.reconstruction_history = ''
 
     def set_variables(self, neurons):
         self.current_reconstruction_char = ''
         self.current_reconstruction_char_index = ''
-        self.reconstruction_history = ''
+        self.clear_history()
 
     def new_iteration(self, neurons):
-        text_activator=neurons['Text_Activator', 0]
-        if text_activator is not None:
+        TextActivator=neurons.TextActivator
+        if TextActivator is not None:
 
-            neurons.rec_act = neurons.get_neuron_vec()
+            neurons.rec_act = neurons.vector()
             for s in neurons.efferent_synapses['GLU']:
                 s.src.rec_act += s.W.T.dot(s.dst.output)
 
@@ -32,17 +35,80 @@ class Text_Reconstructor(Behaviour):
             else:
                 index_act = np.sum(neurons.rec_act.reshape((neurons.height, neurons.width)), axis=1)
                 self.current_reconstruction_char_index = np.argmax(index_act)
-                self.current_reconstruction_char = text_activator.text_generator.index_to_char(self.current_reconstruction_char_index)
+                self.current_reconstruction_char = TextActivator.TextGenerator.index_to_char(self.current_reconstruction_char_index)
 
             self.reconstruction_history += self.current_reconstruction_char
 
 
-class Text_Generator(Behaviour):
+class TextReconstructor_ML(Behaviour):##add "TextReconstructor" tag to constructor
+
+    def act_to_indx(self, act):
+        if np.sum(act) == 0:
+            return -1
+        else:
+            return np.argmax(act)
+
+    def get_char_index(self, pos):
+        act = self.recon_act_buffer[pos]
+        return self.act_to_indx(act)
+
+    def get_char_indexes(self, start=0, end=-1):
+        result = []
+        for act in self.recon_act_buffer[start:end]:
+            result.append(self.act_to_indx(act))
+        return result
+
+    @property
+    def reconstruction_history(self):
+        result=''
+        for index in self.get_char_indexes(0, -1):
+            result+=self.TextGenerator.index_to_char(index)
+        return result
+
+    def clear_history(self):
+        self.recon_act_buffer = []
+
+    def set_variables(self, neurons):
+        self.TextActivator = neurons.TextActivator
+        self.TextGenerator = neurons.TextGenerator
+        self.steps = 5
+
+        self.clear_history()
+
+        for n in neurons.network.NeuronGroups:
+            n._rc_buffer_last = n.vector()
+            n._rc_buffer_current = n.vector()
+
+    def new_iteration(self, neurons):
+        if self.TextActivator is not None:
+            self.recon_act_buffer.append(0)
+
+            #get current state
+            for n in neurons.network.NeuronGroups:
+                n._rc_buffer_last = n.output
+
+            result = []
+            for step in range(self.steps):
+                if step<len(self.recon_act_buffer):
+                    #propagation
+                    for s in neurons.network.SynapseGroups:
+                        if 'GLU' in s.tags:
+                            s.src._rc_buffer_current = s.W.T.dot(s.dst._rc_buffer_last) #+=
+
+                    #collection
+                    for n in neurons.network.NeuronGroups:
+                        n._rc_buffer_last = n._rc_buffer_current.copy()
+
+                    index_act = np.sum(neurons._rc_buffer_last.reshape((neurons.height, neurons.width)), axis=1)#get "activations" for different characters
+
+                    self.recon_act_buffer[-(step+1)] += index_act
+
+class TextGenerator(Behaviour):
 
     set_variables_on_init = True
 
     def get_text_blocks(self):
-        return self.get_init_attr('text_blocks', [])
+        return self.parameter('text_blocks', [])
 
     def unique(self, l):
         return list(sorted(set(l)))
@@ -52,7 +118,7 @@ class Text_Generator(Behaviour):
         self.text_blocks = self.get_text_blocks()
         self.current_block_index = -1
         self.position_in_current_block = -1
-        self.alphabet = self.unique(''.join(self.text_blocks)) #list not string!!!!
+        self.alphabet = self.unique(''.join(self.text_blocks).replace('#','')) #list not string!!!!
         self.history = ''
 
         # output
@@ -62,15 +128,16 @@ class Text_Generator(Behaviour):
         # manual activation
         self.next_char = None
 
-        if self.get_init_attr('set_network_size_to_alphabet_size', False):
+        if self.parameter('set_network_size_to_alphabet_size', False):
             dim = get_squared_dim(len(self.alphabet)) #NeuronDimension
             dim.set_variables(neurons) #set size and x, y, z, width, height, depth
 
         char_count_vec = self.count_chars_in_blocks()
         self.char_weighting = char_count_vec / np.mean(char_count_vec)
 
-        self.iterations_per_char = self.get_init_attr('iterations_per_char', 1)
+        self.iterations_per_char = self.parameter('iterations_per_char', 1)
 
+        #create aaabbbccc text
         for i in range(len(self.text_blocks)):
             new = ''
             for c in self.text_blocks[i]:
@@ -104,10 +171,16 @@ class Text_Generator(Behaviour):
         return self.text_blocks[self.current_block_index][self.position_in_current_block]
 
     def index_to_char(self, index):
-        return self.alphabet[index]
+        if index>=0:
+            return self.alphabet[index]
+        else:
+            return '#'
 
     def char_to_index(self, char):
-        return self.alphabet.index(char)
+        if char!='#':
+            return self.alphabet.index(char)
+        else:
+            return -1
 
     def get_next_block_index(self):
         return np.random.randint(len(self.text_blocks))
@@ -154,5 +227,8 @@ class Text_Generator(Behaviour):
 
         #self.char_weighting
         plt.show()
+
+    def annotate_text(self, text):
+        words = self.get_words()
 
 

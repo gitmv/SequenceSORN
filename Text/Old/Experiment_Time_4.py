@@ -1,4 +1,4 @@
-from Text.New.Behaviour_Core_Modules import *
+from Text.v0.Behaviour_Core_Modules import *
 from Gabor.Behaviour_STDP_Modules import *
 from Text.Behaviour_Text_Modules import *
 from UI_Helper import *
@@ -41,19 +41,19 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     #9: Exception_Activator(), # use for manual text input with GUI code tab...
 
     # excitatory input
-    10: Text_Generator(text_blocks=grammar, iterations_per_char=10),
-    11: Text_Activator(input_density=input_density, strength=0.1),#remove for non input tests
-    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+    10: TextGenerator(text_blocks=grammar, iterations_per_char=10),
+    11: TextActivator(input_density=input_density, strength=0.1),#remove for non input tests
+    12: SynapseOperation(transmitter='GLU', strength=1.0),
 
     # inhibitory input
-    20: Synapse_Operation(transmitter='GABA', strength=-GABA_strength),#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! changes LI_threshold
+    20: SynapseOperation(transmitter='GABA', strength=-GABA_strength),#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! changes LI_threshold
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.005967758933694278),
+    30: IntrinsicPlasticity(target_activity=target_activity, strength=0.005967758933694278),
     31: Refrac_New(exh_add=0.10700595454949832),
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
+    40: LearningInhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
     41: Complex_STDP(transmitter='GLU', strength=0.0002,
                      LTP=np.array([+0.0, +0.0, +0.0, +0.0, 0.0, 0.0, 0.0, -0.0, get_gene('s1', 0.1), get_gene('s2', 0.2), get_gene('s3', 0.3), get_gene('s4', 0.4), get_gene('s5', 0.5), get_gene('s6', 0.5), get_gene('s7', 0.5)])*2.686458399827205,#2.0
                      LTD = np.array([-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1]) * 0.006169886444089567,  # *1.5
@@ -71,14 +71,14 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     51: Complex_STDP_Buffer(),
 
     # reconstruction
-    80: Text_Reconstructor()
+    80: TextReconstructor()
 
 })
 
 NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
 
     # excitatory input
-    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    60: SynapseOperation(transmitter='GLUI', strength=1.0),
 
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration=2),

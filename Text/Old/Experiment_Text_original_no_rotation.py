@@ -1,6 +1,6 @@
 from Helper import *
 from UI_Helper import *
-from Text.New.Behaviour_Core_Modules import *
+from Text.v0.Behaviour_Core_Modules import *
 from Text.Behaviour_Text_Modules import *
 
 ui = True
@@ -32,18 +32,18 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     #9: Exception_Activator(), # use for manual text input with GUI code tab...
 
     # excitatory input
-    10: Text_Generator(text_blocks=grammar),
-    11: Text_Activator(input_density=input_density, strength=1.0),#remove for non input tests
-    12: Synapse_Operation(transmitter='GLU', strength=1.0),
+    10: TextGenerator(text_blocks=grammar),
+    11: TextActivator(input_density=input_density, strength=1.0),#remove for non input tests
+    12: SynapseOperation(transmitter='GLU', strength=1.0),
 
     # inhibitory input
-    20: Synapse_Operation(transmitter='GABA', strength=-0.8),###################################################################
+    20: SynapseOperation(transmitter='GABA', strength=-0.8),###################################################################
 
     # stability
-    30: Intrinsic_Plasticity(target_activity=target_activity, strength=0.007),
+    30: IntrinsicPlasticity(target_activity=target_activity, strength=0.007),
 
     # learning
-    40: Learning_Inhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
+    40: LearningInhibition(transmitter='GABA', strength=31, threshold=LI_threshold),
     41: STDP(transmitter='GLU', strength=0.0015),
     42: Normalization(syn_direction='afferent', syn_type='GLU', exec_every_x_step=10),
     43: Normalization(syn_direction='efferent', syn_type='GLU', exec_every_x_step=10),
@@ -52,14 +52,14 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     50: Generate_Output(exp=exc_output_exponent), #'[0.614#EXP]'
 
     # reconstruction
-    80: Text_Reconstructor()
+    80: TextReconstructor()
 
 })
 
 NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
 
     # excitatory input
-    60: Synapse_Operation(transmitter='GLUI', strength=1.0),
+    60: SynapseOperation(transmitter='GLUI', strength=1.0),
 
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration=0),#########################################
@@ -67,15 +67,15 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
 })
 
 SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
-    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+    1: createweights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
 SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
-    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+    1: createweights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
 SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
-    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+    1: createweights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
 sm = StorageManager(net.tags[0], random_nr=True)

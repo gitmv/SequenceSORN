@@ -66,7 +66,7 @@ def grammar_text_blocks_simple():
 
     return results
 
-class Text_Generator(Behaviour):
+class TextGenerator(Behaviour):
 
     set_variables_on_init = True
 

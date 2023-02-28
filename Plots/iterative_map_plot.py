@@ -6,8 +6,8 @@ class iterative_map_tab(TabBase):
 
     def __init__(self, x_var, y_var, x_time_shift=0, y_time_shift=0, title='ItMap', timesteps=500):
         super().__init__(title)
-        self.x_var = self.interpret_recording_variable(x_var)
-        self.y_var = self.interpret_recording_variable(y_var)
+        self.x_var = x_var#self.interpret_recording_variable(x_var)
+        self.y_var = y_var#self.interpret_recording_variable(y_var)
         self.x_time_shift=x_time_shift
         self.y_time_shift=y_time_shift
         self.timesteps=timesteps
@@ -67,8 +67,8 @@ class iterative_map_tab(TabBase):
             self.scatter.setData([], [])
 
             if len(group_tags)>=2:
-                x_group = Network_UI.network[group_tags[0], 0]
-                y_group = Network_UI.network[group_tags[1], 0]
+                x_group = Network_UI.network[group_tags[1], 0]####################################################################add selector
+                y_group = Network_UI.network[group_tags[2], 0]####################################################################add selector
 
                 if x_group is not None and y_group is not None:
 
@@ -91,8 +91,8 @@ class iterative_map_tab(TabBase):
                             y_val = y_val[:-1]
                             ty = '(t-1)'
 
-                        self.plot.getAxis('bottom').setLabel(text=self.x_var.replace('n.',group_tags[0]+'.')+tx)
-                        self.plot.getAxis('left').setLabel(text=self.y_var.replace('n.',group_tags[1]+'.')+ty)
+                        self.plot.getAxis('bottom').setLabel(text=self.x_var+tx)
+                        self.plot.getAxis('left').setLabel(text=self.y_var+ty)
 
                         if self.scatter_cb.checkState():
                             if self.grad_cb.checkState():

@@ -212,7 +212,7 @@ class Generate_Output_Inh_Analog(Generate_Output_Inh):
         neurons._activity = neurons.activity.copy()  # for plotting
         neurons.activity.fill(0)
 
-class Learning_Inhibition_test(Behaviour):
+class LearningInhibition_test(Behaviour):
 
     def set_variables(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)

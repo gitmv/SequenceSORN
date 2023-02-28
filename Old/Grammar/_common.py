@@ -16,20 +16,20 @@ def train_and_generate_text(SORN, plastic_steps, recovery_steps=None, text_gen_s
     # deactivate STDP and Input
     SORN.deactivate_behaviours('STDP')
     SORN.deactivate_behaviours('Normalization')
-    SORN.deactivate_behaviours('Text_Activator')
+    SORN.deactivate_behaviours('TextActivator')
 
     # recovery phase
     if recovery_steps is not None:
         SORN.simulate_iterations(recovery_steps, 100)
 
     # text generation
-    tr = SORN['Text_Reconstructor', 0]
+    tr = SORN['TextReconstructor', 0]
     tr.reconstruction_history = ''
     SORN.simulate_iterations(text_gen_steps, 100)
     print(tr.reconstruction_history)
 
     # scoring
-    score = SORN['Text_Generator', 0].get_text_score(tr.reconstruction_history)
+    score = SORN['TextGenerator', 0].get_text_score(tr.reconstruction_history)
     set_score(score, info={'text': tr.reconstruction_history, 'simulated_iterations': SORN.iteration})
 
 
@@ -191,7 +191,7 @@ def load_state(SORN, subfolder):
 
     SORN.deactivate_behaviours('STDP')
     SORN.deactivate_behaviours('Normalization')
-    SORN.deactivate_behaviours('Text_Activator')
+    SORN.deactivate_behaviours('TextActivator')
 
 
 def plot_corellation_matrix(network):
@@ -245,7 +245,7 @@ def plot_annotated_corellation_matrix_w(network, w):
             res = compute_temporal_reconstruction(network, network['exc_neurons', 0], id, recon_group_tag='exc_neurons')
             res = np.array(res)
             res = res - np.min(res)
-            text = generate_text_from_recon_mat(res, network['Text_Generator', 0])
+            text = generate_text_from_recon_mat(res, network['TextGenerator', 0])
             labels.append(text)
 
     xaxis = np.arange(0, len(idx), steps)
