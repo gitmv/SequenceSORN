@@ -10,7 +10,7 @@ layer_sizes = [2400, 2400, 2400]
 grammar = get_random_sentences(3)
 target_act = 1/n_chars(grammar)
 
-net = Network(tag=ex_file_name())
+net = Network(tag=ex_file_name(), settings=settings)
 
 NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_chars(grammar), depth=1, centered=False), color=green, behaviour={
     # text input

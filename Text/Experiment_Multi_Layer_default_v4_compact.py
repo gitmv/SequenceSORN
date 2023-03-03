@@ -4,7 +4,7 @@ from Text.Behaviour_Text_Modules import *
 from Helper import *
 
 
-ui = True
+ui = False
 layer_sizes = [2400, 2400, 2400, 2400]
 
 grammar = get_random_sentences(3)
@@ -63,7 +63,7 @@ def add_connection(net, src_nr, dst_nr):
 
 
 
-net = Network(tag=ex_file_name())
+net = Network(tag=ex_file_name(), settings=settings)
 
 
 #add main layers and connect each to the previous one
@@ -105,11 +105,6 @@ sm = StorageManager(net.tag, random_nr=True)
 sm.backup_execued_file()
 
 net.initialize(info=True, storage_manager=sm)
-
-for i in range(500):
-    result=net.simulate_iteration(True)
-
-print(result)
 
 #User interface
 if __name__ == '__main__' and ui:

@@ -3,48 +3,30 @@ from Behaviour_Core_Modules_v4 import *
 from Text.Behaviour_Text_Modules import *
 from Helper import *
 
-ui = False
+ui = True
 n_exc_neurons = 2400
 n_inh_neuros = n_exc_neurons/10
 
-#grammar = get_random_sentences(4)
-#target_act = 1/n_chars(grammar)
+grammar = get_random_sentences(3)
+target_act = gene('t', 1/n_chars(grammar)/3)#2
+#double_tt!!!!!
+
+#print(target_act)#0.009615384615384616
+
+#/2 result 1
+#set_genome({'IP_s': 0.012886629555441209, 'avg_inh': 0.2855042572937807, 'LI_s': 4.292444509999111, 'STDP_s': 0.002835767644205311, 'fe_exp': 0.3643689569656523, 'fe_mul': 5.631338219216053})
+#/2 result 2
+#{'IP_s': 0.011855267348331054, 'avg_inh': 0.30944861520616296, 'LI_s': 5.586949483263207, 'STDP_s': 0.0029102662539986003, 'fe_exp': 0.3815225136430725, 'fe_mul': 7.110141841318019}
+#/3 result
+set_genome({'IP_s': 0.020896679906752823, 'avg_inh': 0.26240211240528, 'LI_s': 4.217760789551765, 'STDP_s': 0.005206438619706144, 'fe_exp': 0.47499215627917557, 'fe_mul': 8.694893109383168})
 
 #curved 3s
-#IP_s = gene('IP_s', 0.008735764741458582)
-#avg_inh = gene('avg_inh', 0.3427857658747104)
-#LI_s = gene('LI_s', 6.450234496564654)
-#STDP_s = gene('STDP_s', 0.0030597477411211885)#important!#can be higher
-#fe_exp = gene('fe_exp', 0.7378726012049153)#important!
-#fe_mul = gene('fe_mul', 2.353594052973287)#important!
-
-##curved 4s
-##IP_s = gene('IP_s', 0.009263675397284607)
-##avg_inh = gene('avg_inh', 0.3755245533873526)
-##LI_s = gene('LI_s', 9.137740897721274)6.137740897721274
-##STDP_s = gene('STDP_s', 0.006146842011975385)#important!
-#fe_exp = gene('fe_exp', 0.5226260394007497)#important!
-#fe_mul = gene('fe_mul', 1.849497255127404)#important!
-
-#curved abcde._ / 7
-grammar = ['abcde. ']
-target_act = gene('T', 1/n_chars(grammar)/7)# #0.02
-IP_s = gene('IP_s', 0.008973931059651436)
-avg_inh = gene('avg_inh', 0.3231724475180935)
-LI_s = gene('LI_s', 14.924004407474971)
-STDP_s = gene('STDP_s', 0.018129208184866318)#important!
-fe_exp = gene('fe_exp', 0.38183660298411154)#important!
-fe_mul = gene('fe_mul', 1.1403125408175965)#important!
-#{'IP_s': 0.008120058543820047, 'avg_inh': 0.34673989744399814, 'LI_s': 12.626213735551083, 'STDP_s': 0.01548284674215687, 'fe_exp': 0.38292203973626115, 'fe_mul': 1.1460953005896783}
-
-#IP_s = 0.008735764741458582
-#avg_inh = 0.3427857658747104
-#LI_s = 10.0
-#STDP_s = 0.018 #0.006 #0.018 is worse with 200norm! works with 50norm. works with 50norm
-
-
-##fe_exp = gene('fe_exp', 0.7378726012049153)
-##fe_mul = gene('fe_mul', 2.353594052973287)
+IP_s = gene('IP_s', 0.008735764741458582)
+avg_inh = gene('avg_inh', 0.3427857658747104)
+LI_s = gene('LI_s', 6.450234496564654)
+STDP_s = gene('STDP_s', 0.0030597477411211885)#important!#can be higher
+fe_exp = gene('fe_exp', 0.7378726012049153)#important!
+fe_mul = gene('fe_mul', 2.353594052973287)#important!
 
 
 net = Network(tag=ex_file_name(), settings=settings)
@@ -63,8 +45,8 @@ NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_char
 
 NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue, behaviour={
     # weight normalization
-    3: Normalization(tag='Norm', direction='afferent and efferent', syn_type='DISTAL', exec_every_x_step=50),#watch out when using higher STDP speeds or higher target activities!
-    3.1: Normalization(tag='NormFSTDP', direction='afferent', syn_type='SOMA', exec_every_x_step=50),
+    3: Normalization(tag='Norm', direction='afferent and efferent', syn_type='DISTAL', exec_every_x_step=100),#watch out when using higher STDP speeds or higher target activities!
+    3.1: Normalization(tag='NormFSTDP', direction='afferent', syn_type='SOMA', exec_every_x_step=100),
 
     # excitatory and inhibitory input
     12: SynapseOperation(transmitter='GLU', strength=1.0),
@@ -115,4 +97,4 @@ if __name__ == '__main__' and ui:
     from UI_Helper import *
     show_UI(net, sm)
 else:
-    train_and_generate_text(net, input_steps=60000, recovery_steps=10000, free_steps=5000, sm=sm)
+    train_and_generate_text(net, input_steps=120000, recovery_steps=10000, free_steps=5000, sm=sm)

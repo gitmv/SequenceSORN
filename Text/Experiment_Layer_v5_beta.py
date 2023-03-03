@@ -15,10 +15,9 @@ net = Network(tag=ex_file_name(), settings=settings)
 NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_chars(grammar), depth=1, centered=False), color=green, behaviour={
     # text input
     10: TextGenerator(iterations_per_char=1, text_blocks=grammar),
-    11: TextActivator(strength=1),
 
     # group output
-    50: Output_InputLayer(),
+    50: Output_TextActivator(),
 
     # text reconstruction
     80: TextReconstructor()
@@ -41,7 +40,7 @@ NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue
     41: STDP(transmitter='GLU', strength=0.0030597477411211885),
 
     # group output
-    50: Output_Excitatory(exp=0.7378726012049153, mul=2.353594052973287),
+    51: Output_Excitatory(exp=0.7378726012049153, mul=2.353594052973287),
 })
 
 NeuronGroup(net=net, tag='inh_neurons1', size=getGrid(n_inh_neuros), color=red, behaviour={
@@ -71,7 +70,16 @@ SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons1', dst='exc_neurons1', beh
 sm = StorageManager(net.tag, random_nr=True)
 sm.backup_execued_file()
 
+#net.add_behaviour(100, Behaviour(), False)
+#net.add_behaviour(3, Behaviour(), False)
+#net.add_behaviour(2, Behaviour(), False)
+#net.add_behaviour(9, Behaviour(), False)
+
 net.initialize(info=True, storage_manager=sm)
+
+#for i in range(1000):
+#    result = net.simulate_iteration(True)
+#print(result)
 
 #User interface
 if __name__ == '__main__' and ui:

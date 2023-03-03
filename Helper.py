@@ -71,11 +71,17 @@ def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=Non
         'simulated_iterations': net.iteration
     }, sm=sm)
 
+class Weight_Classifier_PreT(Classifier_base):
+
+    def get_data_matrix(self, neurons):
+        syn_tag = self.parameter('syn_tag', 'EE')
+        return neurons.afferent_synapses[syn_tag][0].W #get_partitioned_synapse_matrix(neurons, syn_tag, 'W')
+
 def get_class_score(net):
     if net['ES', 0] is None:
         return 1, []
 
-    wcp = Weight_Classifier_Pre(net.exc_neurons1, syn_tag='ES')
+    wcp = Weight_Classifier_PreT(net.exc_neurons1, syn_tag='ES')
     tg = net['TextGenerator', 0]
 
     classification = wcp(sensitivity=3.0)

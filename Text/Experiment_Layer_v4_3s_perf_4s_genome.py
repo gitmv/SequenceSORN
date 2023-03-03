@@ -7,45 +7,16 @@ ui = False
 n_exc_neurons = 2400
 n_inh_neuros = n_exc_neurons/10
 
-#grammar = get_random_sentences(4)
-#target_act = 1/n_chars(grammar)
+grammar = get_random_sentences(3)
+target_act = 1/n_chars(grammar)
 
-#curved 3s
-#IP_s = gene('IP_s', 0.008735764741458582)
-#avg_inh = gene('avg_inh', 0.3427857658747104)
-#LI_s = gene('LI_s', 6.450234496564654)
-#STDP_s = gene('STDP_s', 0.0030597477411211885)#important!#can be higher
-#fe_exp = gene('fe_exp', 0.7378726012049153)#important!
-#fe_mul = gene('fe_mul', 2.353594052973287)#important!
-
-##curved 4s
-##IP_s = gene('IP_s', 0.009263675397284607)
-##avg_inh = gene('avg_inh', 0.3755245533873526)
-##LI_s = gene('LI_s', 9.137740897721274)6.137740897721274
-##STDP_s = gene('STDP_s', 0.006146842011975385)#important!
-#fe_exp = gene('fe_exp', 0.5226260394007497)#important!
-#fe_mul = gene('fe_mul', 1.849497255127404)#important!
-
-#curved abcde._ / 7
-grammar = ['abcde. ']
-target_act = gene('T', 1/n_chars(grammar)/7)# #0.02
-IP_s = gene('IP_s', 0.008973931059651436)
-avg_inh = gene('avg_inh', 0.3231724475180935)
-LI_s = gene('LI_s', 14.924004407474971)
-STDP_s = gene('STDP_s', 0.018129208184866318)#important!
-fe_exp = gene('fe_exp', 0.38183660298411154)#important!
-fe_mul = gene('fe_mul', 1.1403125408175965)#important!
-#{'IP_s': 0.008120058543820047, 'avg_inh': 0.34673989744399814, 'LI_s': 12.626213735551083, 'STDP_s': 0.01548284674215687, 'fe_exp': 0.38292203973626115, 'fe_mul': 1.1460953005896783}
-
-#IP_s = 0.008735764741458582
-#avg_inh = 0.3427857658747104
-#LI_s = 10.0
-#STDP_s = 0.018 #0.006 #0.018 is worse with 200norm! works with 50norm. works with 50norm
-
-
-##fe_exp = gene('fe_exp', 0.7378726012049153)
-##fe_mul = gene('fe_mul', 2.353594052973287)
-
+#curved 4s
+IP_s = gene('IP_s', 0.009263675397284607)
+avg_inh = gene('avg_inh', 0.3755245533873526)
+LI_s = gene('LI_s', 9.137740897721274)
+STDP_s = gene('STDP_s', 0.006146842011975385)#important!
+fe_exp = gene('fe_exp', 0.5226260394007497)#important!
+fe_mul = gene('fe_mul', 1.849497255127404)#important!
 
 net = Network(tag=ex_file_name(), settings=settings)
 

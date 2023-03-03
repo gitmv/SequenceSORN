@@ -1,13 +1,15 @@
 from PymoNNto import *
+import random as rnd
+#rnd.seed(1)
 
 class TextActivator(Behaviour):
 
     def set_variables(self, neurons):
         self.TextGenerator = neurons.TextGenerator
-        self.strength = self.parameter('strength', 1, neurons)
+        #self.strength = self.parameter('strength', 1, neurons)
 
     def new_iteration(self, neurons):
-        neurons.input_grammar = (neurons.y == neurons.current_char_index)*self.strength
+        neurons.input_grammar = (neurons.y == neurons.current_char_index)#*self.strength
         neurons.voltage += neurons.input_grammar.astype(neurons.def_dtype)
 
 
@@ -22,12 +24,15 @@ class TextReconstructor(Behaviour):
         self.clear_history()
 
     def new_iteration(self, neurons):
-        TextActivator=neurons.TextActivator
-        if TextActivator is not None:
+        TextGenerator = neurons.TextGenerator
+        if TextGenerator is not None:
 
             neurons.rec_act = neurons.vector()
             for s in neurons.efferent_synapses['GLU']:
-                s.src.rec_act += s.W.T.dot(s.dst.output)
+                if neurons.network.transposed_synapse_matrix_mode:  ######################################################
+                    s.src.rec_act += s.W.dot(s.dst.output)
+                else:
+                    s.src.rec_act += s.W.T.dot(s.dst.output)
 
             if np.sum(neurons.rec_act)==0:
                 self.current_reconstruction_char_index = -1
@@ -35,7 +40,7 @@ class TextReconstructor(Behaviour):
             else:
                 index_act = np.sum(neurons.rec_act.reshape((neurons.height, neurons.width)), axis=1)
                 self.current_reconstruction_char_index = np.argmax(index_act)
-                self.current_reconstruction_char = TextActivator.TextGenerator.index_to_char(self.current_reconstruction_char_index)
+                self.current_reconstruction_char = TextGenerator.index_to_char(self.current_reconstruction_char_index)
 
             self.reconstruction_history += self.current_reconstruction_char
 
@@ -93,7 +98,11 @@ class TextReconstructor_ML(Behaviour):##add "TextReconstructor" tag to construct
                     #propagation
                     for s in neurons.network.SynapseGroups:
                         if 'GLU' in s.tags:
-                            s.src._rc_buffer_current = s.W.T.dot(s.dst._rc_buffer_last) #+=
+                            if neurons.network.transposed_synapse_matrix_mode:  ######################################################
+                                s.src._rc_buffer_current = s.W.dot(s.dst._rc_buffer_last)  # +=
+                            else:
+                                s.src._rc_buffer_current = s.W.T.dot(s.dst._rc_buffer_last)  # +=
+
 
                     #collection
                     for n in neurons.network.NeuronGroups:
@@ -145,7 +154,6 @@ class TextGenerator(Behaviour):
                     new += c
             self.text_blocks[i] = new
 
-
     def new_iteration(self, neurons):
 
         #if neurons.iteration%self.iterations_per_char==0 or neurons.current_char_index==-1:
@@ -182,8 +190,11 @@ class TextGenerator(Behaviour):
         else:
             return -1
 
+
+
     def get_next_block_index(self):
-        return np.random.randint(len(self.text_blocks))
+        return rnd.randint(0, len(self.text_blocks)-1)
+        #return np.random.randint(len(self.text_blocks))
 
     def set_next_char(self, char):#manual activation
         self.next_char = char
@@ -230,5 +241,6 @@ class TextGenerator(Behaviour):
 
     def annotate_text(self, text):
         words = self.get_words()
+
 
 

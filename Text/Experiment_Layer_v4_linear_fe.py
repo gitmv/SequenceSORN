@@ -27,21 +27,34 @@ ui = False
 n_exc_neurons = 2400
 n_inh_neuros = n_exc_neurons/10
 
-grammar = ['abcde. ']
-target_act = 1/n_chars(grammar)/7
+
 
 #grammar = get_random_sentences(3)
 #target_act = 1/n_chars(grammar)
 
 #linear
-IP_s = gene('IP_s', 0.006635319724533977)
-avg_inh = gene('avg_inh', 0.3933175099720838)
-LI_s = gene('LI_s', 9.511628864955151)
-STDP_s = gene('STDP_s', 0.0035756192568359587)
-fe_mul = gene('fe_mul', 2.4686292348961563)
+#IP_s = gene('IP_s', 0.006635319724533977)
+#avg_inh = gene('avg_inh', 0.3933175099720838)
+#LI_s = gene('LI_s', 9.511628864955151)
+#STDP_s = gene('STDP_s', 0.0035756192568359587)
+#fe_mul = gene('fe_mul', 2.4686292348961563)
 
 
-net = Network(tag=ex_file_name())
+grammar = ['abcde. ']
+target_act = gene('t', 1/n_chars(grammar)/7)
+IP_s = gene('IP_s', 0.005747431885798205)
+avg_inh = gene('avg_inh', 0.04382717936808455)
+LI_s = gene('LI_s', 16.08806454651138)
+STDP_s = gene('STDP_s', 0.027586254435541645)
+fe_mul = gene('fe_mul', 1.2062024570842556)
+
+#STDP_s=0.002
+#n_exc_neurons=2400
+#target_act=0.02
+#norm=int(STDP_s*np.power(n_exc_neurons*target_act,2)*43.4)
+#print(norm)
+
+net = Network(tag=ex_file_name(), settings=settings)
 
 NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_chars(grammar), depth=1, centered=False), color=green, behaviour={
     # text input
@@ -68,7 +81,7 @@ NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue
     30: IntrinsicPlasticity(target_activity=target_act, strength=IP_s, init_sensitivity=0),
 
     # learning
-    40: LearningInhibition(transmitter='GABA', strength=LI_s, avg_inh=avg_inh, min=-0.10),#min=-0.15 (optional)(higher sccore/risky/higher spread)
+    40: LearningInhibition(transmitter='GABA', strength=LI_s, avg_inh=avg_inh, min=-0.0),#min=-0.15 (optional)(higher sccore/risky/higher spread)
     41: STDP(transmitter='GLU', strength=STDP_s),
 
     # group output
