@@ -1,5 +1,5 @@
 from collections import Counter
-from PymoNNto.NetworkBehaviour.Input.Old.TextActivator_old import *
+from PymoNNto.NetworkBehavior.Input.Old.TextActivator_old import *
 
 import random
 

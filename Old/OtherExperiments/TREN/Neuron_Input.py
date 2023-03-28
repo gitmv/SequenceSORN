@@ -1,32 +1,32 @@
-from PymoNNto.NetworkBehaviour.Logic.TREN.Helper.Functions_Helper import *
-from PymoNNto.NetworkBehaviour.Input.Activator import *
-from PymoNNto.NetworkBehaviour.Logic.Basics.Normalization import *
+from PymoNNto.NetworkBehavior.Logic.TREN.Helper.Functions_Helper import *
+from PymoNNto.NetworkBehavior.Input.Activator import *
+from PymoNNto.NetworkBehavior.Logic.Basics.Normalization import *
 
 class TREN_external_input(NeuronActivator):
 
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         self.strength = self.get_init_attr('strength', 1.0, neurons)
         neurons.input = np.zeros(neurons.size)
         self.write_to = 'input'
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.input *= 0
-        super().new_iteration(neurons)
+        super().iteration(neurons)
         neurons.input *= self.strength
 
 
-class InterGammaGlutamate(Behaviour):
+class InterGammaGlutamate(Behavior):
     modificaton_reset_vars = ['']
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Inter GLU')
         neurons.glu_inter_gamma_activity = neurons.get_neuron_vec()
         neurons.require_synapses('GLU')
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.glu_inter_gamma_activity *= 0
 
         for s in neurons.afferent_synapses['GLU']:
@@ -40,15 +40,15 @@ class InterGammaGlutamate(Behaviour):
 
 
 
-class IntraGammaGlutamate(Behaviour):
-    def set_variables(self, neurons):
+class IntraGammaGlutamate(Behavior):
+    def initialize(self, neurons):
         self.add_tag('Intra GLU')
         neurons.glu_intra_gamma_activity = neurons.get_neuron_vec()
 
         neurons.require_synapses('GLU')
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.glu_intra_gamma_activity *= 0
         for s in neurons.afferent_synapses['GLU']:
             if hasattr(s.src, 'glu_inter_gamma_activity'):
@@ -57,9 +57,9 @@ class IntraGammaGlutamate(Behaviour):
                 #s.get_dest_vec('glu_intra_gamma_activity')[:] += np.dot(s.W,  relu3(s.get_src_vec('glu_inter_gamma_activity')[:], neurons.TH,  0))
 
 
-class IntraGammaGABA(Behaviour):
+class IntraGammaGABA(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Intra GABA')
         self.GABA_density = self.get_init_attr('GABA_density', 1.0, neurons)
         self.GABA_random_factor = self.get_init_attr('GABA_random_factor', 0.0, neurons)
@@ -78,7 +78,7 @@ class IntraGammaGABA(Behaviour):
 
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.gaba_intra_gamma_activity *= 0
         for s in neurons.afferent_synapses['GABA']:
             s.dst.gaba_intra_gamma_activity -= np.dot(s.W, relu3(s.src.glu_inter_gamma_activity, neurons.TH, 0))
@@ -90,9 +90,9 @@ class IntraGammaGABA(Behaviour):
             return 1
 
 
-class ActivityBuffering(Behaviour):
+class ActivityBuffering(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Collect and Buffer')
         #self.store_input = self.get_init_attr('store_input', True)
         self.min_buffersize = self.get_init_attr('min_buffersize', 2, neurons)
@@ -105,7 +105,7 @@ class ActivityBuffering(Behaviour):
         neurons.output_activity_history = neurons.get_neuron_vec_buffer(buffersize)
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         neurons.activity *= self.activity_multiplyer
         neurons.activity += neurons.glu_inter_gamma_activity.copy()
@@ -137,19 +137,19 @@ class ActivityBuffering(Behaviour):
             return self.min_buffersize
 
 
-class RandomLeakInput(Behaviour):
+class RandomLeakInput(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Random Leak')
         neurons.random_leak_activity = neurons.get_neuron_vec()
         self.random_strength = self.get_init_attr('random_strength', 1, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.random_leak_activity = neurons.get_neuron_vec('uniform')*neurons.weight_norm_factor*self.random_strength
 
-class additional(Behaviour):
+class additional(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('additional ...')
         neurons.output_new = neurons.get_neuron_vec()
         neurons.excitation = neurons.get_neuron_vec()
@@ -163,6 +163,6 @@ class additional(Behaviour):
             s.fast_add = neurons.get_neuron_vec()
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         return
 

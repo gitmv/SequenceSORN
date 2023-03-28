@@ -1,6 +1,6 @@
-from Text.v0.Behaviour_Core_Modules import *
-from Gabor.Behaviour_STDP_Modules import *
-from Text.Behaviour_Text_Modules import *
+from Text.v0.Behavior_Core_Modules import *
+from Gabor.Behavior_STDP_Modules import *
+from Text.v4.Behavior_Text_Modules import *
 from UI_Helper import *
 from Helper import *
 
@@ -37,7 +37,7 @@ LI_threshold = np.tanh(inh_output_slope * target_activity)*GABA_strength#0.12#0.
 
 net = Network(tag='Text Learning Network')
 
-NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
+NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={
 
     #9: Exception_Activator(), # use for manual text input with GUI code tab...
 
@@ -75,7 +75,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
 
 })
 
-NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behavior={
 
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -85,15 +85,15 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
 
 })
 
-SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 

@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from PymoNNto import *
-from PymoNNto.NetworkBehaviour.Basics.Normalization import *
+from PymoNNto.NetworkBehavior.Basics.Normalization import *
 
-class Generate_Output(Behaviour):
+class Generate_Output(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.exp = self.get_init_attr('exp', 1.5)
         self.act_mul = self.get_init_attr('act_mul', 0.0)
         neurons.activity = neurons.get_neuron_vec()
@@ -15,7 +15,7 @@ class Generate_Output(Behaviour):
     def activation_function(self, a):
         return np.power(np.abs(a - 0.5) * 2, self.exp) * (a > 0.5)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output_old = neurons.output.copy()
         neurons.output = neurons.get_neuron_vec("uniform") < self.activation_function(neurons.activity)
         neurons._activity = neurons.activity.copy() #for plotting
@@ -43,9 +43,9 @@ def fi_2(x, ci, px):
     fdx = f_i_derivative(px, ci)
     return fx + (x - px) * fdx
 
-class Generate_Output_Inh(Behaviour):
+class Generate_Output_Inh(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.duration = self.get_init_attr('duration', 1.0)
         self.slope = self.get_init_attr('slope', 20.0)
         self.avg_act = 0
@@ -56,7 +56,7 @@ class Generate_Output_Inh(Behaviour):
         #return fi_2(a, self.slope, 0.019230769230769232)
         return np.tanh(a * self.slope)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
         #neurons.inh = np.tanh(self.avg_act * self.slope)
         neurons.output = neurons.get_neuron_vec('uniform') < self.activation_function(self.avg_act)#neurons.inh
@@ -69,15 +69,15 @@ class Generate_Output_Inh(Behaviour):
 
 
 
-class SynapseOperation_old(Behaviour):
+class SynapseOperation_old(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
         self.strength = self.get_init_attr('strength', 1.0, neurons)  # 1 or -1
         self.input_tag = 'input_' + self.transmitter
         setattr(neurons, self.input_tag, neurons.get_neuron_vec())
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         setattr(neurons, self.input_tag, neurons.get_neuron_vec())
         for s in neurons.afferent_synapses[self.transmitter]:
             s.add = s.W.dot(s.src.output) * self.strength
@@ -85,15 +85,15 @@ class SynapseOperation_old(Behaviour):
             setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
 
 
-class SynapseOperation(Behaviour):
+class SynapseOperation(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
         self.strength = self.get_init_attr('strength', 1.0, neurons)  # 1 or -1
         self.input_tag = 'input_' + self.transmitter
         setattr(neurons, self.input_tag, neurons.get_neuron_vec())
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         setattr(neurons, self.input_tag, neurons.get_neuron_vec())
         for s in neurons.afferent_synapses[self.transmitter]:
             s.add = np.sum(s.W[:, s.src.output], axis=1) * self.strength
@@ -101,9 +101,9 @@ class SynapseOperation(Behaviour):
             setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
 
 
-class LearningInhibition(Behaviour):
+class LearningInhibition(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)
         neurons.LI_threshold = self.get_init_attr('threshold', np.tanh(0.02*20), neurons)
         self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)
@@ -112,30 +112,30 @@ class LearningInhibition(Behaviour):
 
         #neuron.LTH = -self.threshold
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         o = np.abs(getattr(neurons, self.input_tag))
         #print(np.mean(o), neurons.LI_threshold)
         neurons.linh = np.clip(1 - (o - neurons.LI_threshold) * self.strength, 0.0, 1.0)
 
-class IntrinsicPlasticity(Behaviour):
+class IntrinsicPlasticity(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.get_init_attr('strength', 0.01, neurons)
         neurons.target_activity = self.get_init_attr('target_activity', 0.02)
         neurons.sensitivity = neurons.get_neuron_vec()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.sensitivity -= (neurons.output - neurons.target_activity) * self.strength
         neurons.activity += neurons.sensitivity
 
 
-class STDP_old(Behaviour):
+class STDP_old(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
         self.eta_stdp = self.get_init_attr('strength', 0.005)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
             mul = self.eta_stdp * s.enabled
             dw = (s.dst.linh * s.dst.output)[:, None] * s.src.output_old[None, :] * mul
@@ -145,13 +145,13 @@ class STDP_old(Behaviour):
 
 
 ############################################
-class STDP(Behaviour):
+class STDP(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
         self.eta_stdp = self.get_init_attr('strength', 0.005)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
             src_len = np.sum(s.src.output_old)
 
@@ -172,15 +172,15 @@ class STDP(Behaviour):
 
 
 
-class Normalization(Behaviour):
+class Normalization(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.syn_type = self.get_init_attr('syn_type', 'GLU', neurons)
         neurons.weight_norm_factor = neurons.get_neuron_vec()+self.get_init_attr('norm_factor', 1.0, neurons)
         self.exec_every_x_step = self.get_init_attr('exec_every_x_step', 1)
         self.aff_eff = self.get_init_attr('syn_direction', 'afferent')
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if (neurons.iteration-1) % self.exec_every_x_step == 0:
             if self.aff_eff=='afferent':
                 normalize_synapse_attr('W', 'W', neurons.weight_norm_factor, neurons, self.syn_type)
@@ -188,14 +188,14 @@ class Normalization(Behaviour):
                 normalize_synapse_attr_efferent('W', 'W', neurons.weight_norm_factor, neurons, self.syn_type)
 
 
-class Normalization2(Behaviour):
+class Normalization2(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.syn_type = self.get_init_attr('syn_type', 'GLU', neurons)
         self.exec_every_x_step = self.get_init_attr('exec_every_x_step', 1)
         self.aff_eff = self.get_init_attr('syn_direction', 'afferent')
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if (neurons.iteration-1) % self.exec_every_x_step == 0:
             if self.aff_eff=='afferent':
                 self.norm_aff(neurons)
@@ -236,9 +236,9 @@ class Normalization2(Behaviour):
 
 
 
-class create_weights(Behaviour):
+class create_weights(Behavior):
 
-    def set_variables(self, synapses):
+    def initialize(self, synapses):
         distribution = self.get_init_attr('distribution', 'uniform(0.0,1.0)')#ones
         density = self.get_init_attr('density', 1.0)
 
@@ -263,7 +263,7 @@ class create_weights(Behaviour):
         #print(synapses._dst_sum)
         #print(synapses._src_sum)
 
-    def new_iteration(self, synapses):
+    def iteration(self, synapses):
         #if type(synapses.enabled)!=bool or synapses.enabled!=True:
         #    synapses.W = synapses.W * synapses.enabled
 
@@ -275,13 +275,13 @@ class create_weights(Behaviour):
 
 #####################################
 
-class Refrac_New(Behaviour):
+class Refrac_New(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.exhaustion = neurons.get_neuron_vec()
         self.exh_add = self.get_init_attr('exh_add', 0.1, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.exhaustion += neurons.output + (neurons.output - 1)
         neurons.exhaustion = np.clip(neurons.exhaustion, 0, None)
         neurons.activity -= neurons.exhaustion * self.exh_add

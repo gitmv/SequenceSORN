@@ -1,8 +1,8 @@
 import sys
 sys.path.append('../../')
 
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
-from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkBehavior.Input.Text.TextActivator import *
 
 if __name__ == '__main__':
     from PymoNNto.Exploration.Network_UI import *
@@ -46,7 +46,7 @@ def run(attrs={'name':'hierarchical', 'ind':[], 'N_e':900, 'TS':[1], 'ff':True, 
 
 
 
-    #retina = NeuronGroup(net=SORN, tag='retina', size=get_squared_dim(20*20), behaviour={
+    #retina = NeuronGroup(net=SORN, tag='retina', size=get_squared_dim(20*20), behavior={
     #        2: SORN_init_neuron_vars(timescale=1),
 
             #9: SORN_external_input(strength=1.0, pattern_groups=[img_source]),
@@ -60,7 +60,7 @@ def run(attrs={'name':'hierarchical', 'ind':[], 'N_e':900, 'TS':[1], 'ff':True, 
 
     for layer, timescale in enumerate(attrs['TS']):
 
-        e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(timescale), size=get_squared_dim(int(attrs['N_e']/timescale)), behaviour={
+        e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(timescale), size=get_squared_dim(int(attrs['N_e']/timescale)), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='full', distribution='lognormal(0,[0.95#0])', normalize=True, partition_compensation=True),#0.89 uniform(0.1,0.11)#13%
             4: SORN_init_afferent_synapses(transmitter='GABA', density='full', distribution='lognormal(0,[0.4#1])', normalize=True),#0.80222 uniform(0.1,0.11)#45%
@@ -74,10 +74,10 @@ def run(attrs={'name':'hierarchical', 'ind':[], 'N_e':900, 'TS':[1], 'ff':True, 
             #20: SORN_Refractory_Digital(factor='0.5;+-50%', threshold=0.1),
             20: SORN_Refractory_Analog(factor='0.5;+-50%'),
             21: SORN_STDP(eta_stdp='[0.00015#5]'),#, STDP_F={-4:-0.01,-3:0.01,-2:0.1,-1:0.5,0:0.2,1:-0.3,2:-0.1,3:-0.05}, plot=True),#{-2:0.1,-1:0.5,0:0.2,1:-0.3,2:-0.1}
-            22: SORN_SN(syn_type='GLU', clip_max=None, behaviour_norm_factor=1.0),
-            #22.1: SORN_SN(syn_type='GLU_same', clip_max=None, behaviour_norm_factor=0.6),
-            #22.2: SORN_SN(syn_type='GLU_ff', clip_max=None, behaviour_norm_factor=0.25),
-            #22.3: SORN_SN(syn_type='GLU_fb', clip_max=None, behaviour_norm_factor=0.25),7z
+            22: SORN_SN(syn_type='GLU', clip_max=None, behavior_norm_factor=1.0),
+            #22.1: SORN_SN(syn_type='GLU_same', clip_max=None, behavior_norm_factor=0.6),
+            #22.2: SORN_SN(syn_type='GLU_ff', clip_max=None, behavior_norm_factor=0.25),
+            #22.3: SORN_SN(syn_type='GLU_fb', clip_max=None, behavior_norm_factor=0.25),7z
 
             23: SORN_IP_TI(h_ip='lognormal_real_mean([0.04#6], [0.2944#7])', eta_ip='[0.0006#8];+-50%', integration_length='[15#19];+-50%', clip_min=None),#30          #, gap_percent=10 #30;+-50% #0.0003 #np.mean(n.output_new)
             25: SORN_NOX(mp='self.partition_sum(n)', eta_nox='[0.5#9];+-50%'),
@@ -85,7 +85,7 @@ def run(attrs={'name':'hierarchical', 'ind':[], 'N_e':900, 'TS':[1], 'ff':True, 
             27: SORN_iSTDP(h_ip='same(SCTI, th)', eta_istdp='[0.0001#13]')
         })
 
-        i_ng = NeuronGroup(net=SORN, tag='Inter_{}'.format(timescale), size=get_squared_dim(int(0.2 * attrs['N_e']/timescale)), behaviour={
+        i_ng = NeuronGroup(net=SORN, tag='Inter_{}'.format(timescale), size=get_squared_dim(int(0.2 * attrs['N_e']/timescale)), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='50%', distribution='lognormal(0,[0.87038#14])', normalize=True),  # 450
             4: SORN_init_afferent_synapses(transmitter='GABA', density='20%', distribution='lognormal(0,[0.82099#15])', normalize=True),  # 40
@@ -121,8 +121,8 @@ def run(attrs={'name':'hierarchical', 'ind':[], 'N_e':900, 'TS':[1], 'ff':True, 
                 SynapseGroup(net=SORN, src=e_ng, dst=last_e_ng, tag='GLU,GLU_fb', connectivity='in_box(10)', partition=True)#.partition([10, 10], [partition, partition])
                 #SynapseGroup(net=SORN, src=e_ng, dst=last_i_ng, tag='GABA', connectivity='in_box(10)', partition=True)#.partition([5, 5], [2, 2])
         #else:
-            # i_ng.add_behaviour(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
-        e_ng.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+            # i_ng.add_behavior(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
+        e_ng.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
 
         last_e_ng = e_ng
         last_i_ng = i_ng

@@ -1,7 +1,7 @@
-from PymoNNto.NetworkCore.Behaviour import *
+from PymoNNto.NetworkCore.Behavior import *
 
-#from Grammar.Behaviours.SORN_advanced_buffer import *
-from PymoNNto.NetworkBehaviour.Basics.BasicHomeostasis import *
+#from Grammar.Behaviors.SORN_advanced_buffer import *
+from PymoNNto.NetworkBehavior.Basics.BasicHomeostasis import *
 
 
 
@@ -10,12 +10,12 @@ from PymoNNto.NetworkBehaviour.Basics.BasicHomeostasis import *
 
 class SORN_WTA_fast_syn(SORN_signal_propagation_base):
 
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         self.add_tag('fast_' + self.transmitter)
         self.get_init_attr('so', None, neurons)#just for error suppression
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if last_cycle_step(neurons) and self.strength != 0:
             for s in neurons.afferent_synapses[self.transmitter]:
                 s.fast_add = s.W.dot(s.src.output) * self.strength# / neurons.timescale
@@ -26,14 +26,14 @@ class SORN_WTA_fast_syn(SORN_signal_propagation_base):
                 else:
                     s.dst.inhibition += s.fast_add
 
-class SORN_WTA_iSTDP(Behaviour):
+class SORN_WTA_iSTDP(Behavior):
 
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         self.add_tag('WTA iSTDP')
         self.eta_iSTDP = self.get_init_attr('eta_iSTDP', 0.1, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if last_cycle_step(neurons):
             for s in neurons.afferent_synapses['GABA']:
                 add = s.dst.activity[:, None] * s.src.activity[None, :] * self.eta_iSTDP * s.enabled
@@ -43,8 +43,8 @@ class SORN_WTA_iSTDP(Behaviour):
 
 class SORN_IP_TI_WTA(Time_Integration_Homeostasis):
 
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         self.add_tag('IP_TI_WTA')
         self.measurement_param = self.get_init_attr('mp', 'n.output', neurons)
         self.adjustment_param = 'exhaustion_value'
@@ -57,16 +57,16 @@ class SORN_IP_TI_WTA(Time_Integration_Homeostasis):
 
         neurons.exhaustion_value = 0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if last_cycle_step(neurons):
-            super().new_iteration(neurons)
+            super().iteration(neurons)
             neurons.activity -= neurons.exhaustion_value
 
 
 class IP(Instant_Homeostasis):
 
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         self.add_tag('IP_WTA')
         self.measurement_param = self.get_init_attr('mp', 'n.output', neurons)
         self.adjustment_param = 'exhaustion_value'
@@ -78,35 +78,35 @@ class IP(Instant_Homeostasis):
 
         neurons.exhaustion_value = 0
 
-    def new_iteration(self, neurons):
-        super().new_iteration(neurons)
+    def iteration(self, neurons):
+        super().iteration(neurons)
         #neurons.activity -= neurons.exhaustion_value
 
-class exhaustion_same_mean(Behaviour):
+class exhaustion_same_mean(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.exhaustion_value = neurons.exhaustion_value - np.mean(neurons.exhaustion_value)
 
-class IP_apply(Behaviour):
+class IP_apply(Behavior):
 
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         self.add_tag('SORN_IP_WTA_apply')
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if last_cycle_step(neurons):
             neurons.activity -= neurons.exhaustion_value
 
 '''
-class SORN_Neuron_Exhaustion(Neuron_Behaviour):
+class SORN_Neuron_Exhaustion(Neuron_Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('exhaustion')
         neurons.exhaustion_value = neurons.get_neuron_vec()
         self.decay_factor = self.get_init_attr('decay_factor', 0.9, neurons)
         self.strength = self.get_init_attr('strength', 0.1, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if last_cycle_step(neurons):
             neurons.exhaustion_value *= self.decay_factor
             neurons.exhaustion_value += neurons.output

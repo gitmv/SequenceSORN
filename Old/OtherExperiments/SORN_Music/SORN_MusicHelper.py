@@ -1,5 +1,5 @@
 import pypianoroll as piano
-from PymoNNto.NetworkBehaviour.Recorder.Recorder import *
+from PymoNNto.NetworkBehavior.Recorder.Recorder import *
 from Testing.Common.Classifier_Helper import *
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import ComplementNB
@@ -126,10 +126,10 @@ def run_plastic_phase(SORN, steps_plastic, display=True, storage_manager=None):
     if display:
         print("Plastic phase...")
     SORN.clear_recorder()
-    SORN.activate_behaviours('STDP')
+    SORN.activate_behaviors('STDP')
     SORN.simulate_iterations(steps_plastic, 100, measure_block_time=display, disable_recording=True)
 
-    SORN.deactivate_behaviours('STDP')
+    SORN.deactivate_behaviors('STDP')
     #SORN.clear_recorder()
     #SORN.recording_off()
     return SORN
@@ -140,12 +140,12 @@ def train_readout(SORN, steps_train, steps_test, source, display=True, stdp_off=
         print("\nRecord predictions...")
 
     if stdp_off:
-        SORN.deactivate_behaviours('STDP')
+        SORN.deactivate_behaviors('STDP')
 
     for ng in SORN['prediction_source']:
-        SORN.add_behaviours_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
+        SORN.add_behaviors_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
     for ng in SORN['text_input_group']:
-        SORN.add_behaviours_to_neuron_group({101: Recorder(['n.pattern_index'], tag='index_rec')}, ng)
+        SORN.add_behaviors_to_neuron_group({101: Recorder(['n.pattern_index'], tag='index_rec')}, ng)
 
     SORN.simulate_iterations(int(steps_train+steps_test), 100, measure_block_time=display)
 
@@ -166,8 +166,8 @@ def train_readout(SORN, steps_train, steps_test, source, display=True, stdp_off=
 
 
     SORN.clear_recorder(['prediction_rec', 'index_rec'])
-    SORN.deactivate_behaviours('prediction_rec')
-    SORN.deactivate_behaviours('index_rec')
+    SORN.deactivate_behaviors('prediction_rec')
+    SORN.deactivate_behaviors('index_rec')
 
     return readout_layer, X_train, Y_train, X_test, Y_test
 
@@ -216,7 +216,7 @@ def get_score_predict_next_step(SORN, source, readout_layer, X_test, Y_test, lag
         print("\nTesting prediction performance...")
 
     if stdp_off:
-        SORN.deactivate_behaviours('STDP')
+        SORN.deactivate_behaviors('STDP')
 
     #SORN.clear_recorder()
     #SORN.recording_on()
@@ -267,26 +267,26 @@ def get_score_spontaneous_music(SORN, source, readout_layer, steps_spont, split_
         print('\nGenerate spontaneous output...')
     
     if stdp_off:
-        SORN.deactivate_behaviours('STDP')
+        SORN.deactivate_behaviors('STDP')
 
     for ng in SORN['prediction_source']:
-        SORN.add_behaviours_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
+        SORN.add_behaviors_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
     for ng in SORN['text_input_group']:
-        SORN.add_behaviours_to_neuron_group({101: Recorder(['n.pattern_index'], tag='index_rec')}, ng)
+        SORN.add_behaviors_to_neuron_group({101: Recorder(['n.pattern_index'], tag='index_rec')}, ng)
 
 
     SORN.clear_recorder()
     SORN.recording_on()
 
     if same_timestep_without_feedback_loop:
-        source.behaviour_enabled = False
+        source.behavior_enabled = False
         if steps_recovery > 0:
             SORN.simulate_iterations(steps_recovery, 100, measure_block_time=display,disable_recording=True)
         spont_output, pianoroll = get_simu_music_sequence(SORN, SORN['prediction_source'], 'n.output', readout_classifyer=readout_layer, seq_length=steps_spont, source=source)#output generation
     else:
         spont_output, pianoroll = predict_music_sequence(readout_layer, SORN['prediction_source'], 'n.output', steps_spont, SORN, source, lag=1)
 
-    source.behaviour_enabled = True
+    source.behavior_enabled = True
 
     if create_MIDI and source.is_drum: # create a percussion track!
         # in this case pianoroll is a sequence of vectors of length alphabet, each letter in the alphabet stands for one instrument
@@ -415,7 +415,7 @@ def get_score_spontaneous_music(SORN, source, readout_layer, steps_spont, split_
     SORN.recording_on()
 
     if stdp_off:
-        SORN.activate_behaviours('STDP')
+        SORN.activate_behaviors('STDP')
 
     score_dict = source.get_music_score(spont_output, pianoroll) 
     #print(score_dict)
@@ -423,7 +423,7 @@ def get_score_spontaneous_music(SORN, source, readout_layer, steps_spont, split_
         storage_manager.save_param_dict(score_dict)
 
     SORN.clear_recorder('prediction_rec')
-    SORN.deactivate_behaviours('index_rec')
+    SORN.deactivate_behaviors('index_rec')
 
 
     return score_dict

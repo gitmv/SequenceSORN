@@ -1,6 +1,6 @@
-from Old.Grammar.Behaviours_in_use import *
+from Old.Grammar.Behaviors_in_use import *
 
-class frequency_activator(Behaviour):
+class frequency_activator(Behavior):
 
     def expand(self, neurons, vec):
         result = []
@@ -8,7 +8,7 @@ class frequency_activator(Behaviour):
             result += [freq_i for _ in range(neurons.width)]
         return np.array(result)
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.freq = self.get_init_attr('freq', 0.01)
 
         if self.get_init_attr('cluster_sizes', False):
@@ -33,7 +33,7 @@ class frequency_activator(Behaviour):
 
             self.f = self.expand(neurons, f)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = (neurons.get_neuron_vec('uniform') < self.f).astype(def_dtype) * self.mask
 
 
@@ -42,12 +42,12 @@ SORN = Network(tag='SORN')
 group_size = 100
 freq = np.array([0.173, 0.043, 0.01923])#[0.09, 0.06, 0.03]
 
-input = NeuronGroup(net=SORN, tag='frequency_input', size=NeuronDimension(width=group_size, height=len(freq)), behaviour={
+input = NeuronGroup(net=SORN, tag='frequency_input', size=NeuronDimension(width=group_size, height=len(freq)), behavior={
     1: frequency_activator(freq=freq),
     41: Buffer_Variables()
 })
 
-exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(1000), behaviour={
+exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(1000), behavior={
     #init
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
@@ -69,7 +69,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(1000
     45: Normalization(syn_type='GLU')
 })
 
-SynapseGroup(net=SORN, src=input, dst=exc_neurons, tag='GLU', behaviour={
+SynapseGroup(net=SORN, src=input, dst=exc_neurons, tag='GLU', behavior={
     3: create_weights(distribution='lognormal(1.0,0.6)', density='1.0')
 })
 

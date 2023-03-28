@@ -4,10 +4,10 @@ sys.path.append('../../')
 
 from PymoNNto.NetworkCore.Network import *
 from PymoNNto.NetworkCore.Synapse_Group import *
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
-from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_experimental import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkBehavior.Input.Text.TextActivator import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 
 if __name__ == '__main__':
     pass
@@ -32,7 +32,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
     for layer, timescale in enumerate(attrs['TS']):
 
-        e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(timescale), size=get_squared_dim(int(attrs['N_e'] / timescale)), behaviour={
+        e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(timescale), size=get_squared_dim(int(attrs['N_e'] / timescale)), behavior={
                 2: SORN_init_neuron_vars(timescale=timescale),
                 3: SORN_init_afferent_synapses(transmitter='GLU', density='[90#0]%', distribution='lognormal(0,0.95)', normalize=True),#20%#lognormal(0,[0.95#1]) #[13#0]% #, partition_compensation=True , partition_compensation=True
                 4: SORN_init_afferent_synapses(transmitter='GABA', density='[30#1]%', distribution='uniform(0.0,1.0)', normalize=True),
@@ -65,7 +65,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
         #    if attrs.get('fb', False):  # backward synapses
         #        SynapseGroup(net=SORN, src=e_ng, dst=last_e_ng, tag='GLU,GLU_fb', connectivity='in_box(10)', partition=False)
 
-        e_ng.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+        e_ng.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
 
         #last_e_ng = e_ng
 

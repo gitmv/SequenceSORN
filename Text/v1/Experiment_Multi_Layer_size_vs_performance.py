@@ -1,5 +1,5 @@
-from Text.v2.Behaviour_Core_Modules import *
-from Text.Behaviour_Text_Modules import *
+from Text.v2.Behavior_Core_Modules import *
+from Text.v4.Behavior_Text_Modules import *
 from Helper import *
 
 ui = False
@@ -23,7 +23,7 @@ LI_threshold = gene('L', 0.28276029930786767)
 net = Network(tag='Multi Layer Cluster Formation Network')
 
 
-NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=n_chars, depth=1, centered=False), color=green, behaviour={
+NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=n_chars, depth=1, centered=False), color=green, behavior={
     10: TextGenerator(iterations_per_char=1, text_blocks=grammar),
     11: TextActivator(strength=1),
 
@@ -33,7 +33,7 @@ NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=n_
 })
 
 
-NeuronGroup(net=net, tag='exc_neurons,exc_neurons1', size=get_squared_dim(layer_sizes[0]), color=blue, behaviour={
+NeuronGroup(net=net, tag='exc_neurons,exc_neurons1', size=get_squared_dim(layer_sizes[0]), color=blue, behavior={
 
     # normalization
     3: Normalization(tag='Norm', direction='afferent and efferent', syn_type='STDP', exec_every_x_step=10),
@@ -56,7 +56,7 @@ NeuronGroup(net=net, tag='exc_neurons,exc_neurons1', size=get_squared_dim(layer_
     50: Output_Excitatory(exp=exc_output_exponent),
 })
 
-NeuronGroup(net=net, tag='inh_neurons,inh_neurons1', size=get_squared_dim(layer_sizes[0]/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons,inh_neurons1', size=get_squared_dim(layer_sizes[0]/10), color=red, behavior={
 
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -65,19 +65,19 @@ NeuronGroup(net=net, tag='inh_neurons,inh_neurons1', size=get_squared_dim(layer_
     70: Output_Inhibitory(slope=inh_output_slope, duration=2),
 })
 
-SynapseGroup(net=net, tag='GLU,ES,FSTDP', src='inp_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='GLU,ES,FSTDP', src='inp_neurons', dst='exc_neurons', behavior={
     1: CreateWeights(nomr_fac=10)
 })
 
-SynapseGroup(net=net, tag='GLU,EE,STDP', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='GLU,EE,STDP', src='exc_neurons', dst='exc_neurons', behavior={
     1: CreateWeights(normalize=False)
 })
 
-SynapseGroup(net=net, tag='GLUI,IE', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='GLUI,IE', src='exc_neurons', dst='inh_neurons', behavior={
     1: CreateWeights()
 })
 
-SynapseGroup(net=net, tag='GABA,EI', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='GABA,EI', src='inh_neurons', dst='exc_neurons', behavior={
     1: CreateWeights()
 })
 
@@ -87,7 +87,7 @@ layer_nr = 1
 for layer_size in layer_sizes[1:]:
     layer_nr += 1
 
-    NeuronGroup(net=net, tag='exc_neurons'+str(layer_nr), size=get_squared_dim(layer_size), color=aqua, behaviour={
+    NeuronGroup(net=net, tag='exc_neurons'+str(layer_nr), size=get_squared_dim(layer_size), color=aqua, behavior={
 
         # normalization
         3.1: Normalization(tag='Norm', direction='afferent and efferent', syn_type='STDP', exec_every_x_step=10),
@@ -107,7 +107,7 @@ for layer_size in layer_sizes[1:]:
         50: Output_Excitatory(exp=exc_output_exponent),
     })
 
-    NeuronGroup(net=net, tag='inh_neurons'+str(layer_nr), size=get_squared_dim(layer_size/10), color=orange, behaviour={
+    NeuronGroup(net=net, tag='inh_neurons'+str(layer_nr), size=get_squared_dim(layer_size/10), color=orange, behavior={
 
         # excitatory input
         60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -117,23 +117,23 @@ for layer_size in layer_sizes[1:]:
     })
 
 
-    SynapseGroup(net=net, tag='GLU,E2E,STDP', src='exc_neurons'+str(layer_nr-1), dst='exc_neurons'+str(layer_nr), behaviour={
+    SynapseGroup(net=net, tag='GLU,E2E,STDP', src='exc_neurons'+str(layer_nr-1), dst='exc_neurons'+str(layer_nr), behavior={
         1: CreateWeights(normalize=False)#, nomr_fac=10
     })
 
-    SynapseGroup(net=net, tag='GLU,EE2,STDP', src='exc_neurons'+str(layer_nr), dst='exc_neurons'+str(layer_nr-1), behaviour={
+    SynapseGroup(net=net, tag='GLU,EE2,STDP', src='exc_neurons'+str(layer_nr), dst='exc_neurons'+str(layer_nr-1), behavior={
         1: CreateWeights(normalize=False)
     })
 
-    SynapseGroup(net=net, tag='GLU,E2E2,STDP', src='exc_neurons'+str(layer_nr), dst='exc_neurons'+str(layer_nr), behaviour={
+    SynapseGroup(net=net, tag='GLU,E2E2,STDP', src='exc_neurons'+str(layer_nr), dst='exc_neurons'+str(layer_nr), behavior={
         1: CreateWeights(normalize=False)
     })
 
-    SynapseGroup(net=net, tag='GLUI,IE', src='exc_neurons'+str(layer_nr), dst='inh_neurons'+str(layer_nr), behaviour={
+    SynapseGroup(net=net, tag='GLUI,IE', src='exc_neurons'+str(layer_nr), dst='inh_neurons'+str(layer_nr), behavior={
         1: CreateWeights()
     })
 
-    SynapseGroup(net=net, tag='GABA,EI', src='inh_neurons'+str(layer_nr), dst='exc_neurons'+str(layer_nr), behaviour={
+    SynapseGroup(net=net, tag='GABA,EI', src='inh_neurons'+str(layer_nr), dst='exc_neurons'+str(layer_nr), behavior={
         1: CreateWeights()
     })
 

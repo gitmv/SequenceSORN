@@ -120,19 +120,19 @@ class interactive_fi_ploter():
        def add_variable(self, var_eval):
               self.variables.append(var_eval)
 
-       def add_plot(self, plot_eval, stable_eval, zero_eval='0'):
+       def add_plot(self, plot_eval, stable_eval, zero_eval='0', color=None):
               self.plot_funcs.append(plot_eval)
               self.plot_stable_points.append(stable_eval)
               self.plot_zero_points.append(zero_eval)
 
               plt.subplot(121)
-              pl, = plt.plot([], [])
+              pl, = plt.plot([], [], c=color)
               self.left_plots.append(pl)
               sl = plt.scatter([], [])
               self.left_scatters.append(sl)
 
               plt.subplot(122)
-              p2, = plt.plot([], [])
+              p2, = plt.plot([], [], c=color)
               self.right_plots.append(p2)
 
               self.checkboxes[plot_eval] = Slider(ax=plt.axes([self.checkbox_p, 0.90, 0.1, 0.05]), label=plot_eval, valmin=0, valmax=1, valinit=1)
@@ -203,20 +203,33 @@ ifi_plotter.add_slider('a', 0.0, 1.0, 0.2)
 #STDP_s = gene('STDP_s', 0.0030597477411211885)#important!#can be higher
 #fe_exp = gene('fe_exp', 0.7378726012049153)#important!
 #fe_mul = gene('fe_mul', 2.353594052973287)#important!
-ifi_plotter.add_plot('fi4(x, 0.3427857658747104, 0.019230769230769232)', '0.019230769230769232') # slope target
-ifi_plotter.add_plot('fe3(x, 0.7378726012049153, 2.353594052973287)', 'a') # exp mul
+ifi_plotter.add_plot('fi4(x, 0.3427857658747104, 0.019230769230769232)', '0.019230769230769232', color=(1,0,0,1)) # slope target
+ifi_plotter.add_plot('fe3(x, 0.7378726012049153, 2.353594052973287)', 'a', color=(1,0,0,1)) # exp mul
 
 
 #/2 result 1
 #set_genome({'IP_s': 0.012886629555441209, 'avg_inh': 0.2855042572937807, 'LI_s': 4.292444509999111, 'STDP_s': 0.002835767644205311, 'fe_exp': 0.3643689569656523, 'fe_mul': 5.631338219216053})
-ifi_plotter.add_plot('fi4(x, 0.2855042572937807, 0.019230769230769232/2)', '0.019230769230769232/2') # slope target
-ifi_plotter.add_plot('fe3(x, 0.3643689569656523, 5.631338219216053)', 'a') # exp mul
+ifi_plotter.add_plot('fi4(x, 0.2855042572937807, 0.019230769230769232/2)', '0.019230769230769232/2', color=(0,1,0,1)) # slope target
+ifi_plotter.add_plot('fe3(x, 0.3643689569656523, 5.631338219216053)', 'a', color=(0,1,0,1)) # exp mul
 
 
 #/3 result
 #set_genome({'IP_s': 0.020896679906752823, 'avg_inh': 0.26240211240528, 'LI_s': 4.217760789551765, 'STDP_s': 0.005206438619706144, 'fe_exp': 0.47499215627917557, 'fe_mul': 8.694893109383168})
-ifi_plotter.add_plot('fi4(x, 0.26240211240528, 0.019230769230769232/3)', '0.019230769230769232/3') # slope target
-ifi_plotter.add_plot('fe3(x, 0.47499215627917557, 8.694893109383168)', 'a') # exp mul
+ifi_plotter.add_plot('fi4(x, 0.26240211240528, 0.019230769230769232/3)', '0.019230769230769232/3', color=(0,0,1,1)) # slope target
+ifi_plotter.add_plot('fe3(x, 0.47499215627917557, 8.694893109383168)', 'a', color=(0,0,1,1)) # exp mul
+
+
+#/4 result
+#set_genome({'IP_s': 0.022061050678468145, 'avg_inh': 0.2423779925922282, 'LI_s': 5.775111061974405, 'STDP_s': 0.006887293439511905, 'fe_exp': 0.4683155445570267, 'fe_mul': 13.51538444186416})
+ifi_plotter.add_plot('fi4(x, 0.2423779925922282, 0.019230769230769232/3)', '0.019230769230769232/3', color=(0,1,1,1)) # slope target
+ifi_plotter.add_plot('fe3(x, 0.4683155445570267, 13.51538444186416)', 'a', color=(0,1,1,1)) # exp mul
+
+
+#/5 result
+#set_genome({'IP_s': 0.024927716649829512, 'avg_inh': 0.19976460087122255, 'LI_s': 7.843941000823148, 'STDP_s': 0.006737234118296163, 'fe_exp': 0.2782225219900681, 'fe_mul': 20.521902971962692})
+ifi_plotter.add_plot('fi4(x, 0.19976460087122255, 0.019230769230769232/3)', '0.019230769230769232/3', color=(1,0,1,1)) # slope target
+ifi_plotter.add_plot('fe3(x, 0.2782225219900681, 20.521902971962692)', 'a', color=(1,0,1,1)) # exp mul
+
 
 ifi_plotter.show()
 

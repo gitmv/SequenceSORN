@@ -1,8 +1,8 @@
 from PymoNNto import *
 
-class create_weights(Behaviour):
+class create_weights(Behavior):
 
-    def set_variables(self, synapses):
+    def initialize(self, synapses):
         distribution = self.get_init_attr('distribution', 'uniform(1.0,1.0)')#ones
         density = self.get_init_attr('density', 1)
 
@@ -15,21 +15,21 @@ class create_weights(Behaviour):
         if normalize:
             synapses.W /= np.sum(synapses.W, axis=1)[:, None]
 
-    def new_iteration(self, synapses):
+    def iteration(self, synapses):
         synapses.W = synapses.W * synapses.enabled
 
 
 
 #Old
-class init_synapses_simple(Behaviour):
+class init_synapses_simple(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
         density = self.get_init_attr('density', None, neurons)
         for s in neurons.afferent_synapses[self.transmitter]:
             s.W = s.get_synapse_mat('ones', density=density)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
             s.slow_add = s.W.dot(s.src.activity)#output
 

@@ -1,9 +1,9 @@
 import sys
 
 sys.path.append('../../')
-#from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-#from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
-from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
+#from PymoNNto.NetworkBehavior.Logic.SORN.SORN_experimental import *
+#from PymoNNto.NetworkBehavior.Logic.SORN.SORN_WTA import *
+from PymoNNto.NetworkBehavior.Input.Text.TextActivator import *
 from Old.Grammar_old.Old.Tensorflow.WTA_Tensorflow import *
 
 if __name__ == '__main__':
@@ -28,7 +28,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
 
     SORN = Network()
 
-    e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(attrs['N_e']), behaviour={
+    e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(attrs['N_e']), behavior={
                 2: SORN_init_neuron_varsTF(timescale=1),
                 3: SORN_init_afferent_synapsesTF(transmitter='GLU', density='90%', distribution='uniform(0.1,1.0)', normalize=True),#20%#lognormal(0,[0.95#1]) #[13#0]% #, partition_compensation=True , partition_compensation=True #lognormal(0,0.95)
                 #4: SORN_init_afferent_synapses(transmitter='GABA', density='[30#1]%', distribution='uniform(0.0,1.0)', normalize=True),
@@ -70,7 +70,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'plastic': 15000}):
     SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster,syn', connectivity='(s_id!=d_id)*in_box({})'.format(receptive_field))#, partition=True)
     #SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GABA,GABA_same', connectivity='(s_id!=d_id)*in_box(10)', partition=True)
 
-    e_ng.add_behaviour(9, SORN_external_inputTF(strength=1.0, pattern_groups=[source]))
+    e_ng.add_behavior(9, SORN_external_inputTF(strength=1.0, pattern_groups=[source]))
 
     if __name__ == '__main__' and attrs.get('UI', False):
         e_ng.color = get_color(0, 1)

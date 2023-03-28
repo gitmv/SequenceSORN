@@ -1,7 +1,7 @@
 from PymoNNto import *
 from sklearn import linear_model
 
-class ClassifierTextReconstructor(Behaviour):
+class ClassifierTextReconstructor(Behavior):
 
     def train(self):
         self.classifier = linear_model.LogisticRegression(solver='liblinear', multi_class='auto')
@@ -20,7 +20,7 @@ class ClassifierTextReconstructor(Behaviour):
     def stop_recording(self):
         self.recording = False
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         #self.add_tag('TextReconstructor')
         self.neurons = neurons
         self.current_reconstruction_char = ''
@@ -38,7 +38,7 @@ class ClassifierTextReconstructor(Behaviour):
             if hasattr(ng, 'current_char_index'):
                 return ng.current_char_index
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if self.recording:
             self.x_train.append(neurons.output.copy())
             self.y_train.append(self.get_current_char_index(neurons))#(neurons.current_char_index)
@@ -49,6 +49,6 @@ class ClassifierTextReconstructor(Behaviour):
                 self.current_reconstruction_char = self.TextActivator.TextGenerator.index_to_char(self.current_reconstruction_char_index)
                 self.reconstruction_history += self.current_reconstruction_char
 
-                if not self.TextActivator.behaviour_enabled and self.activate_predicted_char:
+                if not self.TextActivator.behavior_enabled and self.activate_predicted_char:
                     neurons.input_grammar = neurons.Input_Weights[:, self.current_reconstruction_char_index].copy()
                     neurons.activity += neurons.input_grammar * self.strength

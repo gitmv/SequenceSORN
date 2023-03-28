@@ -1,7 +1,7 @@
 import PymoNNto as pymonnto
 #from brian2 import *
 #import brian2
-from PymoNNto.NetworkCore.Behaviour import *
+from PymoNNto.NetworkCore.Behavior import *
 
 
 import nest
@@ -11,9 +11,9 @@ nest.set_verbosity("M_WARNING")
 #nest.ResetKernel()
 
 
-class Nest_embedding(Behaviour):
+class Nest_embedding(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Nest_embedding')
 
         nest.SetKernelStatus({'resolution':1.0})
@@ -26,7 +26,7 @@ class Nest_embedding(Behaviour):
         nest.SetStatus(self.neuron, 'V_m', 1.0)
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         nest.Simulate(1.0)
 
         neurons.v = nest.GetStatus(self.neuron, 'V_m')
@@ -34,7 +34,7 @@ class Nest_embedding(Behaviour):
 
 My_Network = pymonnto.Network()
 
-My_Neurons = pymonnto.NeuronGroup(net=My_Network, tag='my_neurons', size=pymonnto.get_squared_dim(100), behaviour={
+My_Neurons = pymonnto.NeuronGroup(net=My_Network, tag='my_neurons', size=pymonnto.get_squared_dim(100), behavior={
     1: Nest_embedding()
 })
 

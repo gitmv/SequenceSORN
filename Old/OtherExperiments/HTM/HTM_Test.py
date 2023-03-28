@@ -3,9 +3,9 @@ from PymoNNto.Exploration.Network_UI import *
 from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
 from UI.Tabs import *
 
-class Init_Synapses(Behaviour):
+class Init_Synapses(Behavior):
 
-    def set_variables(self, synapses):
+    def initialize(self, synapses):
         mode = self.get_init_attr('mode', 'all_to_all')
 
         if mode == 'all_to_all':
@@ -18,23 +18,23 @@ class Init_Synapses(Behaviour):
 
 
 
-class Init_HTM(Behaviour):
+class Init_HTM(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.predictive = neurons.get_neuron_vec().astype(bool)
         neurons.active = neurons.get_neuron_vec().astype(bool)
         neurons.active_old = neurons.get_neuron_vec().astype(bool)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.active_old = neurons.active.copy()
         neurons.active.fill(0)
 
-class HTM_dynamics(Behaviour):
+class HTM_dynamics(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.K = 10
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         neurons.input = neurons.get_neuron_vec()
         for syn in neurons.afferent_synapses['proximal']:
@@ -61,12 +61,12 @@ class HTM_dynamics(Behaviour):
 
 
 
-class HTM_Learning(Behaviour):
+class HTM_Learning(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.eta_stdp = self.get_init_attr('strength', 0.005)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         for s in neurons.afferent_synapses['proximal']:
             dw = s.dst.active[:, None] * s.src.active_old[None, :]
             s.W += dw
@@ -76,9 +76,9 @@ class HTM_Learning(Behaviour):
         normalize_synapse_attr('W', 'W', 1, neurons, 'proximal')
 
 
-class rnd_noise_input(Behaviour):
+class rnd_noise_input(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.active += neurons.get_neuron_vec('uniform')<0.1
 
 
@@ -86,30 +86,30 @@ class rnd_noise_input(Behaviour):
 
 htm_net = Network(tag='htm_net')
 
-NeuronGroup(tag='htm_neurons', net=htm_net, size=NeuronDimension(width=10, height=10, depth=10), behaviour={
+NeuronGroup(tag='htm_neurons', net=htm_net, size=NeuronDimension(width=10, height=10, depth=10), behavior={
     1: Init_HTM(),
     2: HTM_dynamics()
 })
 
-SynapseGroup(tag='proximal', net=htm_net, src='htm_neurons', dst='htm_neurons', behaviour={
+SynapseGroup(tag='proximal', net=htm_net, src='htm_neurons', dst='htm_neurons', behavior={
     1: Init_Synapses(mode='column_wise')
 })
 
-SynapseGroup(tag='apical', net=htm_net, src='htm_neurons', dst='htm_neurons', behaviour={
+SynapseGroup(tag='apical', net=htm_net, src='htm_neurons', dst='htm_neurons', behavior={
     1: Init_Synapses(mode='all_to_all')
 })
 
-SynapseGroup(tag='dendral', net=htm_net, src='htm_neurons', dst='htm_neurons', behaviour={
+SynapseGroup(tag='dendral', net=htm_net, src='htm_neurons', dst='htm_neurons', behavior={
     1: Init_Synapses(mode='all_to_all')
 })
 
 
-NeuronGroup(tag='input_neurons', net=htm_net, size=NeuronDimension(width=10, height=10, depth=1), behaviour={
+NeuronGroup(tag='input_neurons', net=htm_net, size=NeuronDimension(width=10, height=10, depth=1), behavior={
     1: Init_HTM(),#only used for n.active
     2: rnd_noise_input()
 })
 
-SynapseGroup(tag='proximal', net=htm_net, src='input_neurons', dst='htm_neurons', behaviour={
+SynapseGroup(tag='proximal', net=htm_net, src='input_neurons', dst='htm_neurons', behavior={
     1: Init_Synapses(mode='column_wise')
 })
 

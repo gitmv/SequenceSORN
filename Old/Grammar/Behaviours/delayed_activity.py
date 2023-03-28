@@ -1,10 +1,10 @@
 from PymoNNto import *
 
-class delayed_activity_response(Behaviour):
+class delayed_activity_response(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.x = neurons.get_neuron_vec()
         neurons.delay = self.get_init_attr('delay', 10)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         return

@@ -9,7 +9,7 @@ spont_steps = 1000#10000
 
 SORN = Network(tag='Bruno SORN')
 
-exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
+exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behavior={
     #init
     1: Init_Neurons(target_activity=0.1),
 
@@ -36,7 +36,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     100: STDP_Analysis(),
 })
 
-inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
+inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behavior={
     #init
     2: Init_Neurons(),
     #input
@@ -46,15 +46,15 @@ inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neur
 })
 
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn,EE', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,syn,EE', behavior={
     3: create_weights(distribution='uniform(0.0,1.0)', density=10/neuron_count, update_enabled=True)
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,syn', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,syn', behavior={
     3: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,syn', behaviour={
+SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,syn', behavior={
     3: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
@@ -74,13 +74,13 @@ if __name__ == '__main__' and ui:
 SORN.simulate_iterations(plastic_steps, 100)
 
 #deactivate STDP and Input
-SORN.deactivate_behaviours('STDP')
-SORN.deactivate_behaviours('Normalization')
-#SORN.deactivate_behaviours('TextActivator')
+SORN.deactivate_behaviors('STDP')
+SORN.deactivate_behaviors('Normalization')
+#SORN.deactivate_behaviors('TextActivator')
 SORN['ClassifierTextReconstructor', 0].start_recording()
 
 SORN.simulate_iterations(train_steps, 100)
-SORN.deactivate_behaviours('TextActivator')
+SORN.deactivate_behaviors('TextActivator')
 SORN['ClassifierTextReconstructor', 0].train()#starts activating after training/stops recording automatically
 
 #import matplotlib.pyplot as plt

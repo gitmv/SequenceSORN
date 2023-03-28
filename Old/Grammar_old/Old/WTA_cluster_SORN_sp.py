@@ -29,7 +29,7 @@ source = FewSentencesGrammar2(tag='grammar_act', output_size=N_e, random_blocks=
 
 SORN = Network()
 
-e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(N_e), behaviour={
+e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(N_e), behavior={
     2: init_neuron_variables(timescale=1),
     3: init_afferent_synapses(transmitter='GLU', density='40%', distribution='uniform(0.1,1.0)', normalize=True),
     # 20%#lognormal(0,[0.95#1]) #[13#0]% #, partition_compensation=True , partition_compensation=True #lognormal(0,0.95)
@@ -70,8 +70,8 @@ e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_s
     30: SORN_structural_plasticity(syn_type='syn', step_ct=1),
     # 31: SORN_weight_noise(max_noise=0.0001),
 
-    41: Normalization(syn_type='GLU', behaviour_norm_factor=1.0),
-    42: Normalization(syn_type='GLU_cluster', behaviour_norm_factor='[0.3#snf]'),  # 0.1
+    41: Normalization(syn_type='GLU', behavior_norm_factor=1.0),
+    42: Normalization(syn_type='GLU_cluster', behavior_norm_factor='[0.3#snf]'),  # 0.1
 })
 
 
@@ -83,12 +83,12 @@ e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_s
 #receptive_field = int(18*math.sqrt(attrs['N_e']/1400))
 #print(receptive_field)
 
-SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU,syn', behaviour={
+SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU,syn', behavior={
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto')
 })
 
-SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster,syn', behaviour={
+SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster,syn', behavior={
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto')
 })
@@ -97,7 +97,7 @@ SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster,syn', behaviour={
 #SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster,syn', connectivity='(s_id!=d_id)*in_box({})'.format(receptive_field), partition=True)
 #SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GABA,GABA_same', connectivity='(s_id!=d_id)*in_box(10)', partition=True)
 
-e_ng.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+e_ng.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
 
 SORN.initialize(info=True, storage_manager=sm)
 

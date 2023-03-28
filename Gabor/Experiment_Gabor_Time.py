@@ -1,13 +1,13 @@
 #import sys
 #sys.path.append('../')
 
-from Text.v0.Behaviour_Core_Modules import *
-from Gabor.Behaviour_Image_Patch_Modules import *
-from Gabor.Behaviour_STDP_Modules import *
+from Text.v0.Behavior_Core_Modules import *
+from Gabor.Behavior_Image_Patch_Modules import *
+from Gabor.Behavior_STDP_Modules import *
 from Gabor.sidebar_patch_reconstructor_module import *
 from UI_Helper import *
 
-#from Old.Grammar.Behaviours_in_use.Behaviour_Bar_Activator import *
+#from Old.Grammar.Behaviors_in_use.Behavior_Bar_Activator import *
 
 
 ui = True
@@ -30,12 +30,12 @@ exc_output_exponent=get_gene('E', 0.32)
 inh_output_slope=get_gene('I', 7.6)
 LI_threshold=np.tanh(inh_output_slope * target_activity)#0.6410769611853464
 
-net = Network(tag='Grammar Learning Network', behaviour={
+net = Network(tag='Grammar Learning Network', behavior={
     1: Image_Patch_Generator(img_path='C:/Users/DELL/Programmieren/Python_Modular_Neural_Network_Toolbox/Images/Lenna_(test_image).png', patch_w=patch_w, patch_h=patch_h, patch_min=20, patch_speed=0.1),#0.1
     100: Image_Patch_Reconstructor()
 })
 
-NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_multiply, height=patch_h, depth=neurons_per_pixel), color=blue, behaviour={#60 30#NeuronDimension(width=10, height=10, depth=1)
+NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_multiply, height=patch_h, depth=neurons_per_pixel), color=blue, behavior={#60 30#NeuronDimension(width=10, height=10, depth=1)
 
     10: Image_Patch_Activator(strength=1, patch_name='on_off_center_white'),
 
@@ -71,7 +71,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=NeuronDimension(width=patch_w*w_mul
 
 })
 
-NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(net['exc_neurons',0].size/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(net['exc_neurons',0].size/10), color=red, behavior={
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
     # output
@@ -79,15 +79,15 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(net['exc_neurons',0
 })
 
 
-SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
@@ -126,7 +126,7 @@ else:
     neurons = net['exc_neurons', 0]
     net.recording_off()
     net.simulate_iterations(50000,100)
-    net.deactivate_behaviours(['Input', 'Complex_STDP'])
+    net.deactivate_behaviors(['Input', 'Complex_STDP'])
     net.recording_on()
     steps = 30000
     net.simulate_iterations(steps, 100)

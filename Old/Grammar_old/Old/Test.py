@@ -1,17 +1,17 @@
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
-from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_experimental import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_WTA import *
+from PymoNNto.NetworkBehavior.Input.Text.TextActivator import *
 
-from PymoNNto.NetworkBehaviour.Input.Images.Lines import *
+from PymoNNto.NetworkBehavior.Input.Images.Lines import *
 
 from PymoNNto.Exploration.Network_UI import *
 from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
 
-from PymoNNto.NetworkBehaviour.Input.Images.Image_Patterns import *
+from PymoNNto.NetworkBehavior.Input.Images.Image_Patterns import *
 
-class init(Behaviour):
+class init(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('init_neuron_vars')
 
         neurons.activity = neurons.get_neuron_vec()
@@ -23,7 +23,7 @@ class init(Behaviour):
 
         neurons.timescale = self.get_init_attr('timescale', 1)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         #print(np.sum(neurons.activity))
         neurons.output = neurons.activity.copy()#(neurons.activity>0)*1.0
         neurons.activity *= 0.0#9
@@ -35,13 +35,13 @@ class init(Behaviour):
 
         #    neurons.output_old=neurons.output.copy()
 
-class Input_Behaviour(Behaviour):
+class Input_Behavior(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         for synapse in neurons.afferent_synapses['GLU']:
             synapse.W = synapse.get_synapse_mat('uniform',density=0.1)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         return
         #for synapse in neurons.afferent_synapses['GLU']:
         #    neurons.activity += synapse.W.dot(synapse.src.output)/synapse.src.size
@@ -55,9 +55,9 @@ source = TNAP_Image_Patches(tag='image_act', image_path='C:/Users/Nutzer/Program
 
 SORN = Network()
 
-e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size= NeuronDimension(width=30, height=30, depth=2), behaviour={
+e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size= NeuronDimension(width=30, height=30, depth=2), behavior={
     1: init(),
-    2: Input_Behaviour(),
+    2: Input_Behavior(),
     9: SORN_external_input(write_to='activity', strength=1.0, pattern_groups=[source]),
 })
 

@@ -1,30 +1,30 @@
 from PymoNNto import *
 
-class Complex_STDP_Buffer(Behaviour):
+class Complex_STDP_Buffer(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         buffer_length = self.get_init_attr('length', neurons._STDP_buffer_length)
         neurons.buffer = np.zeros((buffer_length, neurons.size))
         neurons.linh_buffer = np.zeros((buffer_length, neurons.size))
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.buffer_roll(neurons.buffer, neurons.output.copy())
         neurons.buffer_roll(neurons.linh_buffer, neurons.linh.copy())
 
-class Max_Syn_Size(Behaviour):
+class Max_Syn_Size(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
         self.max = self.get_init_attr('max', 0.001, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
             s.W[s.W>self.max] = self.max
 
 
-class Complex_STDP(Behaviour):
+class Complex_STDP(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', None, neurons)
         eta_stdp = self.get_init_attr('strength', 0.0002)#, strength=0.0015
         self.LTP_function = np.array(self.get_init_attr('LTP', [+0.0, +1.0, +1.0])) * eta_stdp #[+0.0, +0.0, +0.0, +0.0, +0.1, +0.2, +0.6, +1.0, +1.0, +1.0, +0.8, +0.7, +0.5, +0.4, +0.2]
@@ -55,7 +55,7 @@ class Complex_STDP(Behaviour):
             plt.show()
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
 
             pre_buffer = s.src.buffer

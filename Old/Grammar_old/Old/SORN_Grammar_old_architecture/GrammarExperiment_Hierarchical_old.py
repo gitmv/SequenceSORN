@@ -1,12 +1,12 @@
 import sys
 sys.path.append('../../')
 
-from NetworkBehaviour.Logic.SORN.SORN_advanced import *
-from NetworkBehaviour.Input.Text.TextActivator import *
-#from NetworkBehaviour.Input.Images.Lines import *
+from NetworkBehavior.Logic.SORN.SORN_advanced import *
+from NetworkBehavior.Input.Text.TextActivator import *
+#from NetworkBehavior.Input.Images.Lines import *
 from NetworkCore.Network import *
 from NetworkCore.Synapse_Group import *
-from NetworkBehaviour.Structure.Structure import *
+from NetworkBehavior.Structure.Structure import *
 from Exploration.StorageManager.StorageManager import *
 from Testing.Common.Grammar_Helper import *
 
@@ -50,7 +50,7 @@ def run(tag='hierarchical', ind=[], par={'N_e':900, 'TS':[1]}):
 
     for timecale in par['TS']:
 
-        e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(timecale), size=get_squared_dim(int(par['N_e'])), behaviour={
+        e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(timecale), size=get_squared_dim(int(par['N_e'])), behavior={
             2: SORN_init_neuron_vars(iteration_lag=timecale, init_TH='0.1;+-100%'),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='13%', distribution='lognormal(0,[0.95#0])', normalize=True, partition_compensation=True),#0.89 uniform(0.1,0.11)
             4: SORN_init_afferent_synapses(transmitter='GABA', density='45%', distribution='lognormal(0,[0.4#1])', normalize=True),#0.80222 uniform(0.1,0.11)
@@ -73,7 +73,7 @@ def run(tag='hierarchical', ind=[], par={'N_e':900, 'TS':[1]}):
 
         })
 
-        i_ng = NeuronGroup(net=SORN, tag='Inter_{}'.format(timecale), size=get_squared_dim(int(0.2 * par['N_e'])), behaviour={
+        i_ng = NeuronGroup(net=SORN, tag='Inter_{}'.format(timecale), size=get_squared_dim(int(0.2 * par['N_e'])), behavior={
             2: SORN_init_neuron_vars(iteration_lag=timecale, init_TH='0.1;+-0%'),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='50%', distribution='lognormal(0,[0.87038#14])', normalize=True),  # 450
             4: SORN_init_afferent_synapses(transmitter='GABA', density='20%', distribution='lognormal(0,[0.82099#15])', normalize=True),  # 40
@@ -97,9 +97,9 @@ def run(tag='hierarchical', ind=[], par={'N_e':900, 'TS':[1]}):
         SynapseGroup(net=SORN, src=i_ng, dst=e_ng, tag='GABA', connectivity='in_box(10)', partition=True)
         SynapseGroup(net=SORN, src=i_ng, dst=i_ng, tag='GABA', connectivity='(s_id!=d_id)*in_box(10)', partition=True)
 
-        #i_ng.add_behaviour(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
+        #i_ng.add_behavior(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
 
-        e_ng.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+        e_ng.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
 
         if last_e_ng is not None:
             #forward synapses

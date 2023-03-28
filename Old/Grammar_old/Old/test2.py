@@ -4,7 +4,7 @@ import random
 np.random.seed(1)
 random.seed(1)
 
-from Old.Grammar.Behaviours_in_use import *
+from Old.Grammar.Behaviors_in_use import *
 
 #set_genome({'rs': 0.09232235756570088, 'k': 0.021807067918146617, 'IP_mean': 0.023220131242858984, 'IP_sigma': 0.21982802505096785, 'IP_eta': 0.00815087665686908, 'STDP_eta': 0.00013768152104864887, 'STDP_eta_c': 0.00014898516237234308, 'snf': 0.24012377371983357, 'gen': 25.0, 'score': 0.4770888756503841})
 #set_genome({'rs': 0.09778653264537968, 'k': 0.025169953249611018, 'IP_mean': 0.019455150509071956, 'IP_sigma': 0.23481957924540256, 'IP_eta': 0.008174544080912168, 'STDP_eta': 0.00017537585575069396, 'STDP_eta_c': 0.00017149686127492485, 'snf': 0.23159342538253455})
@@ -26,7 +26,7 @@ source = FewSentencesGrammar2(tag='grammar_act', output_size=N_e, random_blocks=
 
 SORN = Network()
 
-e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(N_e), behaviour={
+e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(N_e), behavior={
     2: init_neuron_variables(timescale=1),
     3: init_afferent_synapses(transmitter='GLU', density='1%', distribution='uniform(0.1,1.0)', normalize=True),
 
@@ -41,13 +41,13 @@ e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_s
     18: refrac(decayfactor=0.5),
     20: IP(h_ip='lognormal_real_mean([0.02#IP_mean], [0.2944#IP_sigma])', eta_ip='[0.007#IP_eta]', target_clip_min=None, target_clip_max=None), #-1.0 #1.0 #0.007
     21: STDP_complex(transmitter='GLU', eta_stdp='[0.00015#STDP_eta]', STDP_F={-1: 0.2, 1: -1}),#, 0: 1 #[0.00015#7] #0.5, 0: 3.0
-    22: Normalization(syn_type='GLU', behaviour_norm_factor=1.0),
+    22: Normalization(syn_type='GLU', behavior_norm_factor=1.0),
 })
 
-SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU,syn', behaviour={})
+SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU,syn', behavior={})
 
 
-e_ng.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+e_ng.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
 
 SORN.initialize(info=True, storage_manager=sm)
 

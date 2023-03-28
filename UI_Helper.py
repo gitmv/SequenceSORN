@@ -5,12 +5,12 @@ from PymoNNto.Exploration.AnalysisModules import *
 from PymoNNto.Exploration.Network_UI.Advanced_Tabs import *
 from Plots.iterative_map_plot import *
 
-#class activity_to_volts(Behaviour):
+#class activity_to_volts(Behavior):
 
-#    def set_variables(self, neurons):
+#    def initialize(self, neurons):
 #        neurons.mV = neurons.get_neuron_vec()
 
-#    def new_iteration(self, neurons):
+#    def iteration(self, neurons):
 
         #0.5=average
         #>-50: threshold  (0.5)
@@ -66,8 +66,8 @@ def show_UI(net, sm, qa=['STDP', 'Normalization', 'TextActivator'], additional_m
     if hasattr(neurons, 'Input_Mask'):
         Static_Classification(parent=neurons, name='input class', classes=neurons.Input_Mask)
 
-    #net.exc_neurons1.add_behaviour(100, activity_to_volts())
-    #net.add_behaviours_to_object({100:}, net.exc_neurons1)
+    #net.exc_neurons1.add_behavior(100, activity_to_volts())
+    #net.add_behaviors_to_object({100:}, net.exc_neurons1)
     #my_modules['mV'] = multi_group_plot_tab(['mV', 'output', '_voltage'])
 
     # launch ui

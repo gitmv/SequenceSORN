@@ -1,5 +1,5 @@
 from PymoNNto import *
-from PymoNNto.NetworkBehaviour.Basics.Normalization import *
+from PymoNNto.NetworkBehavior.Basics.Normalization import *
 
 class buffer_reqirement:
     def __init__(self, length=-1, variable=''):
@@ -9,9 +9,9 @@ class buffer_reqirement:
 def get_buffer(neurons, variable):
     return neurons.mask_var(neurons.buffers[variable])
 
-class Buffer_Variables(Behaviour):#has to be executed AFTER intra, inter...behaviours
+class Buffer_Variables(Behavior):#has to be executed AFTER intra, inter...behaviors
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('buffer')
 
         n=neurons#for compile...
@@ -20,9 +20,9 @@ class Buffer_Variables(Behaviour):#has to be executed AFTER intra, inter...behav
         neurons.precompiled_vars = {}
         neurons.buffers = {}
 
-        post_syn_req = neurons.connected_NG_param_list('afferent_buffer_requirement', syn_tag='All', efferent_NGs=True, search_behaviours=True)
-        own_req = neurons.connected_NG_param_list('own_buffer_requirement', same_NG=True, search_behaviours=True)
-        pre_syn_req = neurons.connected_NG_param_list('efferent_buffer_requirement', syn_tag='All', afferent_NGs=True, search_behaviours=True)
+        post_syn_req = neurons.connected_NG_param_list('afferent_buffer_requirement', syn_tag='All', efferent_NGs=True, search_behaviors=True)
+        own_req = neurons.connected_NG_param_list('own_buffer_requirement', same_NG=True, search_behaviors=True)
+        pre_syn_req = neurons.connected_NG_param_list('efferent_buffer_requirement', syn_tag='All', afferent_NGs=True, search_behaviors=True)
         all_requirments = post_syn_req+own_req+pre_syn_req
 
         for req in all_requirments:
@@ -37,7 +37,7 @@ class Buffer_Variables(Behaviour):#has to be executed AFTER intra, inter...behav
             if req.length > current:
                 neurons.buffers[req.variable] = neurons.get_neuron_vec_buffer(req.length)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         n = neurons  # for compile...
 
         for variable in neurons.buffers:
@@ -49,7 +49,7 @@ class Buffer_Variables(Behaviour):#has to be executed AFTER intra, inter...behav
 
 
 #STDP Complex
-class STDP_C(Behaviour):
+class STDP_C(Behavior):
 
     def get_STDP_Function(self):
         return self.get_init_attr('STDP_F', {-1: 1, 1: -1})
@@ -66,7 +66,7 @@ class STDP_C(Behaviour):
         length = int(np.maximum(np.min(self.data[:, 0])*-1, 1)+1)
         return buffer_reqirement(length=length, variable='output')
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('STDP')
 
         self.weight_attr = self.get_init_attr('weight_attr', 'W', neurons)
@@ -94,7 +94,7 @@ class STDP_C(Behaviour):
             plt.axvline(0, color='black')
             plt.show()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         for s in neurons.afferent_synapses[self.transmitter]:
 
@@ -122,16 +122,16 @@ class STDP_C(Behaviour):
 
             #setattr(s, self.weight_attr, getattr(s, self.weight_attr)+s.dw)
 
-class STDP_Analysis(Behaviour):
+class STDP_Analysis(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.total_dw = neurons.get_neuron_vec()
         for s in neurons.afferent_synapses['GLU']:
             s.dst.total_dw += np.sum(s.dw, axis=1)
 
-class Normalization(Behaviour):
+class Normalization(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('SN')
         self.syn_type = self.get_init_attr('syn_type', 'GLU', neurons)
 
@@ -139,12 +139,12 @@ class Normalization(Behaviour):
 
         self.only_positive_synapses = self.get_init_attr('only_positive_synapses', True, neurons)
 
-        self.behaviour_norm_factor = self.get_init_attr('behaviour_norm_factor', 1.0, neurons)
+        self.behavior_norm_factor = self.get_init_attr('behavior_norm_factor', 1.0, neurons)
         neurons.weight_norm_factor = neurons.get_neuron_vec()+self.get_init_attr('neuron_norm_factor', 1.0, neurons)
 
         self.exec_every_x_step = self.get_init_attr('exec_every_x_step', 1)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         if neurons.iteration % self.exec_every_x_step == 0:
 
@@ -152,5 +152,5 @@ class Normalization(Behaviour):
                 for s in neurons.afferent_synapses[self.syn_type]:
                     s.W[s.W < 0.0] = 0.0
 
-            normalize_synapse_attr('W', 'W', neurons.weight_norm_factor*self.behaviour_norm_factor, neurons, self.syn_type)
+            normalize_synapse_attr('W', 'W', neurons.weight_norm_factor*self.behavior_norm_factor, neurons, self.syn_type)
 

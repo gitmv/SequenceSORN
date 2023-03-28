@@ -1,14 +1,14 @@
 from PymoNNto import *
 
-class SORN_weight_noise(Behaviour):
+class SORN_weight_noise(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('weight noise')
         self.syn_type = self.get_init_attr('syn_type', 'GLU', neurons)
         self.noise_fac = self.get_init_attr('max_noise', 0.0001, neurons)
         self.step_ct = self.get_init_attr('step_ct', 100, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.iteration % self.step_ct == 0:
             for s in neurons.afferent_synapses[self.syn_type]:
                 noise = (np.random.random_sample(s.get_synapse_mat_dim())-0.5)*self.noise_fac
@@ -16,16 +16,16 @@ class SORN_weight_noise(Behaviour):
 
 
 
-class SORN_structural_plasticity(Behaviour):
+class SORN_structural_plasticity(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('structural plasticity')
         self.syn_type = self.get_init_attr('syn_type', 'GLU', neurons)
         self.step_ct = self.get_init_attr('step_ct', 100, neurons)
         self.max_syns_per_step = self.get_init_attr('max_syns_per_step', 5, neurons)
         self.threshold = self.get_init_attr('threshold', 0.00001, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         if neurons.iteration % self.step_ct == 0:
 

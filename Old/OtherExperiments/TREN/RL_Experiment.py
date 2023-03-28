@@ -4,7 +4,7 @@ sys.path.append('../../tren2')
 
 import matplotlib.pylab as plt
 
-from PymoNNto.NetworkBehaviour.Logic.TREN.Neuron_Learning import *
+from PymoNNto.NetworkBehavior.Logic.TREN.Neuron_Learning import *
 
 from PymoNNto.NetworkCore.Network import *
 from PymoNNto.NetworkCore.Neuron_Group import *
@@ -103,12 +103,12 @@ def get_reward(center, position, predicted_position, reward_strength):
 
 def run_and_get_score(ind=[]):
 
-    input_ng = NeuronGroup(size=4, behaviour = {
+    input_ng = NeuronGroup(size=4, behavior = {
         5: NeuronManualActivator(write_to='glu_inter_gamma_activity'),
         7: ActivityBuffering(store_input=False, min_buffersize=6)#original:7
     }).add_tag('input')
 
-    output_ng = NeuronGroup(size=4, behaviour={
+    output_ng = NeuronGroup(size=4, behavior={
         1: DopamineProcessing(source_weight_id=1, target_weight_id=0),
         2: TemporalWeightCache(decay=1, strength=1, GLU_density=1.0, set_weights=True,GLU_equal_factor=1,GLU_random_factor=0),
         3: RandomWeightFluctuation2(decay='[0.5#0]', strength='[1.0#1]', fluctuation='[0.001#2]', density='[0.05#3]'),

@@ -1,9 +1,9 @@
-from PymoNNto.NetworkBehaviour.Logic.Basics.BasicHomeostasis import *
-from PymoNNto.NetworkBehaviour.Logic.Basics.Normalization import *
+from PymoNNto.NetworkBehavior.Logic.Basics.BasicHomeostasis import *
+from PymoNNto.NetworkBehavior.Logic.Basics.Normalization import *
 
-class HomeostaticMechanism(Behaviour):
+class HomeostaticMechanism(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Homeostasis')
         self.ACTIVITY_COUNT_TH_MIN = self.get_init_attr('ACTIVITY_COUNT_TH_MIN', 0.0, neurons)#step height #neurons.firetreshold
         self.ACTIVITY_COUNT_TH_MAX = self.get_init_attr('ACTIVITY_COUNT_TH_MAX', 1.0, neurons)
@@ -23,7 +23,7 @@ class HomeostaticMechanism(Behaviour):
 
         self.avg = neurons.get_neuron_vec('uniform')*(self.max-self.min)+self.min
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.learning:
             current_value = neurons.output_activity_history[0].copy()
             #current_value = getattr(neurons, self.src_attr).copy()#neurons.output_activity_history[0].copy() #input_activity_history  #COPY!!!
@@ -41,15 +41,15 @@ class HomeostaticMechanism(Behaviour):
             #else:
             #    print(neurons.avg)
 
-#class GABANormalization(TRENNeuronBehaviour):
+#class GABANormalization(TRENNeuronBehavior):
 
-#    def set_variables(self, neurons):
+#    def initialize(self, neurons):
 #        #neurons.GABA_norm_value = neurons.get_neuron_vec('uniform')*self.get_init_attr('GABA_norm_value', 1.0)
 #        neurons.GABA_norm_value = neurons.get_neuron_vec() + self.get_init_attr('GABA_norm_value', 1.0, neurons)
 
 #        #neurons.GABA_norm_value[0] = 10.0
 
-#    def new_iteration(self, neurons):
+#    def iteration(self, neurons):
 #        if neurons.learning:
 #            neurons.temp_weight_sum = neurons.get_neuron_vec()
 
@@ -66,9 +66,9 @@ class HomeostaticMechanism(Behaviour):
 
 
 
-class GlutamateCacheConvergeAndNormalization(Behaviour):
+class GlutamateCacheConvergeAndNormalization(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Normalization')
         nv = self.get_init_attr('norm_value', 2.7, neurons)
         #neurons.norm_value = neurons.get_neuron_vec() + self.get_init_attr('norm_value', 2.7)
@@ -79,10 +79,10 @@ class GlutamateCacheConvergeAndNormalization(Behaviour):
         for s in neurons.afferent_synapses['GLU']:
             s.W = s.get_synapse_mat()
 
-        self.new_iteration(neurons)
+        self.iteration(neurons)
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.learning:
             #neurons.temp_weight_sum = neurons.get_neuron_vec()
 
@@ -92,15 +92,15 @@ class GlutamateCacheConvergeAndNormalization(Behaviour):
             normalize_synapse_attr('W', 'W_Caches', neurons.weight_norm_factor, neurons, 'GLU')
 
         for s in neurons.afferent_synapses['GLU']:
-            s.W = np.clip(np.sum(s.W_Caches, axis=0), 0, None)#todo move to separate behaviour and do construction there
+            s.W = np.clip(np.sum(s.W_Caches, axis=0), 0, None)#todo move to separate behavior and do construction there
 
 
 #only for LGN
 
-class TREN_input_weighting(Behaviour):
+class TREN_input_weighting(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.norm_value = neurons.get_neuron_vec('uniform')*0.5#0.4-0.2+0.3 #neurons.get_neuron_vec()+1
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.glu_inter_gamma_activity *= neurons.norm_value

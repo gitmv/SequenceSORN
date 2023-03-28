@@ -1,15 +1,15 @@
-from Behaviour_Modules import *
+from Behavior_Modules import *
 from recurrent_unsupervised_stdp_learning.Exp_helper import *
-from Old.Grammar.Behaviours_in_use.MNISTActivator import *
-from Old.Grammar.Behaviours_in_use.Behaviour_Bar_Activator import *
+from Old.Grammar.Behaviors_in_use.MNISTActivator import *
+from Old.Grammar.Behaviors_in_use.Behavior_Bar_Activator import *
 
-class Refractory_D(Behaviour):
+class Refractory_D(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.refrac_ct = neurons.get_neuron_vec()
         self.steps = self.get_init_attr('steps', 5.0, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.refrac_ct = np.clip(neurons.refrac_ct-1.0, 0.0, None)
 
         neurons.refrac_ct += neurons.output * self.steps
@@ -17,9 +17,9 @@ class Refractory_D(Behaviour):
         neurons.activity *= (neurons.refrac_ct <= 1.0)
 
 
-class Image_Patch_Generator(Behaviour):
+class Image_Patch_Generator(Behavior):
 
-    def set_variables(self, network):
+    def initialize(self, network):
         self.add_tag('Input')
 
         image_path = self.get_init_attr('img_path', '')
@@ -88,7 +88,7 @@ class Image_Patch_Generator(Behaviour):
 
         return x,y
 
-    def new_iteration(self, network):
+    def iteration(self, network):
 
         m = -1
 
@@ -121,9 +121,9 @@ class Image_Patch_Generator(Behaviour):
         #plt.imshow(image)
         #plt.show()
 
-class Image_Patch_Activator(Behaviour):
+class Image_Patch_Activator(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Input')
 
         self.patch_name = self.get_init_attr('patch_name', '')
@@ -143,7 +143,7 @@ class Image_Patch_Activator(Behaviour):
         #                     (neurons.y < h*self.npp/2)*\
         #                     (neurons.z >= -h*self.npp/2)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         patch = getattr(neurons.network, self.patch_name) #network.on_center_white #network.off_center_white
 
         #neurons.activity += patch.flatten()
@@ -152,14 +152,14 @@ class Image_Patch_Activator(Behaviour):
 
         #neurons.activity[neurons.Input_Mask] = patch.flatten()
 
-class Image_Patch_Reconstructor(Behaviour):
+class Image_Patch_Reconstructor(Behavior):
 
-    #def set_variables(self, network):
+    #def initialize(self, network):
     #    self.r_group = self.get_init_attr('r_group', None)
     #    self.g_group = self.get_init_attr('g_group', None)
     #    self.b_group = self.get_init_attr('b_group', None)
 
-    def new_iteration(self, network):
+    def iteration(self, network):
 
 
         self.reconstruction_image = np.zeros([network.patch_h, network.patch_w, 3])
@@ -181,9 +181,9 @@ class Image_Patch_Reconstructor(Behaviour):
         #network[self.r_group,0]
 
 #imp=Image_Patch(strength=1, img_path='../../Images/Lenna_(test_image).png', x=0,y=0,patch_w=10, patch_h=10)#pexels-photo-275484.jpeg
-#imp.set_variables(None)
+#imp.initialize(None)
 #for i in range(100):
-#    imp.new_iteration(None)
+#    imp.iteration(None)
 
 
 from PymoNNto.Exploration.Network_UI.TabBase import *
@@ -202,7 +202,7 @@ patch_w = 5
 patch_h = 5
 neurons_per_pixel = 5
 
-net = Network(tag='Grammar Learning Network', behaviour={
+net = Network(tag='Grammar Learning Network', behavior={
     1: Image_Patch_Generator(strength=1, img_path='../../Images/Lenna_(test_image).png', patch_w=patch_w, patch_h=patch_h),
 
     100: Image_Patch_Reconstructor()
@@ -221,33 +221,33 @@ inp_inh_output_slope = 0.4 / target_activity + 3.6
 inp_LI_threshold = np.tanh(inh_output_slope * target_activity)
 
 
-class Out(Behaviour):
+class Out(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.activity = neurons.get_neuron_vec()
         neurons.output = neurons.get_neuron_vec().astype(bool)
         neurons.output_old = neurons.get_neuron_vec().astype(bool)
         neurons.linh=1.0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output_old = neurons.output.copy()
         neurons.output = neurons.activity.copy()>neurons.get_neuron_vec('uniform')
         neurons._activity = neurons.activity.copy()  # for plotting
         neurons.activity.fill(0)
 
 
-class IP_Mul(Behaviour):
+class IP_Mul(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.get_init_attr('strength', 0.01, neurons)
         neurons.target_activity = self.get_init_attr('target_activity', 0.02)
         neurons.sensitivity = neurons.get_neuron_vec()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.sensitivity -= (neurons.output - neurons.target_activity) * self.strength
         neurons.activity *= neurons.sensitivity
 
-NeuronGroup(net=net, tag='inp_neurons_on', size=NeuronDimension(width=patch_w, height=patch_h, depth=neurons_per_pixel), color=black, behaviour={
+NeuronGroup(net=net, tag='inp_neurons_on', size=NeuronDimension(width=patch_w, height=patch_h, depth=neurons_per_pixel), color=black, behavior={
     10: Image_Patch_Activator(strength=1, patch_name='on_center_white'),
     12: SynapseOperation(tag='fb', transmitter='GLU', strength=1.0),
     20: SynapseOperation(transmitter='GABA', strength=-0.1),
@@ -258,7 +258,7 @@ NeuronGroup(net=net, tag='inp_neurons_on', size=NeuronDimension(width=patch_w, h
     50: Generate_Output(exp=inp_exc_output_exponent)
 })
 
-NeuronGroup(net=net, tag='inp_neurons_off', size=NeuronDimension(width=patch_w, height=patch_h, depth=neurons_per_pixel), color=black, behaviour={
+NeuronGroup(net=net, tag='inp_neurons_off', size=NeuronDimension(width=patch_w, height=patch_h, depth=neurons_per_pixel), color=black, behavior={
     10: Image_Patch_Activator(strength=1, patch_name='off_center_white'),
     12: SynapseOperation(tag='fb', transmitter='GLU', strength=1.0),
     20: SynapseOperation(transmitter='GABA', strength=-0.1),
@@ -269,37 +269,37 @@ NeuronGroup(net=net, tag='inp_neurons_off', size=NeuronDimension(width=patch_w, 
     50: Generate_Output(exp=inp_exc_output_exponent)
 })
 
-NeuronGroup(net=net, tag='inh_neurons_on', size=get_squared_dim(patch_w*patch_h*neurons_per_pixel/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons_on', size=get_squared_dim(patch_w*patch_h*neurons_per_pixel/10), color=red, behavior={
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=0.05),
     # output
     70: Generate_Output_Inh(slope=inp_inh_output_slope, duration=2), #'[20.0#S]'
 })
 
-NeuronGroup(net=net, tag='inh_neurons_off', size=get_squared_dim(patch_w*patch_h*neurons_per_pixel/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons_off', size=get_squared_dim(patch_w*patch_h*neurons_per_pixel/10), color=red, behavior={
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=0.05),
     # output
     70: Generate_Output_Inh(slope=inp_inh_output_slope, duration=2), #'[20.0#S]'
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='inp_neurons_on', dst='inh_neurons_on', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='inp_neurons_on', dst='inh_neurons_on', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons_on', dst='inp_neurons_on', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons_on', dst='inp_neurons_on', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='inp_neurons_off', dst='inh_neurons_off', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='inp_neurons_off', dst='inh_neurons_off', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons_off', dst='inp_neurons_off', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons_off', dst='inp_neurons_off', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={#60 30#NeuronDimension(width=10, height=10, depth=1)
+NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={#60 30#NeuronDimension(width=10, height=10, depth=1)
 
     12: SynapseOperation(tag='ff', transmitter='GLUff', strength=1.0),
     13: SynapseOperation(transmitter='GLUrc', strength=1.0),
@@ -327,44 +327,44 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
 
 })
 
-NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behavior={
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
     # output
     70: Generate_Output_Inh(slope=inh_output_slope, duration=2), #'[20.0#S]'
 })
 
-SynapseGroup(net=net, tag='EIn,GLU,GLUff', src='inp_neurons_on', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EIn,GLU,GLUff', src='inp_neurons_on', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EIf,GLU,GLUff', src='inp_neurons_off', dst='exc_neurons', behaviour={
-    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
-})
-
-
-SynapseGroup(net=net, tag='GLU,EIn', src='exc_neurons', dst='inp_neurons_on', behaviour={
-    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
-})
-
-SynapseGroup(net=net, tag='GLU,EIf', src='exc_neurons', dst='inp_neurons_off', behaviour={
+SynapseGroup(net=net, tag='EIf,GLU,GLUff', src='inp_neurons_off', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
 
-#SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behaviour={
+SynapseGroup(net=net, tag='GLU,EIn', src='exc_neurons', dst='inp_neurons_on', behavior={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+SynapseGroup(net=net, tag='GLU,EIf', src='exc_neurons', dst='inp_neurons_off', behavior={
+    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
+})
+
+
+#SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behavior={
 #    1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 #})
 
-SynapseGroup(net=net, tag='EE,GLU,GLUrc', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EE,GLU,GLUrc', src='exc_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 

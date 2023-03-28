@@ -1,11 +1,11 @@
 from Helper import *
 from UI_Helper import *
-from Text.v0.Behaviour_Core_Modules import *
-from Text.Behaviour_Text_Modules import *
+from Text.v0.Behavior_Core_Modules import *
+from Text.v4.Behavior_Text_Modules import *
 
 class TextActivator_custom(TextActivator):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('TextActivator')
         self.TextGenerator = neurons['TextGenerator', 0]
 
@@ -61,7 +61,7 @@ net = Network(tag='Text Learning Network')
 
 custom_cw = [367, 296, 252, 147, 130, 126, 114,  99,  99,  94,  83,  71,  65, 63,  50,  46,  46,  46,  44,  41,  41,  41,  39]
 
-NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
+NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={
 
     #9: Exception_Activator(), # use for manual text input with GUI code tab...
 
@@ -92,7 +92,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
 
 })
 
-NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behavior={
 
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -102,15 +102,15 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
 
 })
 
-SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
@@ -123,6 +123,6 @@ if __name__ == '__main__' and ui:
     #add_all_analysis_modules(net['exc_neurons', 0])
     show_UI(net, sm)
 else:
-    net.exc_neurons.add_behaviour(200, Recorder(variables=['np.mean(n.output)']))
+    net.exc_neurons.add_behavior(200, Recorder(variables=['np.mean(n.output)']))
     train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=sm)
     plot_output_trace(net['np.mean(n.output)', 0], input_steps, recovery_steps, net.exc_neurons.target_activity)

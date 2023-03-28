@@ -2,28 +2,28 @@ from PymoNNto import *
 import random as rnd
 #rnd.seed(1)
 
-class TextActivator(Behaviour):
+class TextActivator(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.TextGenerator = neurons.TextGenerator
         #self.strength = self.parameter('strength', 1, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.input_grammar = (neurons.y == neurons.current_char_index)#*self.strength
         neurons.voltage += neurons.input_grammar.astype(neurons.def_dtype)
 
 
-class TextReconstructor(Behaviour):
+class TextReconstructor(Behavior):
 
     def clear_history(self):
         self.reconstruction_history = ''
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.current_reconstruction_char = ''
         self.current_reconstruction_char_index = ''
         self.clear_history()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         TextGenerator = neurons.TextGenerator
         if TextGenerator is not None:
 
@@ -45,7 +45,7 @@ class TextReconstructor(Behaviour):
             self.reconstruction_history += self.current_reconstruction_char
 
 
-class TextReconstructor_ML(Behaviour):##add "TextReconstructor" tag to constructor
+class TextReconstructor_ML(Behavior):##add "TextReconstructor" tag to constructor
 
     def act_to_indx(self, act):
         if np.sum(act) == 0:
@@ -73,7 +73,7 @@ class TextReconstructor_ML(Behaviour):##add "TextReconstructor" tag to construct
     def clear_history(self):
         self.recon_act_buffer = []
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.TextActivator = neurons.TextActivator
         self.TextGenerator = neurons.TextGenerator
         self.steps = 5
@@ -84,7 +84,7 @@ class TextReconstructor_ML(Behaviour):##add "TextReconstructor" tag to construct
             n._rc_buffer_last = n.vector()
             n._rc_buffer_current = n.vector()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if self.TextActivator is not None:
             self.recon_act_buffer.append(0)
 
@@ -112,9 +112,9 @@ class TextReconstructor_ML(Behaviour):##add "TextReconstructor" tag to construct
 
                     self.recon_act_buffer[-(step+1)] += index_act
 
-class TextGenerator(Behaviour):
+class TextGenerator(Behavior):
 
-    set_variables_on_init = True
+    initialize_on_init = True
 
     def get_text_blocks(self):
         return self.parameter('text_blocks', [])
@@ -122,7 +122,7 @@ class TextGenerator(Behaviour):
     def unique(self, l):
         return list(sorted(set(l)))
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
 
         self.text_blocks = self.get_text_blocks()
         self.current_block_index = -1
@@ -139,7 +139,7 @@ class TextGenerator(Behaviour):
 
         if self.parameter('set_network_size_to_alphabet_size', False):
             dim = get_squared_dim(len(self.alphabet)) #NeuronDimension
-            dim.set_variables(neurons) #set size and x, y, z, width, height, depth
+            dim.initialize(neurons) #set size and x, y, z, width, height, depth
 
         char_count_vec = self.count_chars_in_blocks()
         self.char_weighting = char_count_vec / np.mean(char_count_vec)
@@ -154,7 +154,7 @@ class TextGenerator(Behaviour):
                     new += c
             self.text_blocks[i] = new
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         #if neurons.iteration%self.iterations_per_char==0 or neurons.current_char_index==-1:
 

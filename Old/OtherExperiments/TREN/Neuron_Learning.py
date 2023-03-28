@@ -1,8 +1,8 @@
-from PymoNNto.NetworkBehaviour.Logic.Basics.BasicHomeostasis import *
+from PymoNNto.NetworkBehavior.Logic.Basics.BasicHomeostasis import *
 
-class STDP_base(Behaviour):
+class STDP_base(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('STDP')
         #neurons.STDP_Function = self.get_init_attr('STDP_Function', [[1, 1.0]])
         #neurons.zerotime = self.get_init_attr('zerotime', 0)
@@ -16,7 +16,7 @@ class STDP_base(Behaviour):
         neurons.weight_change_sum=0#todo remove
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.learning:
             weight_change_sum=0#todo remove
             for s in neurons.afferent_synapses['GLU']:
@@ -55,9 +55,9 @@ class STDP_complex(STDP_base):
     zerotime=2
 
 
-class TemporalWeightCache(Behaviour):
+class TemporalWeightCache(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Weight_Cache')
 
         for s in neurons.afferent_synapses['GLU']:
@@ -96,7 +96,7 @@ class TemporalWeightCache(Behaviour):
                 s.W_Caches = np.concatenate((s.W_Caches, np.array([new_syn])))
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.learning:
             for s in neurons.afferent_synapses['GLU']:
                 s.W_Caches[self.cache_number] = s.enabled*np.clip(s.W_Caches[self.cache_number]+s.weight_change*self.strength, 0, None)
@@ -109,8 +109,8 @@ class TemporalWeightCache(Behaviour):
 
 
 class RandomWeightFluctuation2(TemporalWeightCache):
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         for s in neurons.afferent_synapses['GLU']:
             s.W_Caches[self.cache_number]*=0
         #neurons.alpha = self.get_init_attr('alpha', 1)
@@ -118,23 +118,23 @@ class RandomWeightFluctuation2(TemporalWeightCache):
         self.density = self.get_init_attr('density', 0.001, neurons)
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.learning:
             for s in neurons.afferent_synapses['GLU']:
                 s.W_Caches[self.cache_number] *= 0
                 s.W_Caches[self.cache_number] += (s.get_synapse_mat('uniform',density=self.density))*self.fluctuation #only positive weight change
                 #print(s.W_Caches[self.cache_number])
-        super().new_iteration(neurons)
+        super().iteration(neurons)
 
 
-class DopamineProcessing(Behaviour):
+class DopamineProcessing(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.source_weight_id = self.get_init_attr('source_weight_id', 1, neurons)
         self.target_weight_id = self.get_init_attr('target_weight_id', 0, neurons)
         neurons.dopamine_level = 0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.learning:
             for s in neurons.afferent_synapses['GLU']:
                 change = s.W_Caches[self.source_weight_id]*np.clip(neurons.dopamine_level, 0, 1)
@@ -146,14 +146,14 @@ class DopamineProcessing(Behaviour):
             neurons.dopamine_level = 0
 
 class RandomWeightFluctuation(TemporalWeightCache):
-    def set_variables(self, neurons):
-        super().set_variables(neurons)
+    def initialize(self, neurons):
+        super().initialize(neurons)
         #neurons.alpha = self.get_init_attr('alpha', 1)
         self.beta = self.get_init_attr('beta', 1, neurons)
         self.gamma = self.get_init_attr('gamma', 1, neurons)
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.learning:
 
             for s in neurons.afferent_synapses['GLU']:

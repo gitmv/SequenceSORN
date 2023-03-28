@@ -1,4 +1,4 @@
-from PymoNNto.NetworkBehaviour.Recorder.Recorder import *
+from PymoNNto.NetworkBehavior.Recorder.Recorder import *
 
 from PymoNNto.Exploration.Analysis.PCA import *
 from PymoNNto.Exploration.Analysis.WiltingPriesemann import *
@@ -31,10 +31,10 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
     network.simulate_iterations(steps_plastic, 100, measure_block_time=display)
 
     if stdp_off:
-        network.deactivate_behaviours('STDP')
+        network.deactivate_behaviors('STDP')
 
-    network['grammar_act', 0].behaviour_enabled = False
-    #network['TextActivator', 0].behaviour_enabled = False
+    network['grammar_act', 0].behavior_enabled = False
+    #network['TextActivator', 0].behavior_enabled = False
 
     network.simulate_iterations(steps_recovery, 100, measure_block_time=display)
 
@@ -44,11 +44,11 @@ def predict_text_max_source_act(network, steps_plastic, steps_recovery, steps_sp
 
     #print('\x1b[6;30;42m' + 'Success!' + '\x1b[0m')
 
-    network['grammar_act', 0].behaviour_enabled = True
-    #network['TextActivator', 0].behaviour_enabled = True
+    network['grammar_act', 0].behavior_enabled = True
+    #network['TextActivator', 0].behavior_enabled = True
 
     if stdp_off:
-        network.activate_behaviours('STDP')
+        network.activate_behaviors('STDP')
 
     return text
 
@@ -119,12 +119,12 @@ def train_and_generate_text(SORN, steps_plastic, steps_train, steps_spont, steps
     #    np.save('Data/W{}.npy'.format(i), syn.W)
 
     if stdp_off:
-        SORN.deactivate_behaviours('STDP')
+        SORN.deactivate_behaviors('STDP')
 
     for ng in SORN['prediction_source']:
-        SORN.add_behaviours_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
+        SORN.add_behaviors_to_neuron_group({100: Recorder(['n.output'], tag='prediction_rec')}, ng)
     for ng in SORN['text_input_group']:
-        SORN.add_behaviours_to_neuron_group({101: Recorder(['n.pattern_index'], tag='index_rec')}, ng)
+        SORN.add_behaviors_to_neuron_group({101: Recorder(['n.pattern_index'], tag='index_rec')}, ng)
 
     SORN.simulate_iterations(steps_train, 100, measure_block_time=display)
 
@@ -177,22 +177,22 @@ def train_and_generate_text(SORN, steps_plastic, steps_train, steps_spont, steps
     #SORN.recording_off()
 
     if same_timestep_without_feedback_loop:
-        SORN['grammar_act', 0].behaviour_enabled = False
+        SORN['grammar_act', 0].behavior_enabled = False
         if steps_recovery > 0:
             SORN.simulate_iterations(steps_recovery, 100, measure_block_time=display, disable_recording=True)
         spont_output = get_simu_sequence(SORN, SORN['prediction_source'], 'n.output', readout_classifyer=readout_layer, seq_length=steps_spont, source=SORN['grammar_act', 0])#output generation
     else:
         spont_output = predict_sequence(readout_layer, SORN['prediction_source'], 'n.output', steps_spont, SORN, SORN['grammar_act', 0], lag=1)
 
-    SORN['grammar_act', 0].behaviour_enabled = True
+    SORN['grammar_act', 0].behavior_enabled = True
 
     if additional_info:
         mean_act=np.mean(SORN['prediction_rec', 0]['n.output', 0, 'np'], axis=1)
         storage_manager.save_np('act_exc', mean_act)
     #SORN.clear_recorder(['prediction_rec', 'index_rec'])
     #SORN.deactivate_mechanisms(['prediction_rec', 'index_rec'])
-    SORN.remove_behaviours_from_neuron_groups(SORN['prediction_source'], tags=['prediction_rec'])
-    SORN.remove_behaviours_from_neuron_groups(SORN['text_input_group'], tags=['index_rec'])
+    SORN.remove_behaviors_from_neuron_groups(SORN['prediction_source'], tags=['prediction_rec'])
+    SORN.remove_behaviors_from_neuron_groups(SORN['text_input_group'], tags=['index_rec'])
 
 
     #if display:
@@ -200,7 +200,7 @@ def train_and_generate_text(SORN, steps_plastic, steps_train, steps_spont, steps
     SORN.recording_on()
 
     if stdp_off:
-        SORN.activate_behaviours('STDP')
+        SORN.activate_behaviors('STDP')
 
     score_dict = SORN['grammar_act', 0].get_text_score(spont_output)
 

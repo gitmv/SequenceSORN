@@ -1,7 +1,7 @@
-from Text.v0.Behaviour_Core_Modules import *
+from Text.v0.Behavior_Core_Modules import *
 #from UI_Helper import *
-from Text.v0.Behaviour_Text_Modules import *
-from Text.v0.Behaviour_Input_layer_Modules import *
+from Text.v0.Behavior_Text_Modules import *
+from Text.v0.Behavior_Input_layer_Modules import *
 from Helper import *
 
 def f_i(x, ci):
@@ -30,9 +30,9 @@ def fi_4(x):
 #plt.plot(x, )
 #plt.show()
 
-class Generate_Output_Inh2(Behaviour):
+class Generate_Output_Inh2(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.duration = self.get_init_attr('duration', 1.0)
         self.slope = self.get_init_attr('slope', 20.0)
         self.avg_act = 0
@@ -45,7 +45,7 @@ class Generate_Output_Inh2(Behaviour):
         #return np.tanh(a * self.slope)
         return fi_4(a)+0.023797672885760568*2.0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
         neurons.output = neurons.get_neuron_vec('uniform') < self.activation_function(self.avg_act)#neurons.inh
         neurons._activity = neurons.activity.copy()  # for plotting
@@ -110,7 +110,7 @@ LI_threshold = b_temp.activation_function(target_activity)*0.9 #np.tanh(inh_outp
 #-0.x?
 print(LI_threshold)
 
-NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behaviour={
+NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=len(set(''.join(grammar))), depth=1, centered=False), color=orange, behavior={
 
     10: TextGenerator(iterations_per_char=1, text_blocks=grammar),
     11: TextActivator_IL(strength=1),
@@ -123,7 +123,7 @@ NeuronGroup(net=net, tag='inp_neurons', size=NeuronDimension(width=10, height=le
 })
 
 
-NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={#60 30#NeuronDimension(width=10, height=10, depth=1)
+NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={#60 30#NeuronDimension(width=10, height=10, depth=1)
 
     12: SynapseOperation(transmitter='GLU', strength=1.0),
 
@@ -149,7 +149,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     50: Generate_Output(exp=exc_output_exponent),
 })
 
-NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behavior={
 
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -158,23 +158,23 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
     70: Generate_Output_Inh2(slope=inh_output_slope, duration=2), #'[20.0#S]'
 })
 
-SynapseGroup(net=net, tag='ES,GLU', src='inp_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='ES,GLU', src='inp_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0, nomr_fac=10)
 })
 
-SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behaviour={
+SynapseGroup(net=net, tag='SE,GLU', src='exc_neurons', dst='inp_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 

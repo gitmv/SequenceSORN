@@ -14,7 +14,7 @@ def create_run_and_evaluate(ind=[], evolution=True):
 
     LGN_PC_Neurons = get_default_Input_Pattern_Neurons(input_width=input_width, input_height=input_height, patterns='', predefined_patterns=[MNIST_patterns])  #rotate cross noise rotateimg_patches #input_width=input_width, input_height=input_height, input_depth=1,
 
-    behaviour1 = {
+    behavior1 = {
 
         1: STDP_simple(exponent='[8.92#1]', post_learn_value='[6.55#2]'),  # 8.92 #6.55
         2: TemporalWeightCache(decay=1, strength=1, GLU_density=0.5, set_weights=True),
@@ -31,11 +31,11 @@ def create_run_and_evaluate(ind=[], evolution=True):
     tren = Network(NeuronGroups=[LGN_PC_Neurons], SynapseGroups=[], initialize=False)#TRENet([LGN_PC_Neurons, Cortex_V1, Cortex_V2], [LGN_to_V1, V1_inh, V1_rec, V1_to_V2, V2_inh])
 
     create_Network_Structure(tren, [
-        #{'behaviour': behaviour1, 'size': 10, 'split': 1, 'glu_rec': None, 'gab_rec': None, 'glu_ff': 5, 'gab_ff': None, 'glu_fb': None, 'gab_fb': None}
-        {'behaviour': behaviour1, 'size': 40, 'split': 4, 'glu_rec': None, 'gab_rec': 10, 'glu_ff': 10, 'gab_ff': None, 'glu_fb': None, 'gab_fb': None},
-        {'behaviour': behaviour1, 'size': 5, 'split': 1, 'glu_rec': None, 'gab_rec': 28, 'glu_ff': 28, 'gab_ff': None, 'glu_fb': None, 'gab_fb': None}
-        #{'behaviour':behaviour1, 'size':15, 'split':1, 'glu_rec':None, 'gab_rec':15, 'glu_ff':10, 'gab_ff':None, 'glu_fb':None, 'gab_fb':None},
-        #{'behaviour':behaviour1, 'size':4,  'split':1, 'glu_rec':None, 'gab_rec':28, 'glu_ff':28, 'gab_ff':None, 'glu_fb':None, 'gab_fb':None}
+        #{'behavior': behavior1, 'size': 10, 'split': 1, 'glu_rec': None, 'gab_rec': None, 'glu_ff': 5, 'gab_ff': None, 'glu_fb': None, 'gab_fb': None}
+        {'behavior': behavior1, 'size': 40, 'split': 4, 'glu_rec': None, 'gab_rec': 10, 'glu_ff': 10, 'gab_ff': None, 'glu_fb': None, 'gab_fb': None},
+        {'behavior': behavior1, 'size': 5, 'split': 1, 'glu_rec': None, 'gab_rec': 28, 'glu_ff': 28, 'gab_ff': None, 'glu_fb': None, 'gab_fb': None}
+        #{'behavior':behavior1, 'size':15, 'split':1, 'glu_rec':None, 'gab_rec':15, 'glu_ff':10, 'gab_ff':None, 'glu_fb':None, 'gab_fb':None},
+        #{'behavior':behavior1, 'size':4,  'split':1, 'glu_rec':None, 'gab_rec':28, 'glu_ff':28, 'gab_ff':None, 'glu_fb':None, 'gab_fb':None}
     ])
 
     tren.set_marked_variables(ind, info=not evolution)

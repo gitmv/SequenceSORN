@@ -1,10 +1,10 @@
-from Text.v2.Behaviour_Core_Modules import *
-from Text.Behaviour_Text_Modules import *
+from Text.v2.Behavior_Core_Modules import *
+from Text.v4.Behavior_Text_Modules import *
 from Helper import *
 
-class Output_Inhibitory(Behaviour):
+class Output_Inhibitory(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.duration = self.parameter('duration', 2.0)
         self.slope = self.parameter('slope', 14.3)
         self.avg_act = 0
@@ -14,16 +14,16 @@ class Output_Inhibitory(Behaviour):
     def activation_function(self, a):
         return a*self.slope
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
         neurons.output = neurons.vector('uniform') < self.activation_function(self.avg_act)#neurons.inh
         neurons._activity = neurons.activity.copy()  # for plotting
         neurons.activity.fill(0)
 
 
-class Output_Excitatory(Behaviour):
+class Output_Excitatory(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.exp = self.parameter('exp', 1.5)
         self.mul = self.parameter('mul', 2.0)
         self.act_mul = self.parameter('act_mul', 0.0)
@@ -35,7 +35,7 @@ class Output_Excitatory(Behaviour):
     def activation_function(self, a):
         return np.power(np.clip(a*self.mul, 0.0, 1.0), self.exp)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output_old = neurons.output.copy()
         neurons.output = neurons.vector("uniform") < self.activation_function(neurons.activity)
         neurons._activity = neurons.activity.copy() #for plotting
@@ -69,7 +69,7 @@ target_act = 1/n_chars(grammar)
 
 net = Network(tag=ex_file_name())
 
-NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_chars(grammar), depth=1, centered=False), color=orange, behaviour={
+NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_chars(grammar), depth=1, centered=False), color=orange, behavior={
     # text input
     10: TextGenerator(iterations_per_char=1, text_blocks=grammar),
     11: TextActivator(strength=1),
@@ -81,7 +81,7 @@ NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_char
     80: TextReconstructor()
 })
 
-NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue, behaviour={
+NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue, behavior={
     # weight normalization
     3: Normalization(tag='Norm', direction='afferent and efferent', syn_type='DISTAL', exec_every_x_step=100),
     3.1: Normalization(tag='NormFSTDP', direction='afferent', syn_type='SOMA', exec_every_x_step=100),
@@ -101,7 +101,7 @@ NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue
     50: Output_Excitatory(exp=E_exp, mul=E_mul),
 })
 
-NeuronGroup(net=net, tag='inh_neurons1', size=getGrid(n_inh_neuros), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons1', size=getGrid(n_inh_neuros), color=red, behavior={
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
 
@@ -109,19 +109,19 @@ NeuronGroup(net=net, tag='inh_neurons1', size=getGrid(n_inh_neuros), color=red, 
     70: Output_Inhibitory(slope=I_s, duration=2),
 })
 
-SynapseGroup(net=net, tag='ES,GLU,SOMA', src='inp_neurons', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='ES,GLU,SOMA', src='inp_neurons', dst='exc_neurons1', behavior={
     1: CreateWeights(nomr_fac=10)
 })
 
-SynapseGroup(net=net, tag='EE,GLU,DISTAL', src='exc_neurons1', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='EE,GLU,DISTAL', src='exc_neurons1', dst='exc_neurons1', behavior={
     1: CreateWeights(normalize=False)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons1', dst='inh_neurons1', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons1', dst='inh_neurons1', behavior={
     1: CreateWeights()
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons1', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons1', dst='exc_neurons1', behavior={
     1: CreateWeights()
 })
 

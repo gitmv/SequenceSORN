@@ -2,131 +2,131 @@ from PymoNNto import *
 
 
 
-class Threshold_Output(Behaviour):
+class Threshold_Output(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.threshold = neurons.get_neuron_vec()+self.get_init_attr('threshold', 0.0, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = (neurons.activity >= neurons.threshold)#.astype(def_dtype)
 
-class variable_slope_relu_exp(Behaviour):
+class variable_slope_relu_exp(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.exp = self.get_init_attr('exp', 1.5, neurons)
 
     def f(self, x):
         return np.power(np.abs(x - 0.5) * 2, self.exp) * (x > 0.5)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         chance = self.f(neurons.activity)
         neurons.output = neurons.get_neuron_vec("uniform") < chance
 
-class ReLu_Output(Behaviour):
+class ReLu_Output(Behavior):
 
     def relu(self, x):
         return np.clip((x - 0.5) * 2.0, 0.0, 1.0)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = self.relu(neurons.activity)
 
 
 class ReLu_Output_Prob(ReLu_Output):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         chance = self.relu(neurons.activity)
         neurons.output = neurons.get_neuron_vec("uniform") < chance
 
-class Mem_Noise_Output_Prob(Behaviour):
+class Mem_Noise_Output_Prob(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         chance = neurons.activity + neurons.get_neuron_vec("uniform")-0.5
         neurons.output = chance > 1.0
 
-class Mem_Noise_Output_Prob_Triangular(Behaviour):
+class Mem_Noise_Output_Prob_Triangular(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.tr_left = self.get_init_attr('tr_left', -0.7)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         chance = neurons.activity+neurons.get_neuron_vec("triangular("+str(self.tr_left)+", -0.5, 0.0)")#-1.0 #-0.7
         neurons.output = chance > 0.5
 
-class Mem_Noise_Output_Prob_Triangular_test(Behaviour):
+class Mem_Noise_Output_Prob_Triangular_test(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         chance = neurons.activity+neurons.get_neuron_vec("triangular(-0.7, -0.5, 0.0)")#-1.0 #-0.7
         neurons.output = chance > 0.3
 
-class Mem_Noise_Output_Prob_Normal(Behaviour):
+class Mem_Noise_Output_Prob_Normal(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         chance = neurons.activity+neurons.get_neuron_vec("normal(0.0,0.2)")
         neurons.output = chance > 0.5
 
-class Power_Output(Behaviour):
+class Power_Output(Behavior):
 
     def power(self, x):
         return np.clip(np.power(x, self.exp), 0.0, 1.0)
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.exp = self.get_init_attr('exp', 4.0, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = self.power(neurons.activity)
 
 
 class Power_Output_Prob(Power_Output):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         chance = self.power(neurons.activity)
         neurons.output = neurons.get_neuron_vec("uniform") < chance
 
 
-class ID_Output_no_clip(Behaviour):
+class ID_Output_no_clip(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = neurons.activity
 
-class ID_Output_no_clip_prob(Behaviour):
+class ID_Output_no_clip_prob(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = neurons.get_neuron_vec('uniform') < neurons.activity
 
-class ID_Output(Behaviour):
+class ID_Output(Behavior):
 
     def id(self, x):
         return np.clip(x, 0.0, 1.0)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = self.id(neurons.activity)
 
 
-class Sigmoid_Output(Behaviour):
+class Sigmoid_Output(Behavior):
 
     def sigmoid(self, x):
         return 1.0 / (1.0 + np.power(np.e, -(x - 0.5) * 15))
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = self.sigmoid(neurons.activity)
 
 
-class ReLu_Step_Output(Behaviour):
+class ReLu_Step_Output(Behavior):
 
     def step(self, x):
         stairs = 4
         return np.clip(np.trunc((x-0.5)*2.0*stairs+1)/stairs, 0.0, 1.0)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output = self.step(neurons.activity)
 
 
-class norm_output(Behaviour):
+class norm_output(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.factor = self.get_init_attr('factor', 1.0)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         s=np.sum(neurons.output)
         if s>0:
@@ -135,7 +135,7 @@ class norm_output(Behaviour):
 
 
 
-from Old.Grammar.Behaviours_in_use.test import *
+from Old.Grammar.Behaviors_in_use.test import *
 
 
 def get_a(neurons):
@@ -149,17 +149,17 @@ def set_a(neurons, a):
 
 #print(inhibition_func(0, 29.4, 1.0))
 
-class inh_sigmoid_response(Behaviour):
+class inh_sigmoid_response(Behavior):
 
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         #self.strength = self.get_init_attr('strength', 10.0, neurons)
         self.duration = self.get_init_attr('duration', 1.0, neurons)
         self.slope = self.get_init_attr('slope', 20, neurons)
         self.avg_act = 0
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
         neurons.inh = np.tanh(self.avg_act * self.slope)

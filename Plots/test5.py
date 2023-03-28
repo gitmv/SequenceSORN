@@ -128,6 +128,6 @@ plt.show()
 
 
 
-#def new_iteration(self, neurons):
+#def iteration(self, neurons):
 #    o = np.abs(getattr(neurons, self.input_tag))
 #    neurons.linh = np.clip(1 - (o - neurons.LI_threshold) * self.strength, 0.0, 1.0)

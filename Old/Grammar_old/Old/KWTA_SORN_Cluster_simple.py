@@ -4,23 +4,23 @@ sys.path.append('../../')
 
 from PymoNNto.NetworkCore.Network import *
 from PymoNNto.NetworkCore.Synapse_Group import *
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
-from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_experimental import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_WTA import *
+from PymoNNto.NetworkBehavior.Input.Text.TextActivator import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 from PymoNNto.Exploration.StorageManager.StorageManager import *
 
 
 if __name__ == '__main__':
     pass
 
-class SORN_K_random_input(Behaviour):
+class SORN_K_random_input(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.K = int(neurons.size*0.04)
         neurons.output=neurons.get_neuron_vec()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         if neurons.iteration % 10 == 0:
             rnd=neurons.get_neuron_vec('uniform')*0.0001
@@ -31,9 +31,9 @@ class SORN_K_random_input(Behaviour):
             neurons.activity=rnd
 
 
-class SORN_generate_output_K_WTA_partitioned_dec_k(Behaviour):
+class SORN_generate_output_K_WTA_partitioned_dec_k(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('K_WTA_partitioned')
 
         self.filter_temporal_output = self.get_init_attr('filter_temporal_output', False, neurons)
@@ -42,7 +42,7 @@ class SORN_generate_output_K_WTA_partitioned_dec_k(Behaviour):
 
         self.K = self.get_init_attr('K', 0.1, neurons)#only accepts values between 0 and 1
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if last_cycle_step(neurons):
 
             mul = (4 - (neurons.iteration % 10))
@@ -79,9 +79,9 @@ class SORN_generate_output_K_WTA_partitioned_dec_k(Behaviour):
 
                 #s.dst._temp_act_sum += np.mean(s.src.output)
 
-class SORN_init_neuron_vars_no_reset(Behaviour):
+class SORN_init_neuron_vars_no_reset(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('init_neuron_vars')
 
         neurons.activity = neurons.get_neuron_vec()
@@ -93,7 +93,7 @@ class SORN_init_neuron_vars_no_reset(Behaviour):
 
         neurons.timescale = self.get_init_attr('timescale', 1)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if first_cycle_step(neurons):
             neurons.excitation.fill(0)# *= 0
             neurons.inhibition.fill(0)# *= 0
@@ -121,7 +121,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
     SORN = Network()
 
-    e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(attrs['N_e']), behaviour={
+    e_ng = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=get_squared_dim(attrs['N_e']), behavior={
                 2: SORN_init_neuron_vars_no_reset(timescale=1),
                 #3: SORN_init_afferent_synapses(transmitter='GLU', density='90%', distribution='uniform(0.5,1.0)', normalize=True),
                 5: SORN_init_afferent_synapses(transmitter='GLU_cluster', density='90%', distribution='uniform(0.9,1.0)', normalize=True),
@@ -146,8 +146,8 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
                 20: SORN_IP_WTA(h_ip='lognormal_real_mean(0.04, 0.2944)', eta_ip='0.007', clip_min=None),
                 #21.1: SORN_STDP(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1, 1: -1}),#, 0: 1 #[0.00015#7]
                 21.2: SORN_STDP(transmitter='GLU_cluster', eta_stdp='0.00015', STDP_F={0: 0.5}),  #[0.00015#7]
-                #22: SORN_SN(syn_type='GLU', behaviour_norm_factor=1.0),
-                23: SORN_SN(syn_type='GLU_cluster', behaviour_norm_factor=0.1)
+                #22: SORN_SN(syn_type='GLU', behavior_norm_factor=1.0),
+                23: SORN_SN(syn_type='GLU_cluster', behavior_norm_factor=0.1)
             })
 
     SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='syn,GLU', connectivity='(s_id!=d_id)*in_box(10)')#, partition=True)
@@ -214,7 +214,7 @@ def run(attrs={'name': 'KWTA', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
     #SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU_cluster', connectivity='(s_id!=d_id)*(sy>=20)*(dy>=20)')
 
-    e_ng.add_behaviour(9, SORN_K_random_input())
+    e_ng.add_behavior(9, SORN_K_random_input())
 
     if __name__ == '__main__' and attrs.get('UI', False):
         e_ng.color = get_color(0, 1)

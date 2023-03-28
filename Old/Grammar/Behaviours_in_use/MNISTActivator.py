@@ -3,7 +3,7 @@ from mnist.loader import MNIST  # pip install python-mnist
 mnist_folder = '../../EMNIST'
 import numpy as np
 
-from Old.Input_Behaviours.Images.Helper import *
+from Old.Input_Behaviors.Images.Helper import *
 
 #from mnist.loader import MNIST  # pip install python-mnist
 
@@ -16,12 +16,12 @@ def draw_mnist(mnist_img, width, height, centerx, centery):
     result[y:y+h, x:x+w] += mnist_img
     return result
 
-class MNIST_Patterns(Behaviour):
+class MNIST_Patterns(Behavior):
 
     def get_images(self, mnist_pictures, indx):
         return np.array(mnist_pictures[indx]).reshape(28, 28)
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Input')
 
         mndata = MNIST(mnist_folder)
@@ -56,7 +56,7 @@ class MNIST_Patterns(Behaviour):
 
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         char_indx = np.random.choice(self.class_ids)
         pattern_indx = np.random.choice(np.arange(len(self.chars[char_indx])))
         pattern = self.chars[char_indx][pattern_indx]

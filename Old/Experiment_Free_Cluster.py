@@ -1,6 +1,6 @@
-from Behaviour_Modules import *
+from Behavior_Modules import *
 from recurrent_unsupervised_stdp_learning.Exp_helper import *
-from Old.Grammar.Behaviours_in_use.Behaviour_Bar_Activator import *
+from Old.Grammar.Behaviors_in_use.Behavior_Bar_Activator import *
 
 #set_genome({'TA': 3.988351708556492, 'EXP': 0.5004156607096197, 'S': 15.274553117050054})#{'TA': 3.617607251026159, 'EXP': 0.526794854151458, 'S': 15.517577277732101}#{'TA': 3.617607251026159, 'EXP': 0.526794854151458, 'S': 15.517577277732101})
 #{'a': 0.7922513600022001, 'c': 6.195336615158932, 'd': 0.37000460400309465, 'S': 0.13848295213418618}
@@ -25,7 +25,7 @@ print(LI_threshold)
 
 #20 10
 #28*3, height=28*2
-NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={#60 30get_squared_dim(neuron_count)NeuronDimension(width=20, height=10, depth=1)
+NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={#60 30get_squared_dim(neuron_count)NeuronDimension(width=20, height=10, depth=1)
 
     12: SynapseOperation(transmitter='GLU', strength=1.0),
 
@@ -51,7 +51,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
     90: Recorder(variables=['np.mean(n.output)'])
 })
 
-NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={#net['exc_neurons',0].size*0.5
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behavior={#net['exc_neurons',0].size*0.5
 
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -61,15 +61,15 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
 
 })
 
-SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 

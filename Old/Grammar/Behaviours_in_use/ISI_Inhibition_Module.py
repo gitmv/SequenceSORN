@@ -10,9 +10,9 @@ def normal_f(x, mean = 0, std = 1):
     return np.exp(-np.square(x - mean) / 2 * variance) / (np.sqrt(2 * np.pi * variance))
 
 
-class isi_reaction_module(Behaviour):
+class isi_reaction_module(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)
 
         self.isi_history = np.zeros((neurons.size, 100))
@@ -36,7 +36,7 @@ class isi_reaction_module(Behaviour):
         #plt.plot(self.smooth_x, self.smooth_y)
         #plt.show()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         isi = neurons.iteration-self.last_spike_iteration[neurons.output]
         isi = np.clip(isi, 0+self.smooth, 99-self.smooth).astype(int)

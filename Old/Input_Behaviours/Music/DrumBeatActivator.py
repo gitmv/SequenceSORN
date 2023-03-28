@@ -1,4 +1,4 @@
-from PymoNNto.NetworkBehaviour.Input.Pattern_Basics import *
+from PymoNNto.NetworkBehavior.Input.Pattern_Basics import *
 import random
 import numpy as np
 from collections import Counter

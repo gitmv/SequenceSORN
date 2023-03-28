@@ -11,7 +11,7 @@ class sidebar_patch_reconstructor_module(TabBase):
 
         if Network_UI.network['Image_Patch_Generator', 0] is not None and Network_UI.network['Image_Patch_Reconstructor', 0] is not None:
             # def image_activator_on_off(event):
-            #    Network_UI.network['image_act', 0].behaviour_enabled = self.input_select_box.currentText() != 'None'
+            #    Network_UI.network['image_act', 0].behavior_enabled = self.input_select_box.currentText() != 'None'
 
             image_canvas = pg.GraphicsLayoutWidget()
             image_canvas.ci.setToolTip('...')

@@ -1,10 +1,10 @@
-from PymoNNto.NetworkBehaviour.Input.Pattern_Basics import *
+from PymoNNto.NetworkBehavior.Input.Pattern_Basics import *
 
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
-from PymoNNto.NetworkBehaviour.Input.Images.Helper import *
+from PymoNNto.NetworkBehavior.Input.Images.Helper import *
 
-from PymoNNto.NetworkBehaviour.Input.Images.PixelPattern import *
+from PymoNNto.NetworkBehavior.Input.Images.PixelPattern import *
 
 #from scipy.ndimage import *
 #from scipy import signal

@@ -1,8 +1,8 @@
 from PymoNNto import *
 from Helper import *
 from UI_Helper import *
-from Behaviour_Modules import *
-from Behaviour_Text_Modules import *
+from Behavior_Modules import *
+from Behavior_Text_Modules import *
 from Old.Grammar_old.Bruno.Logistic_Regression_Reconstruction import *
 
 ui = False
@@ -58,22 +58,22 @@ LI_threshold = np.tanh(inh_output_slope * target_activity)
 
 net = Network(tag='Grammar Learning Network')
 
-class Exception_Activator(Behaviour):
+class Exception_Activator(Behavior):
 
     #activate with following command
     #neurons['Exception_Activator', 0].txt='abcdefg'
     #neurons['Exception_Activator', 0].text_position = 0
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.txt = ' exception exception. exception exception. exception exception.'
         self.text_position = -1
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if self.text_position>=0 and self.text_position<len(self.txt):
             neurons['TextGenerator', 0].next_char = self.txt[self.text_position]
             self.text_position += 1
 
-NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
+NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={
 
     9: ExceptionActivator(),
 
@@ -105,7 +105,7 @@ NeuronGroup(net=net, tag='exc_neurons', size=get_squared_dim(neuron_count), colo
 
 })
 
-NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behavior={
 
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -115,15 +115,15 @@ NeuronGroup(net=net, tag='inh_neurons', size=get_squared_dim(neuron_count/10), c
 
 })
 
-SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons', dst='inh_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons', dst='exc_neurons', behavior={
     1: create_weights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
@@ -134,7 +134,7 @@ net.initialize(info=True, storage_manager=sm)
 if __name__ == '__main__' and ui:
     show_UI(net, sm)
 else:
-    #net.add_behaviours_to_object({200: Recorder(variables=['np.mean(n.output)'])}, net.exc_neurons)
+    #net.add_behaviors_to_object({200: Recorder(variables=['np.mean(n.output)'])}, net.exc_neurons)
 
     #train_and_generate_text(net, plastic_steps, recovery_steps, text_gen_steps, sm=sm)
 
@@ -144,13 +144,13 @@ else:
     net.simulate_iterations(plastic_steps, 100)
 
     # deactivate STDP and Input
-    net.deactivate_behaviours('STDP')
-    net.deactivate_behaviours('Normalization')
+    net.deactivate_behaviors('STDP')
+    net.deactivate_behaviors('Normalization')
     # SORN.deactivate_mechanisms('TextActivator')
     net['ClassifierTextReconstructor', 0].start_recording()
 
     net.simulate_iterations(train_steps, 100)
-    net.deactivate_behaviours('TextActivator')
+    net.deactivate_behaviors('TextActivator')
     net['ClassifierTextReconstructor', 0].train()  # starts activating after training/stops recording automatically
 
     # import matplotlib.pyplot as plt

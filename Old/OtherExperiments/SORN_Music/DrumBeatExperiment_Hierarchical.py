@@ -1,13 +1,13 @@
 import sys
 sys.path.append('../../')
 
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced import *
-#from NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
-from PymoNNto.NetworkBehaviour.Input.Music.DrumBeatActivator import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_advanced import *
+#from NetworkBehavior.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkBehavior.Input.Music.DrumBeatActivator import *
 from PymoNNto.NetworkCore.Network import *
 from PymoNNto.NetworkCore.Synapse_Group import *
 from Testing.Common.SORN_MusicHelper import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 from PymoNNto.Exploration.StorageManager.StorageManager import *
 
 display = False
@@ -27,7 +27,7 @@ def run(tag, ind=[], par={'N_e':[1800], 'TS':[1]}):
     SORN = Network()
 
     for i, lag in enumerate(par['TS']):#
-        e_ng = NeuronGroup(net=SORN, tag='exc_cell_{},prediction_source,text_input_group'.format(lag), size=get_squared_dim(int(par['N_e'][i])), behaviour={
+        e_ng = NeuronGroup(net=SORN, tag='exc_cell_{},prediction_source,text_input_group'.format(lag), size=get_squared_dim(int(par['N_e'][i])), behavior={
             2: SORN_init_neuron_vars(iteration_lag=lag, init_TH=exc_thr[i]),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='13%', distribution='lognormal(0,[0.89#0])', normalize=True, partition_compensation=True),
             4: SORN_init_afferent_synapses(transmitter='GABA', density='50%', distribution='lognormal(0,[0.80222#1])', normalize=True),
@@ -44,7 +44,7 @@ def run(tag, ind=[], par={'N_e':[1800], 'TS':[1]}):
             22: SORN_SN(syn_type='GLU', clip_max=None, init_norm_factor=1.0),
 
             23: SORN_IP_TI(h_ip='lognormal_real_mean([0.04#6], [0.2944#7])', eta_ip='[0.0006#8];+-50%', integration_length='[30#18];+-50%', clip_min=None),#, gap_percent=10 #30;+-50% #0.0003
-            #24: SORN_NOX(mp='np.mean(n.output_new)', eta_nox='[0.3#9];+-50%', behaviour_enabled=False), #0.4
+            #24: SORN_NOX(mp='np.mean(n.output_new)', eta_nox='[0.3#9];+-50%', behavior_enabled=False), #0.4
             25: SORN_NOX(mp='self.partition_sum(n)', eta_nox='[0.3#9];+-50%'),  # 0.4
 
             26: SORN_SC_TI(h_sc='lognormal_real_mean([0.01#10], [0.2944#11])', eta_sc='[0.1#12];+-50%', integration_length='1'), #60;+-50% #0.05
@@ -56,7 +56,7 @@ def run(tag, ind=[], par={'N_e':[1800], 'TS':[1]}):
             #100: Recorder(['n.output'], tag='exc_out_rec')
         })
 
-        i_ng = NeuronGroup(net=SORN, tag='inh_cell_{}'.format(lag), size=get_squared_dim(int(0.2 * (par['N_e'][i]))), behaviour={
+        i_ng = NeuronGroup(net=SORN, tag='inh_cell_{}'.format(lag), size=get_squared_dim(int(0.2 * (par['N_e'][i]))), behavior={
             2: SORN_init_neuron_vars(iteration_lag=lag, init_TH=inh_thr[i]),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='45%', distribution='lognormal(0,[0.87038#14])', normalize=True),  # 450
             4: SORN_init_afferent_synapses(transmitter='GABA', density='20%', distribution='lognormal(0,[0.82099#15])', normalize=True),  # 40
@@ -84,9 +84,9 @@ def run(tag, ind=[], par={'N_e':[1800], 'TS':[1]}):
         SynapseGroup(net=SORN, src=i_ng, dst=i_ng, tag='GABA,ii', connectivity='(s_id!=d_id)*in_box(10)', partition=True)
 
         if lag == 1:
-            i_ng.add_behaviour(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
-            e_ng.add_behaviour(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
-            #e_ng.add_behaviour(101, Recorder(['n.pattern_index'], tag='inp_rec'))
+            i_ng.add_behavior(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
+            e_ng.add_behavior(10, SORN_external_input(strength=1.0, pattern_groups=[source]))
+            #e_ng.add_behavior(101, Recorder(['n.pattern_index'], tag='inp_rec'))
         else:
             #forward synapses
             SynapseGroup(net=SORN, src=last_e_ng, dst=e_ng, tag='GLU,eeff')#.partition([10, 10], [4, 4])

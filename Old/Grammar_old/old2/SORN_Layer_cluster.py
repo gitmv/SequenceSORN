@@ -7,7 +7,7 @@ recovery_steps = 5000
 
 SORN = Network(tag='SORN_Layer_cluster')
 
-input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, color=yellow, behaviour={
+input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, color=yellow, behavior={
     #init
     1: Init_Neurons(),
 
@@ -21,17 +21,17 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, color=yell
     #learning
     41: Buffer_Variables(),#for STDP
     42: STDP_C(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),#{-1: 0.2, 1: -1}
-    45: Normalization(syn_type='GLU', behaviour_norm_factor=1.0),
+    45: Normalization(syn_type='GLU', behavior_norm_factor=1.0),
 
     #reconstruction
     50: TextReconstructor_Simple()
 })
 
-class reset_act(Behaviour):
-    def new_iteration(self, neurons):
+class reset_act(Behavior):
+    def iteration(self, neurons):
         neurons.activity.fill(0)
 
-exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
+exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={
     #init
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
@@ -75,7 +75,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
 #exc_neurons.visualize_module()
 
-#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), color=red, behavior={
     #init
 #    2: Init_Neurons(),
 
@@ -90,30 +90,30 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #32: Power_Output(),
 #})
 
-SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,EInp', behaviour={})#weights created by input_SynapseOperation
+SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,EInp', behavior={})#weights created by input_SynapseOperation
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,InpE', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,InpE', behavior={
     3: create_weights()
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behavior={
     #init
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto'),
     3: create_weights(distribution='lognormal(1.0,0.6)', density=0.9)#uniform(0.1,1.0)
 })
 
-#SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,IE', behaviour={
+#SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,IE', behavior={
     #init
 #    3: create_weights(distribution='uniform(0.9,1.0)', density=0.5)#0.05
 #})
 
-#SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviour={
+#SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behavior={
     #init
 #    3: create_weights(distribution='uniform(0.9,1.0)', density=0.9)
 #})
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behavior={
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto'),
     3: create_weights(distribution='uniform(0.1,1.0)', density=0.9)

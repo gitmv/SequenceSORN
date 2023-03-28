@@ -3,14 +3,14 @@ sys.path.append('../../')
 
 from PymoNNto.NetworkCore.Network import *
 from PymoNNto.NetworkCore.Synapse_Group import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 from PymoNNto.Exploration.StorageManager.StorageManager import *
 
-from PymoNNto.NetworkBehaviour.Logic.TREN.Neuron_Homeostais import *
-from PymoNNto.NetworkBehaviour.Logic.TREN.Neuron_Input import *
-from PymoNNto.NetworkBehaviour.Logic.TREN.Neuron_Learning import *
+from PymoNNto.NetworkBehavior.Logic.TREN.Neuron_Homeostais import *
+from PymoNNto.NetworkBehavior.Logic.TREN.Neuron_Input import *
+from PymoNNto.NetworkBehavior.Logic.TREN.Neuron_Learning import *
 
-from PymoNNto.NetworkBehaviour.Input.Images.Lines import *
+from PymoNNto.NetworkBehavior.Input.Images.Lines import *
 
 display = False
 so = True
@@ -32,7 +32,7 @@ def run(tag='hierarchical', ind=[], par={'N_e':900}):
 
     for timecale in [1]:#2
 
-        e_ng = NeuronGroup(net=SORN, tag='main_exc_group,ts={}'.format(timecale), size=get_squared_dim(int(par['N_e'])), behaviour={
+        e_ng = NeuronGroup(net=SORN, tag='main_exc_group,ts={}'.format(timecale), size=get_squared_dim(int(par['N_e'])), behavior={
 
             1: STDP_simple(exponent='[3.0#1]', post_learn_value='[6.55#2]'),  # 8.92 #6.55
             2: TemporalWeightCache(decay=1, strength=1, GLU_density=0.5, set_weights=True),
@@ -59,10 +59,10 @@ def run(tag='hierarchical', ind=[], par={'N_e':900}):
         #SynapseGroup(net=SORN, src=i_ng, dst=e_ng, connectivity='(np.abs(sx-dx)<10)*(np.abs(sy-dy)<10)', tag='GABA,i->e')
         #SynapseGroup(net=SORN, src=i_ng, dst=i_ng, connectivity='(np.abs(sx-dx)<10)*(np.abs(sy-dy)<10)', tag='GABA,i->i')
 
-        e_ng.add_behaviour(4, TREN_external_input(strength=0.5, pattern_groups=[source]))
-        # i_ng.add_behaviour(10, SORN_external_input(strength=0.3, pattern_groups=[source]))
+        e_ng.add_behavior(4, TREN_external_input(strength=0.5, pattern_groups=[source]))
+        # i_ng.add_behavior(10, SORN_external_input(strength=0.3, pattern_groups=[source]))
         #if timecale == 1:
-        e_ng.add_behaviour(101, Recorder(['n.pattern_index'], tag='inp_rec'))
+        e_ng.add_behavior(101, Recorder(['n.pattern_index'], tag='inp_rec'))
         #else:
         #    #forward synapses
         #    SynapseGroup(net=SORN, src=last_e_ng, dst=e_ng, tag='GLU,e->e(+1)').partition([10, 10], [6, 6])

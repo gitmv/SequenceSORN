@@ -1,4 +1,4 @@
-from Old.Grammar.Behaviours_in_use import *
+from Old.Grammar.Behaviors_in_use import *
 from Old.Grammar_old.Bruno.Logistic_Regression_Reconstruction import *
 
 ui = False
@@ -7,7 +7,7 @@ plastic_steps = 30000#30000
 
 SORN = Network(tag='SORN_Layer')
 
-input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour={
+input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behavior={
     #init
     1: Init_Neurons(),
 
@@ -21,13 +21,13 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, behaviour=
     #learning
     41: Buffer_Variables(),#for STDP
     42: STDP_C(transmitter='GLU', eta_stdp='0.00015', STDP_F={-1: 1}),#{-1: 0.2, 1: -1} #, 1:-1
-    45: Normalization(syn_type='GLU', behaviour_norm_factor=1.0),
+    45: Normalization(syn_type='GLU', behavior_norm_factor=1.0),
 
     #reconstruction
     50: TextReconstructor_Simple()
 })
 
-exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behaviour={
+exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), behavior={
     #init
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
@@ -56,7 +56,7 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
 })
 
-#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behaviour={
+#inh_neurons = NeuronGroup(net=SORN, tag='inh_neurons', size=get_squared_dim(neuron_count/10), behavior={
     #init
 #    2: Init_Neurons(),
 
@@ -71,25 +71,25 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
     #32: Power_Output(),
 #})
 
-SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,EInp', behaviour={})#weights created by input_SynapseOperation
+SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,EInp', behavior={})#weights created by input_SynapseOperation
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,InpE', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,InpE', behavior={
     3: create_weights()
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behavior={
     #init
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     2: Partition(split_size='auto'),
     3: create_weights(distribution='lognormal(1.0,0.6)', density=0.9)#uniform(0.1,1.0)
 })
 
-#SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,IE', behaviour={
+#SynapseGroup(net=SORN, src=exc_neurons, dst=inh_neurons, tag='GLU,IE', behavior={
     #init
 #    3: create_weights(distribution='uniform(0.9,1.0)', density=0.5)#0.05
 #})
 
-#SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behaviour={
+#SynapseGroup(net=SORN, src=inh_neurons, dst=exc_neurons, tag='GABA,EI', behavior={
     #init
 #    3: create_weights(distribution='uniform(0.9,1.0)', density=0.9)
 #})
@@ -108,22 +108,22 @@ if __name__ == '__main__' and ui:
 
 
 #learning
-#input_neurons['STDP_C', 0].behaviour_enabled = False
-#input_neurons['Normalization', 0].behaviour_enabled = False
+#input_neurons['STDP_C', 0].behavior_enabled = False
+#input_neurons['Normalization', 0].behavior_enabled = False
 SORN.simulate_iterations(plastic_steps, 100)
 
 #deactivate STDP and Input
-exc_neurons['STDP_C', 0].behaviour_enabled = False
-exc_neurons['Normalization', 0].behaviour_enabled = False
+exc_neurons['STDP_C', 0].behavior_enabled = False
+exc_neurons['Normalization', 0].behavior_enabled = False
 
-#input_neurons['STDP_C', 0].behaviour_enabled = True
-#input_neurons['Normalization', 0].behaviour_enabled = True
+#input_neurons['STDP_C', 0].behavior_enabled = True
+#input_neurons['Normalization', 0].behavior_enabled = True
 
 SORN['Classifier_TextReconstructor', 0].start_recording()
 SORN.simulate_iterations(10000, 100)
-SORN.deactivate_behaviours('TextActivator')
-input_neurons['STDP_C', 0].behaviour_enabled = False
-input_neurons['Normalization', 0].behaviour_enabled = False
+SORN.deactivate_behaviors('TextActivator')
+input_neurons['STDP_C', 0].behavior_enabled = False
+input_neurons['Normalization', 0].behavior_enabled = False
 SORN['Classifier_TextReconstructor', 0].train()#starts activating after training/stops recording automatically
 SORN['Classifier_TextReconstructor', 0].activate_predicted_char = False
 c = SORN['Classifier_TextReconstructor', 0].readout_layer.coef_.copy()
@@ -146,7 +146,7 @@ print('swapped layer', SORN['TextReconstructor', 0].reconstruction_history)
 
 
 #classifier
-SORN.deactivate_behaviours('input_SynapseOperation')
+SORN.deactivate_behaviors('input_SynapseOperation')
 SORN['Classifier_TextReconstructor', 0].activate_predicted_char = True
 
 SORN['Classifier_TextReconstructor', 0].reconstruction_history = ''
@@ -228,7 +228,7 @@ plt.show()
 
 
 
-#SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
+#SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behavior={
 #    1: Box_Receptive_Fields(range=18, remove_autapses=True),
 #    2: Partition(split_size='auto')
 #})
@@ -251,4 +251,4 @@ plt.show()
 # 14.6: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
 
 # 21.2: STDP_complex(transmitter='GLU_cluster', eta_stdp='[0.00015#STDP_eta]', STDP_F={0: 2.0}),
-# 22.2: Normalization(syn_type='GLU_cluster', behaviour_norm_factor=0.3),
+# 22.2: Normalization(syn_type='GLU_cluster', behavior_norm_factor=0.3),

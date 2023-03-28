@@ -2,10 +2,10 @@ import sys
 
 sys.path.append('../../')
 
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_advanced_buffer import *
 
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_experimental import *
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_WTA import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_experimental import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_WTA import *
 
 if __name__ == '__main__':
     from PymoNNto.Exploration.Network_UI import *
@@ -26,18 +26,18 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
     #source = LongDelayGrammar(tag='grammar_act', output_size=attrs['N_e'], random_blocks=True, mode=['simple'], input_density=0.01)
     maze = Maze(level='default', same_color=False)
 
-    SORN = Network()#behaviour={maze.get_network_behaviour()}
+    SORN = Network()#behavior={maze.get_network_behavior()}
 
     SORN.maze = maze
 
-    e_location = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=maze.get_location_neuron_dimension(), behaviour={
+    e_location = NeuronGroup(net=SORN, tag='PC_{},prediction_source'.format(1), size=maze.get_location_neuron_dimension(), behavior={
                 2: SORN_init_neuron_vars(timescale=1),
                 3: SORN_init_afferent_synapses(transmitter='GLU', density='90%', distribution='uniform(0.1,1.0)', normalize=True),#20%#lognormal(0,[0.95#1]) #[13#0]% #, partition_compensation=True , partition_compensation=True #lognormal(0,0.95)
                 #4: SORN_init_afferent_synapses(transmitter='GABA', density='[30#1]%', distribution='uniform(0.0,1.0)', normalize=True),
                 5: SORN_init_afferent_synapses(transmitter='GLU_cluster', density='90%', distribution='uniform(0.1,1.0)', normalize=True),
 
-                8: maze.get_vision_neuron_behaviour(),
-                9: maze.get_location_neuron_behaviour(),
+                8: maze.get_vision_neuron_behavior(),
+                9: maze.get_location_neuron_behavior(),
 
 
                 #10.0: SORN_slow_syn
@@ -68,13 +68,13 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
                 20: SORN_IP_WTA(h_ip='lognormal_real_mean([0.02#1], [0.2944#2])', eta_ip='[0.007#3]', target_clip_min=None, target_clip_max=None), #-1.0 #1.0 #0.007
                 21.1: SORN_STDP(transmitter='GLU', eta_stdp='[0.00015#4]', STDP_F={-1: 0.2, 1: -1}),#, 0: 1 #[0.00015#7] #0.5, 0: 3.0
                 21.2: SORN_STDP(transmitter='GLU_cluster', eta_stdp='[0.00015#5]', STDP_F={0: 2.0}),  #[0.00015#7]
-                22: SORN_SN(syn_type='GLU', behaviour_norm_factor=1.0),
-                23: SORN_SN(syn_type='GLU_cluster', behaviour_norm_factor='[0.3#6]'),#0.1
+                22: SORN_SN(syn_type='GLU', behavior_norm_factor=1.0),
+                23: SORN_SN(syn_type='GLU_cluster', behavior_norm_factor='[0.3#6]'),#0.1
 
     })
 
     '''
-        e_action = NeuronGroup(net=SORN, tag='E_action_{}'.format(timescale), size=maze.get_action_neuron_dimension(), behaviour={
+        e_action = NeuronGroup(net=SORN, tag='E_action_{}'.format(timescale), size=maze.get_action_neuron_dimension(), behavior={
                 2: SORN_init_neuron_vars(timescale=timescale),
                 3: SORN_init_afferent_synapses(transmitter='GLU', density='full', distribution='uniform(0.1,0.11)', normalize=True, partition_compensation=True),  # 0.89 lognormal(0,[0.5#0])
 
@@ -86,8 +86,8 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
                 20: SORN_Refractory_Analog(factor='0.7;+-50%'),
                 21: SORN_STDP(eta_stdp='[0.0015#5]', STDP_F={-1: 1, 1:0}, weight_attr='W_temp'),#bigger #todo!!!!
-                #22: SORN_SN(syn_type='GLU', clip_max=None, behaviour_norm_factor=5.0),
-                22: SORN_temporal_synapses(syn_type='GLU', behaviour_norm_factor=5.0),
+                #22: SORN_SN(syn_type='GLU', clip_max=None, behavior_norm_factor=5.0),
+                22: SORN_temporal_synapses(syn_type='GLU', behavior_norm_factor=5.0),
 
                 23: SORN_IP_TI(h_ip='0.04', eta_ip='0.001', integration_length='[15#18];+-50%', clip_min=None),
                 #25: SORN_NOX(mp='self.partition_sum(n)', eta_nox='[0.5#9];+-50%'),
@@ -96,21 +96,21 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
                 29: SORN_dopamine(),
 
-                30: maze.get_action_neuron_behaviour()
+                30: maze.get_action_neuron_behavior()
             })
 
 
 29: SORN_dopamine(),
 
-30: maze.get_action_neuron_behaviour()
+30: maze.get_action_neuron_behavior()
     '''
 
     '''
-        e_reward = NeuronGroup(net=SORN, tag='E_reward_{}'.format(timescale), size=maze.get_reward_neuron_dimension(), behaviour={
+        e_reward = NeuronGroup(net=SORN, tag='E_reward_{}'.format(timescale), size=maze.get_reward_neuron_dimension(), behavior={
                 2: SORN_init_neuron_vars(timescale=timescale),
                 3: SORN_init_afferent_synapses(transmitter='GLU', density='full', distribution='lognormal(0,[0.95#0])', normalize=True, partition_compensation=True),
 
-                9: maze.get_reward_neuron_behaviour(),
+                9: maze.get_reward_neuron_behavior(),
 
                 12: SORN_slow_syn(transmitter='GLU', strength='[0.1383#2]', so=so),
                 18: SORN_generate_output(init_TH='0.01'),
@@ -118,7 +118,7 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
                 #20: SORN_Refractory(factor='0.5;+-50%'),
                 21: SORN_STDP(eta_stdp='[0.00015#5]'),
-                22: SORN_SN(syn_type='GLU', clip_max=None, behaviour_norm_factor=0.1),
+                22: SORN_SN(syn_type='GLU', clip_max=None, behavior_norm_factor=0.1),
 
                 #23: SORN_IP_TI(h_ip='0.04', eta_ip='0.001', integration_length='[15#18];+-50%', clip_min=None),
                 #25: SORN_NOX(mp='self.partition_sum(n)', eta_nox='[0.5#9];+-50%'),
@@ -129,11 +129,11 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
 
     '''
-    e_punishment = NeuronGroup(net=SORN, tag='E_punishment_{}'.format(timescale), size=maze.get_punishment_neuron_dimension(), behaviour={
+    e_punishment = NeuronGroup(net=SORN, tag='E_punishment_{}'.format(timescale), size=maze.get_punishment_neuron_dimension(), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='full', distribution='lognormal(0,[0.95#0])', normalize=True, partition_compensation=True),
 
-            9: maze.get_punishment_neuron_behaviour(),
+            9: maze.get_punishment_neuron_behavior(),
 
             12: SORN_slow_syn(transmitter='GLU', strength='[0.1383#2]', so=so),
             18: SORN_generate_output(init_TH='0.01'),
@@ -141,7 +141,7 @@ def run(attrs={'name': 'maze', 'ind': [], 'N_e': 900, 'TS': [1], 'ff': True, 'fb
 
             #20: SORN_Refractory(factor='0.5;+-50%'),
             21: SORN_STDP(eta_stdp='[0.00015#5]'), #todo!!!!
-            22: SORN_SN(syn_type='GLU', clip_max=None, behaviour_norm_factor=0.1),
+            22: SORN_SN(syn_type='GLU', clip_max=None, behavior_norm_factor=0.1),
 
             #23: SORN_IP_TI(h_ip='0.04', eta_ip='0.001', integration_length='[15#18];+-50%', clip_min=None),
             #25: SORN_NOX(mp='self.partition_sum(n)', eta_nox='[0.5#9];+-50%'),

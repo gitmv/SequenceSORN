@@ -1,26 +1,26 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from PymoNNto import *
-from PymoNNto.NetworkBehaviour.Basics.Normalization import *
+from PymoNNto.NetworkBehavior.Basics.Normalization import *
 
 settings = {'def_dtype':np.float32, 'transposed_synapse_matrix_mode':True}
 
-class Output_InputLayer(Behaviour):
+class Output_InputLayer(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.voltage = neurons.vector()
         neurons.output = neurons.vector(bool)
         neurons.output_old = neurons.vector(bool)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output_old = neurons.output.copy()
         neurons.output = neurons.voltage>0.0
         neurons._voltage = neurons.voltage.copy()  # for plotting
         neurons.voltage.fill(0)
 
-class Output_Inhibitory(Behaviour):
+class Output_Inhibitory(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.duration = self.parameter('duration', 2.0)
         self.avg_inh = self.parameter('avg_inh', 0.28)
         self.avg_act = 0
@@ -31,15 +31,15 @@ class Output_Inhibitory(Behaviour):
     def activation_function(self, a):
         return (a*self.avg_inh)/self.target_activity
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         self.avg_act = (self.avg_act * self.duration + neurons.voltage) / (self.duration + 1)
         neurons.output = neurons.vector('uniform') < self.activation_function(self.avg_act)
         neurons._voltage = neurons.voltage.copy()  # for plotting
         neurons.voltage.fill(0)
 
-class Output_Excitatory(Behaviour):
+class Output_Excitatory(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.voltage = neurons.vector()
         neurons.output = neurons.vector(bool)
         neurons.output_old = neurons.vector(bool)
@@ -49,22 +49,22 @@ class Output_Excitatory(Behaviour):
     def activation_function(self, a):
         return np.power(np.clip(a * self.mul, 0.0, 1.0), self.exp)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output_old = neurons.output.copy()
         neurons.output = neurons.vector("uniform") < self.activation_function(neurons.voltage)
         neurons._voltage = neurons.voltage.copy() #for plotting
         neurons.voltage.fill(0.0)
 
 
-class SynapseOperation(Behaviour):#warning: only use for binary neuron output!
+class SynapseOperation(Behavior):#warning: only use for binary neuron output!
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.parameter('transmitter', None)
         self.strength = self.parameter('strength', 1.0)  # 1 or -1
         self.input_tag = 'input_' + self.transmitter
         setattr(neurons, self.input_tag, neurons.vector())
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         setattr(neurons, self.input_tag, neurons.vector())
         for s in neurons.afferent_synapses[self.transmitter]:
             if neurons.network.transposed_synapse_matrix_mode:
@@ -75,9 +75,9 @@ class SynapseOperation(Behaviour):#warning: only use for binary neuron output!
             setattr(s.dst, self.input_tag, getattr(s.dst, self.input_tag) + s.add)
 
 
-class LearningInhibition(Behaviour):
+class LearningInhibition(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.parameter('strength', 1.0)
         self.avg_inh = self.parameter('avg_inh', 0.28)
         self.min = self.parameter('min', 0.0)
@@ -85,30 +85,30 @@ class LearningInhibition(Behaviour):
         self.input_tag = 'input_' + self.parameter('transmitter', 'GABA')
         neurons.li_stdp_mul = neurons.vector()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         inhibition = np.abs(getattr(neurons, self.input_tag))
         neurons.li_stdp_mul = np.clip((1 - inhibition / self.avg_inh) * self.strength, self.min, self.max)
 
 
-class IntrinsicPlasticity(Behaviour):
+class IntrinsicPlasticity(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.parameter('strength', 0.01)
         neurons.target_activity = self.parameter('target_activity', 0.02)
         neurons.sensitivity = neurons.vector()+self.parameter('init_sensitivity', 0.0)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.sensitivity -= (neurons.output - neurons.target_activity) * self.strength
         neurons.voltage += neurons.sensitivity
 
 
-class STDP(Behaviour):
+class STDP(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.parameter('transmitter', None)
         self.eta_stdp = self.parameter('strength', 0.005)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons.network.transposed_synapse_matrix_mode:
 
             for s in neurons.afferent_synapses[self.transmitter]:
@@ -136,15 +136,15 @@ class STDP(Behaviour):
 
 
 
-class Normalization(Behaviour):
+class Normalization(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.syn_type = self.parameter('syn_type', 'GLU')
         self.exec_every_x_step = self.parameter('exec_every_x_step', 1)
         self.afferent = 'afferent' in self.parameter('direction', 'afferent')
         self.efferent = 'efferent' in self.parameter('direction', 'afferent')
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if (neurons.iteration-1) % self.exec_every_x_step == 0:
             if neurons.network.transposed_synapse_matrix_mode:
                 if self.afferent:
@@ -183,9 +183,9 @@ class Normalization(Behaviour):
                 s.W /= neurons._temp_ws
 
 
-class CreateWeights(Behaviour):
+class CreateWeights(Behavior):
 
-    def set_variables(self, synapses):
+    def initialize(self, synapses):
         distribution = self.parameter('distribution', 'uniform(0.0,1.0)')#ones
         density = self.parameter('density', 1.0)
 
@@ -204,7 +204,7 @@ class CreateWeights(Behaviour):
             synapses.W *= self.parameter('nomr_fac', 1.0)
 
 
-    def new_iteration(self, synapses):
+    def iteration(self, synapses):
         if self.remove_autapses:
             np.fill_diagonal(synapses.W, 0.0)
 

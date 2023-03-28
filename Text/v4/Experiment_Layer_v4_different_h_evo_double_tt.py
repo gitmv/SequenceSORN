@@ -1,24 +1,13 @@
-from PymoNNto import *
-from Behaviour_Core_Modules_v4 import *
-from Text.Behaviour_Text_Modules import *
+from Behavior_Core_Modules_v4 import *
+from Text.v4.Behavior_Text_Modules import *
 from Helper import *
 
-ui = True
+ui = False
 n_exc_neurons = 2400
 n_inh_neuros = n_exc_neurons/10
 
 grammar = get_random_sentences(3)
-target_act = gene('t', 1/n_chars(grammar)/3)#2
-#double_tt!!!!!
-
-#print(target_act)#0.009615384615384616
-
-#/2 result 1
-#set_genome({'IP_s': 0.012886629555441209, 'avg_inh': 0.2855042572937807, 'LI_s': 4.292444509999111, 'STDP_s': 0.002835767644205311, 'fe_exp': 0.3643689569656523, 'fe_mul': 5.631338219216053})
-#/2 result 2
-#{'IP_s': 0.011855267348331054, 'avg_inh': 0.30944861520616296, 'LI_s': 5.586949483263207, 'STDP_s': 0.0029102662539986003, 'fe_exp': 0.3815225136430725, 'fe_mul': 7.110141841318019}
-#/3 result
-set_genome({'IP_s': 0.020896679906752823, 'avg_inh': 0.26240211240528, 'LI_s': 4.217760789551765, 'STDP_s': 0.005206438619706144, 'fe_exp': 0.47499215627917557, 'fe_mul': 8.694893109383168})
+target_act = 1/n_chars(grammar)/2
 
 #curved 3s
 IP_s = gene('IP_s', 0.008735764741458582)
@@ -31,7 +20,7 @@ fe_mul = gene('fe_mul', 2.353594052973287)#important!
 
 net = Network(tag=ex_file_name(), settings=settings)
 
-NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_chars(grammar), depth=1, centered=False), color=green, behaviour={
+NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_chars(grammar), depth=1, centered=False), color=green, behavior={
     # text input
     10: TextGenerator(iterations_per_char=1, text_blocks=grammar),
     11: TextActivator(strength=1),
@@ -43,7 +32,7 @@ NeuronGroup(net=net, tag='inp_neurons', size=Grid(width=10, height=n_unique_char
     80: TextReconstructor()
 })
 
-NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue, behaviour={
+NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue, behavior={
     # weight normalization
     3: Normalization(tag='Norm', direction='afferent and efferent', syn_type='DISTAL', exec_every_x_step=100),#watch out when using higher STDP speeds or higher target activities!
     3.1: Normalization(tag='NormFSTDP', direction='afferent', syn_type='SOMA', exec_every_x_step=100),
@@ -63,7 +52,7 @@ NeuronGroup(net=net, tag='exc_neurons1', size=getGrid(n_exc_neurons), color=blue
     50: Output_Excitatory(exp=fe_exp, mul=fe_mul),
 })
 
-NeuronGroup(net=net, tag='inh_neurons1', size=getGrid(n_inh_neuros), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons1', size=getGrid(n_inh_neuros), color=red, behavior={
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
 
@@ -71,19 +60,19 @@ NeuronGroup(net=net, tag='inh_neurons1', size=getGrid(n_inh_neuros), color=red, 
     70: Output_Inhibitory(avg_inh=avg_inh, target_activity=target_act, duration=2),
 })
 
-SynapseGroup(net=net, tag='ES,GLU,SOMA', src='inp_neurons', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='ES,GLU,SOMA', src='inp_neurons', dst='exc_neurons1', behavior={
     1: CreateWeights(nomr_fac=10)
 })
 
-SynapseGroup(net=net, tag='EE,GLU,DISTAL', src='exc_neurons1', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='EE,GLU,DISTAL', src='exc_neurons1', dst='exc_neurons1', behavior={
     1: CreateWeights(normalize=False)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons1', dst='inh_neurons1', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons1', dst='inh_neurons1', behavior={
     1: CreateWeights()
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons1', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons1', dst='exc_neurons1', behavior={
     1: CreateWeights()
 })
 

@@ -1,4 +1,4 @@
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 import random
 
 def pol2cart(theta, rho):
@@ -65,13 +65,13 @@ class Box:
 #r = Ray_Line(5, 5, 1, 2)
 #print(b.ray_collision_distance(r))
 
-class Maze_vision_behaviour(Behaviour):
+class Maze_vision_behavior(Behavior):
 
-    def set_variables(self, neurons):
-        self.add_tag('maze_vision_behaviour')
+    def initialize(self, neurons):
+        self.add_tag('maze_vision_behavior')
         self.maze = self.get_init_attr('maze', None)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         image_data = []
 
@@ -94,13 +94,13 @@ class Maze_vision_behaviour(Behaviour):
 
 
 
-class Maze_sense_behaviour(Behaviour):
+class Maze_sense_behavior(Behavior):
 
-    def set_variables(self, neurons):
-        self.add_tag('maze_sense_behaviour')
+    def initialize(self, neurons):
+        self.add_tag('maze_sense_behavior')
         self.maze = self.get_init_attr('maze', None)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         nsm=self.maze.network_size_mul
 
         xmin = (self.maze.player.x)*nsm #-(self.maze.maze_w-1)/2
@@ -116,17 +116,17 @@ class Maze_sense_behaviour(Behaviour):
         neurons.activity[mask] += 1
 
 
-class Maze_action_behaviour(Behaviour):
+class Maze_action_behavior(Behavior):
 
-    def set_variables(self, neurons):
-        self.add_tag('maze_act_behaviour')
+    def initialize(self, neurons):
+        self.add_tag('maze_act_behavior')
         self.maze = self.get_init_attr('maze', None)
         self.right= 0
         self.left = 0
         self.bottom=0
         self.top =  0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         block_size = int(len(neurons.output)/4)
 
@@ -172,13 +172,13 @@ class Maze_action_behaviour(Behaviour):
 
 
 
-class Maze_reward_behaviour(Behaviour):
+class Maze_reward_behavior(Behavior):
 
-    def set_variables(self, neurons):
-        self.add_tag('Maze_reward_behaviour')
+    def initialize(self, neurons):
+        self.add_tag('Maze_reward_behavior')
         self.maze = self.get_init_attr('maze', None)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         if self.maze.player.collision(self.maze.goal):
             neurons.activity += 1
@@ -186,13 +186,13 @@ class Maze_reward_behaviour(Behaviour):
 
 
 
-class Maze_punishment_behaviour(Behaviour):
+class Maze_punishment_behavior(Behavior):
 
-    def set_variables(self, neurons):
-        self.add_tag('Maze_punishment_behaviour')
+    def initialize(self, neurons):
+        self.add_tag('Maze_punishment_behavior')
         self.maze = self.get_init_attr('maze', None)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         if self.maze.collision:
             neurons.activity += 1
@@ -370,23 +370,23 @@ class Maze:
 
 
 
-    def get_reward_neuron_behaviour(self):
-        return Maze_reward_behaviour(maze=self)
+    def get_reward_neuron_behavior(self):
+        return Maze_reward_behavior(maze=self)
 
     def get_reward_neuron_dimension(self):
         return NeuronDimension(width=4, height=4, depth=1)
 
 
-    def get_punishment_neuron_behaviour(self):
-        return Maze_punishment_behaviour(maze=self)
+    def get_punishment_neuron_behavior(self):
+        return Maze_punishment_behavior(maze=self)
 
     def get_punishment_neuron_dimension(self):
         return NeuronDimension(width=4, height=4, depth=1)
 
 
 
-    def get_vision_neuron_behaviour(self):
-        return Maze_vision_behaviour(maze=self)
+    def get_vision_neuron_behavior(self):
+        return Maze_vision_behavior(maze=self)
 
     def get_vision_neuron_dimension(self):
         return NeuronDimension(width=self.ray_count, height=3, depth=1)
@@ -394,8 +394,8 @@ class Maze:
 
 
 
-    def get_location_neuron_behaviour(self):
-        return Maze_sense_behaviour(maze=self)
+    def get_location_neuron_behavior(self):
+        return Maze_sense_behavior(maze=self)
 
     def get_location_neuron_dimension(self):
         return NeuronDimension(width=self.maze_w*self.network_size_mul, height=self.maze_h*self.network_size_mul, depth=1, centered=False)
@@ -404,21 +404,21 @@ class Maze:
         return NeuronDimension(width=int(self.maze_w/2), height=int(self.maze_h/2), depth=1)
 
 
-    def get_action_neuron_behaviour(self):
-        return Maze_action_behaviour(maze=self)
+    def get_action_neuron_behavior(self):
+        return Maze_action_behavior(maze=self)
 
     def get_action_neuron_dimension(self):
         return NeuronDimension(width=8, height=8, depth=1)
 
 
-    def get_sensing_neuron_behaviour(self):
+    def get_sensing_neuron_behavior(self):
         return
 
     def get_sensing_neuron_dimension(self):
         return
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         return
 
 

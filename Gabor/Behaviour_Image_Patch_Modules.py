@@ -1,7 +1,7 @@
 ##################################################Experimental
 import matplotlib.pyplot as plt
 from PymoNNto import *
-from Old.Grammar.Behaviours_in_use.MNISTActivator import *
+from Old.Grammar.Behaviors_in_use.MNISTActivator import *
 
 
 
@@ -10,13 +10,13 @@ patch_h = 10#7#7#10
 neurons_per_pixel = 1
 w_multiply = 2
 
-class Refractory_D(Behaviour):
+class Refractory_D(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.refrac_ct = neurons.get_neuron_vec()
         self.steps = self.get_init_attr('steps', 5.0, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.refrac_ct = np.clip(neurons.refrac_ct-1.0, 0.0, None)
 
         neurons.refrac_ct += neurons.output * self.steps
@@ -24,9 +24,9 @@ class Refractory_D(Behaviour):
         neurons.activity *= (neurons.refrac_ct <= 1.0)
 
 
-class Image_Patch_Generator(Behaviour):
+class Image_Patch_Generator(Behavior):
 
-    def set_variables(self, network):
+    def initialize(self, network):
         self.add_tag('Input')
 
         self.patch_speed = self.get_init_attr('patch_speed', 0.1)
@@ -99,7 +99,7 @@ class Image_Patch_Generator(Behaviour):
 
         return x,y
 
-    def new_iteration(self, network):
+    def iteration(self, network):
 
         m = -1
 
@@ -139,9 +139,9 @@ class Image_Patch_Generator(Behaviour):
 
 
 
-class Image_Patch_Activator(Behaviour):
+class Image_Patch_Activator(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('Input')
 
         self.patch_name = self.get_init_attr('patch_name', '')
@@ -156,14 +156,14 @@ class Image_Patch_Activator(Behaviour):
 
         neurons.linh = 1.0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         patch = getattr(neurons.network, self.patch_name) #network.on_center_white #network.off_center_white
         neurons.activity[neurons.Input_Mask] = np.vstack([patch.flatten() for _ in range(self.npp)]).flatten()
 
 
-class Image_Patch_Reconstructor(Behaviour):
+class Image_Patch_Reconstructor(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.reconstruction_image = np.zeros([patch_h, patch_w, 3])
         self.one_step_reconstruction_image = np.zeros([patch_h, patch_w, 3])
 
@@ -174,7 +174,7 @@ class Image_Patch_Reconstructor(Behaviour):
         image[:, :, 1] = np.mean(shaped_data[:,:,patch_w:patch_w*2], axis=0)
         return image
 
-    def new_iteration(self, network):
+    def iteration(self, network):
         neurons = network['exc_neurons', 0]
 
         self.one_step_reconstruction_image = self.reconstruct_image(neurons.output[neurons.Input_Mask])
@@ -190,31 +190,31 @@ class Image_Patch_Reconstructor(Behaviour):
 '''
 class Generate_Output_Analog(Generate_Output):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.output_old = neurons.output.copy()
         neurons.output = np.clip(self.activation_function(neurons.activity),0,1) #chance
         neurons._activity = neurons.activity.copy() #for plotting
         neurons.activity.fill(0)
 
-class activity_amplifier(Behaviour):
+class activity_amplifier(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.exp=self.get_init_attr('exp', 1)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.activity = np.power(neurons.activity, self.exp)
 
 class Generate_Output_Inh_Analog(Generate_Output_Inh):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         self.avg_act = (self.avg_act * self.duration + neurons.activity) / (self.duration + 1)
         neurons.output = np.clip(self.activation_function(self.avg_act),0,1)
         neurons._activity = neurons.activity.copy()  # for plotting
         neurons.activity.fill(0)
 
-class LearningInhibition_test(Behaviour):
+class LearningInhibition_test(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.transmitter = self.get_init_attr('transmitter', 'GABA', neurons)
         self.input_tag = 'input_' + self.transmitter
 
@@ -227,7 +227,7 @@ class LearningInhibition_test(Behaviour):
     def sig_f(self,x):
         return 1/(1+np.power(np.e, -self.c*(x-self.a)))*self.d+self.b
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         #neurons.linh=1
         neurons.linh = 1-self.sig_f(np.abs(getattr(neurons, self.input_tag)))
 '''

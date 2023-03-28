@@ -25,41 +25,36 @@ def get_long_text():
 
 
 def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=None):
-    net.deactivate_behaviours('TextReconstructor')
+    net.deactivate_behaviors('TextReconstructor')
 
     net.simulate_iterations(input_steps, 100)
 
     # deactivate Input
-    net.deactivate_behaviours('STDP')
-    net.deactivate_behaviours('Normalization')
-    net.deactivate_behaviours('TextActivator')
+    net.deactivate_behaviors('STDP')
+    net.deactivate_behaviors('Normalization')
+    net.deactivate_behaviors('TextActivator')
 
     #ensure synapses are normalized
     for neurons in net.NeuronGroups:
         for b in neurons['Normalization']:
             b.exec_every_x_step=1
-            b.new_iteration(neurons)
+            b.iteration(neurons)
 
     net.simulate_iterations(recovery_steps, 100)
 
     # text generation
-    net.exc_neurons1.add_behaviour(90, Recorder(variables=['np.mean(n.output)']))
-
-    net.activate_behaviours('TextReconstructor')
+    net.exc_neurons1.add_behavior(90, Recorder(variables=['np.mean(n.output)']))
+    net.activate_behaviors('TextReconstructor')
     tr = net['TextReconstructor', 0]
     tr.clear_history()
     net.simulate_iterations(free_steps, 100)
-    #print(tr.reconstruction_history)
 
     # scoring
     txt_score = net['TextGenerator', 0].get_text_score(tr.reconstruction_history)
-
     mean = net.exc_neurons1['np.mean(n.output)', 0, 'np']
     osc_score = np.mean(net.exc_neurons1.target_activity-np.abs(mean - net.exc_neurons1.target_activity))/net.exc_neurons1.target_activity
-
     if osc_score<0:
         osc_score=0.00001
-
     dist_score, classes = get_class_score(net)
 
     set_score(txt_score * osc_score * dist_score, info={
@@ -100,8 +95,8 @@ def get_class_score(net):
 
 def train_ES_and_get_distribution_score(net, input_steps, sm=None, deactivateEE=True):
     if deactivateEE:
-        net.deactivate_behaviours('STDP_EE')
-        net.deactivate_behaviours('Norm_EE')
+        net.deactivate_behaviors('STDP_EE')
+        net.deactivate_behaviors('Norm_EE')
 
     net.simulate_iterations(input_steps, 100)
 
@@ -184,14 +179,14 @@ def generate_response_images(net, input_steps, recovery_steps, free_steps):
     neurons = net['exc_neurons1', 0]
     neurons.add_analysis_module(Neuron_Classification_Colorizer())
 
-    neurons.add_behaviour(100, Recorder(variables=['np.mean(n.output)']))
-    #net.add_behaviours_to_object({100:Recorder(variables=['np.mean(n.output)'])}, neurons)
+    neurons.add_behavior(100, Recorder(variables=['np.mean(n.output)']))
+    #net.add_behaviors_to_object({100:Recorder(variables=['np.mean(n.output)'])}, neurons)
 
     net.simulate_iterations(input_steps, 501, batch_progress_update_func=save_trace)
 
-    #net.deactivate_behaviours('STDP')
-    #net.deactivate_behaviours('Normalization')
-    net.deactivate_behaviours('Input')
+    #net.deactivate_behaviors('STDP')
+    #net.deactivate_behaviors('Normalization')
+    net.deactivate_behaviors('Input')
 
     net.simulate_iterations(recovery_steps, 201, batch_progress_update_func=save_trace)
 

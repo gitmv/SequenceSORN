@@ -1,7 +1,7 @@
 from PymoNNto import *
 #from UI_Helper import *
-from Text.v2.Behaviour_Core_Modules import *
-from Text.v0.Behaviour_Text_Modules import *
+from Text.v2.Behavior_Core_Modules import *
+from Text.v0.Behavior_Text_Modules import *
 from Helper import *
 
 ui = False
@@ -28,7 +28,7 @@ print("I", inh_output_slope)
 
 net = Network(tag='Text Learning Network')
 
-NeuronGroup(net=net, tag='exc_neurons1', size=get_squared_dim(neuron_count), color=blue, behaviour={
+NeuronGroup(net=net, tag='exc_neurons1', size=get_squared_dim(neuron_count), color=blue, behavior={
 
     #9: Exception_Activator(), # use for manual text input with GUI code tab...
 
@@ -57,7 +57,7 @@ NeuronGroup(net=net, tag='exc_neurons1', size=get_squared_dim(neuron_count), col
 
 })
 
-NeuronGroup(net=net, tag='inh_neurons1', size=get_squared_dim(neuron_count/10), color=red, behaviour={
+NeuronGroup(net=net, tag='inh_neurons1', size=get_squared_dim(neuron_count/10), color=red, behavior={
 
     # excitatory input
     60: SynapseOperation(transmitter='GLUI', strength=1.0),
@@ -67,15 +67,15 @@ NeuronGroup(net=net, tag='inh_neurons1', size=get_squared_dim(neuron_count/10), 
 
 })
 
-SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons1', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='EE,GLU', src='exc_neurons1', dst='exc_neurons1', behavior={
     1: CreateWeights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons1', dst='inh_neurons1', behaviour={
+SynapseGroup(net=net, tag='IE,GLUI', src='exc_neurons1', dst='inh_neurons1', behavior={
     1: CreateWeights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
-SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons1', dst='exc_neurons1', behaviour={
+SynapseGroup(net=net, tag='EI,GABA', src='inh_neurons1', dst='exc_neurons1', behavior={
     1: CreateWeights(distribution='uniform(0.0,1.0)', density=1.0)
 })
 
@@ -88,8 +88,8 @@ if __name__ == '__main__' and ui:
     #add_all_analysis_modules(net['exc_neurons1', 0])
     show_UI(net, sm)
 else:
-    #net.exc_neurons1.add_behaviour(200, Recorder(variables=['np.mean(n.output)']))
-    #net.exc_neurons1.add_behaviour(200, Recorder(variables=['np.mean(n.sensitivity)', 'n.iteration']))
+    #net.exc_neurons1.add_behavior(200, Recorder(variables=['np.mean(n.output)']))
+    #net.exc_neurons1.add_behavior(200, Recorder(variables=['np.mean(n.sensitivity)', 'n.iteration']))
     train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=sm)
     #plt.plot(net['n.iteration', 0], net['np.mean(n.sensitivity)', 0])
     #plt.show()
@@ -98,16 +98,16 @@ else:
     '''
     vars = ['n.sensitivity', 'n._activity', 'n.output', 'n.input_GLU', 'n.input_GLUI', 'n.input_GABA', 'n.input_grammar']
 
-    re=net.exc_neurons1.add_behaviour(200, Recorder(variables=vars))
-    ri=net.inh_neurons1.add_behaviour(201, Recorder(variables=vars))
+    re=net.exc_neurons1.add_behavior(200, Recorder(variables=vars))
+    ri=net.inh_neurons1.add_behavior(201, Recorder(variables=vars))
 
     
     for i in range(300+150):
 
         if i==300:
-            net.deactivate_behaviours('STDP')
-            net.deactivate_behaviours('Normalization')
-            net.deactivate_behaviours('TextActivator')
+            net.deactivate_behaviors('STDP')
+            net.deactivate_behaviors('Normalization')
+            net.deactivate_behaviors('TextActivator')
 
         net.simulate_iterations(100)
 
@@ -126,9 +126,9 @@ else:
     #net.simulate_iterations(input_steps, 100)
 
     # deactivate Input
-    #net.deactivate_behaviours('STDP')
-    #net.deactivate_behaviours('Normalization')
-    #net.deactivate_behaviours('TextActivator')
+    #net.deactivate_behaviors('STDP')
+    #net.deactivate_behaviors('Normalization')
+    #net.deactivate_behaviors('TextActivator')
 
     #net.simulate_iterations(recovery_steps, 100)
 
@@ -138,9 +138,9 @@ else:
         ri.clear()
 
         if i==30000:
-            net.deactivate_behaviours('STDP')
-            net.deactivate_behaviours('Normalization')
-            net.deactivate_behaviours('TextActivator')
+            net.deactivate_behaviors('STDP')
+            net.deactivate_behaviors('Normalization')
+            net.deactivate_behaviors('TextActivator')
 
         net.simulate_iteration()
 

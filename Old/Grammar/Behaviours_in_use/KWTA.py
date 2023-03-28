@@ -3,9 +3,9 @@ from PymoNNto import *
 ##########################################################################
 #Generate output with k winner takes all algorithm
 ##########################################################################
-class SORN_generate_output_K_WTA(Behaviour):
+class SORN_generate_output_K_WTA(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('K_WTA')
 
         neurons.output = neurons.get_neuron_vec()
@@ -16,15 +16,15 @@ class SORN_generate_output_K_WTA(Behaviour):
             self.K = int(neurons.size * self.K)
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         ind = np.argpartition(neurons.activity, -self.K)[-self.K:]
         neurons.output.fill(0)
         neurons.output[ind] = 1
 
 
-class K_WTA_output_local(Behaviour):
+class K_WTA_output_local(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('K_WTA_partitioned')
 
         self.filter_temporal_output = self.get_init_attr('filter_temporal_output', False, neurons)
@@ -34,7 +34,7 @@ class K_WTA_output_local(Behaviour):
         partition_size = self.get_init_attr('partition_size', 7, neurons)
         self.partitioned_ng=neurons.partition_size(partition_size)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         for ng in self.partitioned_ng:#
             K = ng.size * self.K

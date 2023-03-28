@@ -1,10 +1,10 @@
 import PymoNNto as pymonnto
 import brian2 as brian2
-from PymoNNto.NetworkCore.Behaviour import *
+from PymoNNto.NetworkCore.Behavior import *
 
-class Brian2_embedding(Behaviour):
+class Brian2_embedding(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         # define resolution
         brian2.defaultclock.dt = 1.0 * brian2.ms
 
@@ -21,13 +21,13 @@ class Brian2_embedding(Behaviour):
         self.G.v = 0.0 * brian2.mV
         self.G.tau = 100.0 * brian2.ms
 
-    def new_iteration(self, n):
+    def iteration(self, n):
         self.net.run(1 * brian2.ms)
         n.v = self.G.v / brian2.volt
 
 net = pymonnto.Network()
 
-My_Neurons = pymonnto.NeuronGroup(1, net=net, behaviour={
+My_Neurons = pymonnto.NeuronGroup(1, net=net, behavior={
     1: Brian2_embedding()
 })
 

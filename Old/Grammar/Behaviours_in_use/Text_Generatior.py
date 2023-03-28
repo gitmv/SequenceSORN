@@ -66,14 +66,14 @@ def grammar_text_blocks_simple():
 
     return results
 
-class TextGenerator(Behaviour):
+class TextGenerator(Behavior):
 
-    set_variables_on_init = True
+    initialize_on_init = True
 
     def get_text_blocks(self):
         return self.get_init_attr('text_blocks', [])
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
 
         self.text_blocks = self.get_text_blocks()
         self.current_block_index = -1
@@ -90,13 +90,13 @@ class TextGenerator(Behaviour):
 
         if self.get_init_attr('set_network_size_to_alphabet_size', False):
             dim = get_squared_dim(len(self.alphabet)) #NeuronDimension
-            dim.set_variables(neurons) #set size and x, y, z, width, height, depth
+            dim.initialize(neurons) #set size and x, y, z, width, height, depth
 
         char_count_vec = self.count_chars_in_blocks()
         self.char_weighting = char_count_vec / np.mean(char_count_vec)
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         if self.next_char is not None:# manual activation
             neurons.current_char = self.next_char

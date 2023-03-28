@@ -1,12 +1,12 @@
 import sys
 sys.path.append('../../')
 
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_advanced import *
 from PymoNNto.NetworkCore.Network import *
 from PymoNNto.NetworkCore.Synapse_Group import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 from PymoNNto.Exploration.StorageManager.StorageManager import *
-from PymoNNto.NetworkBehaviour.Input.Images.MNIST_Patterns import *
+from PymoNNto.NetworkBehavior.Input.Images.MNIST_Patterns import *
 from Testing.Common.Grammar_Helper import *
 
 display = False
@@ -26,7 +26,7 @@ def run(tag='hierarchical', ind=[], par={'N_e':900, 'TS':[1]}):
 
     for timecale in par['TS']:
 
-        e_ng = NeuronGroup(net=SORN, tag='PC_Neurons_{},prediction_source'.format(timecale), size=get_squared_dim(int(par['N_e'])), behaviour={
+        e_ng = NeuronGroup(net=SORN, tag='PC_Neurons_{},prediction_source'.format(timecale), size=get_squared_dim(int(par['N_e'])), behavior={
             2: SORN_init_neuron_vars(iteration_lag=timecale, init_TH='0.05;+-80%', activation_function='binary'),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='13%', distribution='lognormal(0,[0.89#0])', normalize=True, partition_compensation=True),
             4: SORN_init_afferent_synapses(transmitter='GABA', density='45%', distribution='lognormal(0,[0.80222#1])', normalize=True),#electrical synapses
@@ -55,9 +55,9 @@ def run(tag='hierarchical', ind=[], par={'N_e':900, 'TS':[1]}):
         SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GLU,e->e', connectivity='(s_id!=d_id)*in_box(10)', partition=True)#.partition([10, 10], [6, 6])
         SynapseGroup(net=SORN, src=e_ng, dst=e_ng, tag='GABA,e->e', connectivity='(s_id!=d_id)*in_box(10)', partition=True)#.partition([10, 10], [6, 6])
 
-        e_ng.add_behaviour(9, SORN_external_input(strength=0.3, pattern_groups=[source]))
+        e_ng.add_behavior(9, SORN_external_input(strength=0.3, pattern_groups=[source]))
         if timecale == 1:
-            e_ng.add_behaviour(101, Recorder(['n.pattern_index'], tag='inp_rec'))
+            e_ng.add_behavior(101, Recorder(['n.pattern_index'], tag='inp_rec'))
         else:
             #forward synapses
             SynapseGroup(net=SORN, src=last_e_ng, dst=e_ng, tag='GLU,e->e(+1)', connectivity='in_box(10)', partition=True)#.partition([10, 10], [6, 6])

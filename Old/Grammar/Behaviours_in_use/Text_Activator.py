@@ -26,9 +26,9 @@ def one_hot_vec_to_neuron_mat(input_size, output_size, activation_size, input_we
 
 
 
-class TextActivator(Behaviour):
+class TextActivator(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.TextGenerator = neurons['TextGenerator', 0]
 
         input_density = self.get_init_attr('input_density', 1 / 60)
@@ -52,7 +52,7 @@ class TextActivator(Behaviour):
 
         self.strength = self.get_init_attr('strength', 1, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.input_grammar = neurons.Input_Weights[:, neurons.current_char_index].copy()*self.strength
         neurons.activity += neurons.input_grammar
 
@@ -62,23 +62,23 @@ class TextActivator(Behaviour):
 
 
 
-class TextActivatorSimple(Behaviour):
+class TextActivatorSimple(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('TextActivator')
         self.TextGenerator = neurons['TextGenerator', 0]
         self.alphabet_length = len(self.TextGenerator.alphabet)
         neurons.one_hot_alphabet_act_vec = np.zeros(self.alphabet_length)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.one_hot_alphabet_act_vec.fill(0)
         neurons.one_hot_alphabet_act_vec[neurons.current_char_index] = 1.0
 
         neurons.activity[0:self.alphabet_length] += neurons.one_hot_alphabet_act_vec
 
-class input_SynapseOperation(Behaviour):
+class input_SynapseOperation(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.get_init_attr('strength', 1, neurons)  # 1 or -1
 
         self.TextGenerator = neurons.network['TextGenerator', 0]
@@ -100,7 +100,7 @@ class input_SynapseOperation(Behaviour):
             neurons.add_analysis_module(Static_Classification(name='input class', classes=neurons.Input_Mask))
             #print('input:',np.sum(neurons.Input_Mask))
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.input_grammar = neurons.get_neuron_vec()
         for s in neurons.afferent_synapses['Input_GLU']:
             add = s.W.dot(s.src.output) * self.strength

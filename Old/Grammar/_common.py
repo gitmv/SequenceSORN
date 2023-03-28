@@ -3,7 +3,7 @@
 from PymoNNto.Exploration.Network_UI import *
 from PymoNNto.Exploration.Network_UI.Sequence_Activation_Tabs import *
 
-from Old.Grammar.Behaviours_in_use import *
+from Old.Grammar.Behaviors_in_use import *
 
 blue = (0.0, 0.0, 255.0, 255.0)
 red = (255.0, 0.0, 0.0, 255.0)
@@ -14,9 +14,9 @@ def train_and_generate_text(SORN, plastic_steps, recovery_steps=None, text_gen_s
     SORN.simulate_iterations(plastic_steps, 100)
 
     # deactivate STDP and Input
-    SORN.deactivate_behaviours('STDP')
-    SORN.deactivate_behaviours('Normalization')
-    SORN.deactivate_behaviours('TextActivator')
+    SORN.deactivate_behaviors('STDP')
+    SORN.deactivate_behaviors('Normalization')
+    SORN.deactivate_behaviors('TextActivator')
 
     # recovery phase
     if recovery_steps is not None:
@@ -189,9 +189,9 @@ def load_state(SORN, subfolder):
     SORN['exc_neurons', 0].Input_Mask = np.load(folder + '_ENm.npy')
     SORN['exc_neurons', 0].sensitivity = np.load(folder + '_ENs.npy')
 
-    SORN.deactivate_behaviours('STDP')
-    SORN.deactivate_behaviours('Normalization')
-    SORN.deactivate_behaviours('TextActivator')
+    SORN.deactivate_behaviors('STDP')
+    SORN.deactivate_behaviors('Normalization')
+    SORN.deactivate_behaviors('TextActivator')
 
 
 def plot_corellation_matrix(network):

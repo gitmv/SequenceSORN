@@ -1,14 +1,14 @@
 from PymoNNto import *
 import random
 
-class TextGenerator(Behaviour):
+class TextGenerator(Behavior):
 
-    set_variables_on_init = True
+    initialize_on_init = True
 
     def get_text_blocks(self):
         return self.get_init_attr('text_blocks', [])
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
 
         self.text_blocks = self.get_text_blocks()
         self.current_block_index = -1
@@ -25,7 +25,7 @@ class TextGenerator(Behaviour):
 
         if self.get_init_attr('set_network_size_to_alphabet_size', False):
             dim = get_squared_dim(len(self.alphabet)) #NeuronDimension
-            dim.set_variables(neurons) #set size and x, y, z, width, height, depth
+            dim.initialize(neurons) #set size and x, y, z, width, height, depth
 
         char_count_vec = self.count_chars_in_blocks()
         self.char_weighting = char_count_vec / np.mean(char_count_vec)
@@ -40,7 +40,7 @@ class TextGenerator(Behaviour):
             self.text_blocks[i] = new
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         #if neurons.iteration%self.iterations_per_char==0 or neurons.current_char_index==-1:
 
@@ -120,9 +120,9 @@ class TextGenerator(Behaviour):
         plt.show()
 
 
-class TextActivator(Behaviour):
+class TextActivator(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.TextGenerator = neurons['TextGenerator', 0]
 
         input_density = self.get_init_attr('input_density', 0.5)
@@ -142,7 +142,7 @@ class TextActivator(Behaviour):
 
         self.strength = self.get_init_attr('strength', 1, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.input_grammar = neurons.Input_Weights[:, neurons.current_char_index].copy()*self.strength
         neurons.activity += neurons.input_grammar
 
@@ -166,9 +166,9 @@ class TextActivator(Behaviour):
 
         return result
 
-class TextReconstructor(Behaviour):
+class TextReconstructor(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.current_reconstruction_char = ''
         self.current_reconstruction_char_index = ''
         self.reconstruction_history = ''
@@ -178,7 +178,7 @@ class TextReconstructor(Behaviour):
     def clear_history(self):
         self.reconstruction_history=''
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if neurons['TextActivator', 0] is not None:
 
             if np.sum(neurons.output)==0:
@@ -196,17 +196,17 @@ class TextReconstructor(Behaviour):
 
 
 
-class Exception_Activator(Behaviour):
+class Exception_Activator(Behavior):
 
     #activate with following command
     #neurons['Exception_Activator', 0].txt='abcdefg'
     #neurons['Exception_Activator', 0].text_position = 0
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.txt = ' exception exception. exception exception. exception exception.'
         self.text_position = -1
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         if self.text_position>=0 and self.text_position<len(self.txt):
             neurons['TextGenerator', 0].next_char = self.txt[self.text_position]
             self.text_position += 1

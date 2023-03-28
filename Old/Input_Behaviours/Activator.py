@@ -1,14 +1,14 @@
 from PymoNNto.NetworkCore.Neuron_Group import *
 
 
-class NeuronManualActivator(Behaviour):
+class NeuronManualActivator(Behavior):
 
     #def __init__(self, clip_min=0.0, clip_max=1.0, write_to='glu_inter_gamma_activity'):
     #    self.clip_min = clip_min
     #    self.clip_max = clip_max
     #    self.write_to = write_to
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.clip_min = self.get_init_attr('clip_min', 0.0, neurons)
         self.clip_max = self.get_init_attr('clip_max', 1.0, neurons)
         self.write_to = self.get_init_attr('write_to', 'glu_inter_gamma_activity', neurons)
@@ -19,7 +19,7 @@ class NeuronManualActivator(Behaviour):
         if not hasattr(neurons, self.write_to):
             setattr(neurons, self.write_to, neurons.get_neuron_vec())
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         getattr(neurons, self.write_to)[:] *= 0
         getattr(neurons, self.write_to)[:] += neurons.outside_activation
         getattr(neurons, self.write_to)[:] = np.clip(getattr(neurons, self.write_to)[:], self.clip_min, self.clip_max)
@@ -32,7 +32,7 @@ class NeuronManualActivator(Behaviour):
             self.neurons.outside_activation = np.array(act)
 
 
-class NeuronActivator(Behaviour):
+class NeuronActivator(Behavior):
 
     #def __init__(self, write_to='glu_inter_gamma_activity', pattern_groups=None, clip_min=0.0, clip_max=1.0):
 
@@ -43,7 +43,7 @@ class NeuronActivator(Behaviour):
         return result
 
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.add_tag('activator')
 
         neurons.pattern_index = 0
@@ -102,7 +102,7 @@ class NeuronActivator(Behaviour):
         return patterns[r]
 
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         #getattr(neurons, self.write_to)[:] *= 0 #todo test: moved from outside "if" block inside it
         getattr(neurons, self.write_to)[:] += self.get_pattern_values(neurons)
         neurons.pattern_index = self.TNAPatterns[0].current_pattern_index#todo: better

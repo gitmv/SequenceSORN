@@ -13,34 +13,34 @@ def inhibition_func2(x):
 
 
 
-class inhibition_2_step_collect(Behaviour):
+class inhibition_2_step_collect(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.duration = self.get_init_attr('duration', 10.0, neurons)
         self.slope = self.get_init_attr('slope', 20, neurons)
         self.avg_act = 0
         neurons.inh = neurons.get_neuron_vec()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         self.avg_act = (self.avg_act*self.duration+np.mean(neurons.output))/(self.duration+1)
         neurons.inh = np.tanh(self.avg_act * self.slope)
 
 
-class inhibition_2_step_apply(Behaviour):
+class inhibition_2_step_apply(Behavior):
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         neurons.activity -= neurons.inh
 
 #strength='[4.75#S]', duration='[2#D]', slope='[29.4#E]'
-class inhibition_test_long(Behaviour):
+class inhibition_test_long(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         #self.strength = self.get_init_attr('strength', 10.0, neurons)
         self.duration = self.get_init_attr('duration', 10.0, neurons)
         self.slope = self.get_init_attr('slope', 20, neurons)
         self.avg_act = 0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         self.avg_act = (self.avg_act*self.duration+np.mean(neurons.output))/(self.duration+1)
         neurons.inh = np.tanh(self.avg_act * self.slope)
@@ -77,24 +77,24 @@ def f4(x, slope):
 
 
 
-class inhibition_test(Behaviour):
+class inhibition_test(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.get_init_attr('strength', 10.0, neurons)
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         adj = np.mean(neurons.output) - np.mean(neurons.target_activity)
         neurons.activity -= adj * self.strength
 
 
-class linear_output(Behaviour):
+class linear_output(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         self.strength = self.get_init_attr('strength', 10.0, neurons)
         self.duration = self.get_init_attr('duration', 10.0, neurons)
         self.avg_act = 0
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
 
         self.avg_act = (self.avg_act*self.duration+neurons.activity)/(self.duration+1)
 

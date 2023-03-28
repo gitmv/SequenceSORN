@@ -7,7 +7,7 @@ recovery_steps = 5000
 
 SORN = Network(tag='WTA_SORN_Layer')
 
-input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, color=yellow, behaviour={
+input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, color=yellow, behavior={
     #init
     1: Init_Neurons(),
 
@@ -27,7 +27,7 @@ input_neurons = NeuronGroup(net=SORN, tag='input_neurons', size=None, color=yell
     50: TextReconstructor_Simple()
 })
 
-exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behaviour={
+exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neuron_count), color=blue, behavior={
     #init
     1: Init_Neurons(target_activity='lognormal_rm(0.02,0.3)'),
 
@@ -49,13 +49,13 @@ exc_neurons = NeuronGroup(net=SORN, tag='exc_neurons', size=get_squared_dim(neur
 
 })
 
-SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,EInp', behaviour={})#weights created by input_SynapseOperation
+SynapseGroup(net=SORN, src=input_neurons, dst=exc_neurons, tag='Input_GLU,EInp', behavior={})#weights created by input_SynapseOperation
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,InpE', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=input_neurons, tag='GLU,InpE', behavior={
     3: create_weights()
 })
 
-SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behaviour={
+SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU,EE', behavior={
     1: Box_Receptive_Fields(range=18, remove_autapses=True),
     #2: Partition(split_size='auto'),
     3: create_weights(density=0.9, distribution='lognormal(1.0,0.6)')#uniform(0.1,1.0)
@@ -129,7 +129,7 @@ set_score(score, info={'text': tr.reconstruction_history, 'simulated_iterations'
 
 #0 0.007 #sliding_window=100, speed=0.01
 
-#SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behaviour={
+#SynapseGroup(net=SORN, src=exc_neurons, dst=exc_neurons, tag='GLU_cluster,syn', behavior={
 #    1: Box_Receptive_Fields(range=18, remove_autapses=True),
 #    2: Partition(split_size='auto')
 #})
@@ -152,4 +152,4 @@ set_score(score, info={'text': tr.reconstruction_history, 'simulated_iterations'
 # 14.6: K_WTA_output_local(partition_size=7, K='[0.02#k]', filter_temporal_output=False),
 
 # 21.2: STDP_complex(transmitter='GLU_cluster', eta_stdp='[0.00015#STDP_eta]', STDP_F={0: 2.0}),
-# 22.2: Normalization(syn_type='GLU_cluster', behaviour_norm_factor=0.3),
+# 22.2: Normalization(syn_type='GLU_cluster', behavior_norm_factor=0.3),

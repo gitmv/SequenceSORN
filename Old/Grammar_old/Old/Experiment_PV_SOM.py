@@ -1,12 +1,12 @@
 import sys
 sys.path.append('../../')
 
-from PymoNNto.NetworkBehaviour.Logic.SORN.SORN_advanced_buffer import *
-from PymoNNto.NetworkBehaviour.Input.Text.TextActivator import *
-#from NetworkBehaviour.Input.Images.Lines import *
+from PymoNNto.NetworkBehavior.Logic.SORN.SORN_advanced_buffer import *
+from PymoNNto.NetworkBehavior.Input.Text.TextActivator import *
+#from NetworkBehavior.Input.Images.Lines import *
 from PymoNNto.NetworkCore.Network import *
 from PymoNNto.NetworkCore.Synapse_Group import *
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 from PymoNNto.Exploration.StorageManager.StorageManager import *
 from Testing.Common.Grammar_Helper import *
 if __name__ == '__main__':
@@ -39,7 +39,7 @@ def run(attrs={'name':'PV_SOM', 'ind':[], 'N_e':900, 'TS':[1]}):
 
     for layer, timescale in enumerate(attrs['TS']):
 
-        PC = NeuronGroup(net=SORN, tag='Pyramidal Cell {},prediction_source'.format(timescale), size=get_squared_dim(int(attrs['N_e'])), behaviour={
+        PC = NeuronGroup(net=SORN, tag='Pyramidal Cell {},prediction_source'.format(timescale), size=get_squared_dim(int(attrs['N_e'])), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='[50#0]%', distribution='lognormal(0,0.6)', normalize=True, partition_compensation=True), #lognormal(0,0.6)
             4: SORN_init_afferent_synapses(transmitter='GABA_Dendrite', density='[30#1]%', distribution='uniform(0.1,0.11)', normalize=True),
@@ -59,7 +59,7 @@ def run(attrs={'name':'PV_SOM', 'ind':[], 'N_e':900, 'TS':[1]}):
             20: SORN_Refractory_Digital(factor='[0.5#5];+-50%'),
             #20: SORN_Refractory_Analog(factor='[0.5#5];+-50%'),
             21: SORN_STDP(eta_stdp='[0.0015#6]'),#0.1#todo: test!!!, prune_stdp=False, excitation_punishment=0.0
-            22: SORN_SN(syn_type='GLU', clip_max=None, behaviour_norm_factor=1.0),
+            22: SORN_SN(syn_type='GLU', clip_max=None, behavior_norm_factor=1.0),
 
             23: SORN_IP_TI(mp='n.output', h_ip='lognormal_real_mean([0.04#7], [0.2944#8])', eta_ip='[0.0006#9];+-50%', integration_length='[15#10];+-50%', clip_min=None),#mp='n.output_new/2.0+n.output_new_temp/2.0'
             25: SORN_NOX(mp='self.partition_sum(n)', eta_nox='0.5;+-50%', h_dh=0.0),#0.9#0.3
@@ -67,7 +67,7 @@ def run(attrs={'name':'PV_SOM', 'ind':[], 'N_e':900, 'TS':[1]}):
             #27: SORN_iSTDP(h_ip='same(SCTI, th)', eta_istdp='[0.0001#13]'),
         })
 
-        MT_SOM = NeuronGroup(net=SORN, tag='Martinotti Cell {},Somatostatin'.format(timescale), size=get_squared_dim(int(0.07 * attrs['N_e'])), behaviour={
+        MT_SOM = NeuronGroup(net=SORN, tag='Martinotti Cell {},Somatostatin'.format(timescale), size=get_squared_dim(int(0.07 * attrs['N_e'])), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='50%', distribution='lognormal(0,0.87038)', normalize=True),
             #4: SORN_init_afferent_synapses(transmitter='GABA', density='20%', distribution='lognormal(0,[0.82099#15])', normalize=True),  # 40
@@ -82,7 +82,7 @@ def run(attrs={'name':'PV_SOM', 'ind':[], 'N_e':900, 'TS':[1]}):
         })
 
         '''
-        EXP_NOX_CELL = NeuronGroup(net=SORN, tag='NOX Cell {}'.format(timescale), size=get_squared_dim(int(16)), behaviour={
+        EXP_NOX_CELL = NeuronGroup(net=SORN, tag='NOX Cell {}'.format(timescale), size=get_squared_dim(int(16)), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='full', distribution=None, normalize=True),
             #4: SORN_init_afferent_synapses(transmitter='GABA', density='20%', distribution='lognormal(0,[0.82099#15])', normalize=True),  # 40
@@ -97,7 +97,7 @@ def run(attrs={'name':'PV_SOM', 'ind':[], 'N_e':900, 'TS':[1]}):
         })
         '''
 
-        BA_PV = NeuronGroup(net=SORN, tag='Basket Cell {},Parvalbumin'.format(timescale), size=get_squared_dim(int(0.07 * attrs['N_e'])), behaviour={
+        BA_PV = NeuronGroup(net=SORN, tag='Basket Cell {},Parvalbumin'.format(timescale), size=get_squared_dim(int(0.07 * attrs['N_e'])), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='50%', distribution='lognormal(0,0.87038)', normalize=True),
             #4: SORN_init_afferent_synapses(transmitter='GABA', density='20%', distribution='lognormal(0,[0.82099#15])', normalize=True),  # 40
@@ -111,7 +111,7 @@ def run(attrs={'name':'PV_SOM', 'ind':[], 'N_e':900, 'TS':[1]}):
             #20: SORN_Refractory(factor='0.2;0.7'),
         })
 
-        CH_PV = NeuronGroup(net=SORN, tag='Chandelier Cell {},Parvalbumin'.format(timescale), size=get_squared_dim(int(0.07 * attrs['N_e'])), behaviour={
+        CH_PV = NeuronGroup(net=SORN, tag='Chandelier Cell {},Parvalbumin'.format(timescale), size=get_squared_dim(int(0.07 * attrs['N_e'])), behavior={
             2: SORN_init_neuron_vars(timescale=timescale),
             3: SORN_init_afferent_synapses(transmitter='GLU', density='50%', distribution='lognormal(0,0.87038)', normalize=True),
             #4: SORN_init_afferent_synapses(transmitter='GABA', density='20%', distribution='lognormal(0,[0.82099#15])', normalize=True),  # 40
@@ -162,10 +162,10 @@ def run(attrs={'name':'PV_SOM', 'ind':[], 'N_e':900, 'TS':[1]}):
         #SynapseGroup(net=SORN, src=PV, dst=PV, tag='GABA_P,PV->PV', connectivity='(s_id!=d_id)*(np.abs(sx-dx)<=10)*(np.abs(sy-dy)<=10)', partition=True)
 
         if layer==0:
-            PC.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
-            #MT_SOM.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
-            #BA_PV.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
-            #CH_PV.add_behaviour(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+            PC.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+            #MT_SOM.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+            #BA_PV.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
+            #CH_PV.add_behavior(9, SORN_external_input(strength=1.0, pattern_groups=[source]))
         #else:
         #    #forward synapses
         #    SynapseGroup(net=SORN, src=last_PC, dst=PC, tag='GLU,PC->PC(+1)', connectivity='(s_id!=d_id)*(np.abs(sx-dx)<=10)*(np.abs(sy-dy)<=10)', partition=True)#.partition([10, 10], [partition, partition])

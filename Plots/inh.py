@@ -53,7 +53,7 @@ def get_inh_output_slope(target_activity):
 def get_LI_threshold(target_activity):
     return np.tanh(get_inh_output_slope(target_activity) * target_activity)
 
-from Old.Grammar.Behaviours_in_use.test import *
+from Old.Grammar.Behaviors_in_use.test import *
 import matplotlib
 
 #x = np.arange(0.0, 1.0, 0.0001)#0.2

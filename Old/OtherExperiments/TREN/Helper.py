@@ -1,7 +1,7 @@
-from PymoNNto.NetworkBehaviour.Structure.Structure import *
+from PymoNNto.NetworkBehavior.Structure.Structure import *
 from PymoNNto.NetworkCore.Synapse_Group import *
 from PymoNNto.NetworkCore.Network import *
-from PymoNNto.NetworkBehaviour.Input.Images.MNIST_Patterns import *
+from PymoNNto.NetworkBehavior.Input.Images.MNIST_Patterns import *
 
 import os
 import psutil
@@ -38,7 +38,7 @@ def split_connect(src_group, dst_group, x_blocks, y_blocks, receptive_field, net
     #return block_mat
 
 
-#[behaviour, size, split, glu_rec_dst, gab_rec, glu_ff, gab_ff, glu_fb, gab_fb]
+#[behavior, size, split, glu_rec_dst, gab_rec, glu_ff, gab_ff, glu_fb, gab_fb]
 def create_Network_Structure(network, layer_param_dicts, subnetwork_optimization=True):
 
     inp_width = network.getNG('input')[0].width
@@ -53,7 +53,7 @@ def create_Network_Structure(network, layer_param_dicts, subnetwork_optimization
         #else:
         #    split = 1
 
-        group = NeuronGroup(NeuronDimension(width=l_dict['size'], height=l_dict['size'], depth=1), l_dict['behaviour'], net=network).add_tag('Cortex').add_tag('V{}'.format(i))
+        group = NeuronGroup(NeuronDimension(width=l_dict['size'], height=l_dict['size'], depth=1), l_dict['behavior'], net=network).add_tag('Cortex').add_tag('V{}'.format(i))
         group.reconstruction_steps = i+1
         group[NeuronDimension].scale(inp_width / l_dict['size'], inp_height / l_dict['size'])#.move(10, 100)
 
@@ -72,11 +72,11 @@ def create_Network_Structure(network, layer_param_dicts, subnetwork_optimization
         input_group = group
 
 
-def get_neuron_group_blocks(block_width, block_height, block_group_width, block_group_height, behaviour, network, tag='Cortex_block', scale_x=1,scale_y=1):
+def get_neuron_group_blocks(block_width, block_height, block_group_width, block_group_height, behavior, network, tag='Cortex_block', scale_x=1,scale_y=1):
     block_mat = np.empty(shape=(block_group_height, block_group_width), dtype=object)
     for y in range(block_group_height):
         for x in range(block_group_width):
-            block_mat[y, x] = NeuronGroup(NeuronDimension(width=block_width, height=block_height, depth=1), behaviour, net=network).add_tag(tag + '(x:{},y:{})'.format(x, y))
+            block_mat[y, x] = NeuronGroup(NeuronDimension(width=block_width, height=block_height, depth=1), behavior, net=network).add_tag(tag + '(x:{},y:{})'.format(x, y))
             block_mat[y, x][NeuronDimension].move((x - (block_group_width - 1) / 2) * block_width, (y - (block_group_height - 1) / 2) * block_height)
             block_mat[y, x][NeuronDimension].scale(scale_x, scale_y)
     return block_mat
@@ -116,7 +116,7 @@ def get_default_Input_Pattern_Neurons(input_width=1, input_height=1,input_depth=
     #pat = np.random.rand(10, 10).flatten()
     #print(activator.get_pattern_differences(pat))
 
-    behaviour = {
+    behavior = {
         1: activator,
         #2: TREN_input_weighting(),
         8: ActivityBuffering(store_input=False, min_buffersize=6),
@@ -124,7 +124,7 @@ def get_default_Input_Pattern_Neurons(input_width=1, input_height=1,input_depth=
         #8: HomeostaticMechanism(range_end=550, inc=1.84, dec=4.92, pattern_chance=0.01, target_max=1)
     }
 
-    input_neuron_group = NeuronGroup(NeuronDimension(width=input_width, height=input_height, input_patterns=activator.TNAPatterns, depth=input_depth), behaviour).add_tag('input')  #
+    input_neuron_group = NeuronGroup(NeuronDimension(width=input_width, height=input_height, input_patterns=activator.TNAPatterns, depth=input_depth), behavior).add_tag('input')  #
 
     if preprocessing_steps > 0:
         activator.preprocess(preprocessing_steps, input_neuron_group)

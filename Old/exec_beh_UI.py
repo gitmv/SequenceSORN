@@ -1,5 +1,5 @@
 #master.py
-from PymoNNto.Exploration.Behaviour_UI import *
+from PymoNNto.Exploration.Behavior_UI import *
 
 if __name__ == '__main__':
-    Behaviour_UI().show()
+    Behavior_UI().show()

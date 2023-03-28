@@ -1,14 +1,14 @@
 from PymoNNto import *
 
-class STDP(Behaviour):
+class STDP(Behavior):
 
-    def set_variables(self, neurons):
+    def initialize(self, neurons):
         neurons.eta_stdp = self.get_init_attr('eta_stdp', 0.00015, neurons)
         self.transmitter = self.get_init_attr('transmitter', 'GLU', neurons)
 
         neurons.output_old = neurons.output.copy()
 
-    def new_iteration(self, neurons):
+    def iteration(self, neurons):
         for s in neurons.afferent_synapses[self.transmitter]:
 
             #s.W[s.dst.output.astype(bool), s.src.output_old.astype(bool)] += np.clip(s.W[s.dst.output.astype(bool), s.src.output_old.astype(bool)]+neurons.eta_stdp, 0.0, 1.0)

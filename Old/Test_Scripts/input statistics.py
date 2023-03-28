@@ -1,16 +1,16 @@
-from Old.Grammar.Behaviours_in_use import *
+from Old.Grammar.Behaviors_in_use import *
 
-ng = NeuronGroup(1, behaviour={}, net=None)
+ng = NeuronGroup(1, behavior={}, net=None)
 
 tg = TextGenerator(text_blocks=[' fox eats meat.', ' boy drinks juice.', ' penguin likes ice.'], set_network_size_to_alphabet_size=True)
-tg.set_variables(ng)
+tg.initialize(ng)
 
 x = list(range(200))
 y = []
 c = []
 
 for i in x:
-    tg.new_iteration(ng)
+    tg.iteration(ng)
     y.append(tg.char_weighting[ng.current_char_index])
     c.append(ng.current_char)
 
