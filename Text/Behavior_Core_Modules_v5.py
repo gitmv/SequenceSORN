@@ -120,7 +120,7 @@ class STDP(Behavior):
         for s in neurons.afferent_synapses[self.transmitter]:
             src_len = np.sum(s.src.output_old)
             weight_change = s.dst.li_stdp_mul[s.dst.output] * self.eta_stdp
-            dw = np.tile(weight_change, (src_len, 1))
+            dw = np.tile(weight_change, (src_len, 1))  #try s.src.Trace[None, s.src.tMask]...!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             mask = np.ix_(s.src.output_old, s.dst.output)
             s.W[mask] += dw

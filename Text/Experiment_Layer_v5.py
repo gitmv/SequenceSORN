@@ -3,7 +3,7 @@ from Behavior_Core_Modules_v5 import *
 from Behavior_Text_Modules_v5 import *
 from Helper import *
 
-ui = False
+ui = True
 n_exc_neurons = 2400
 n_inh_neuros = n_exc_neurons/10
 

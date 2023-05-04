@@ -50,7 +50,7 @@ def train_and_generate_text(net, input_steps, recovery_steps, free_steps, sm=Non
     net.simulate_iterations(free_steps, 100)
 
     # scoring
-    txt_score = net['TextGenerator', 0].get_text_score(tr.history)
+    txt_score = net['TextGenerator', 0].get_text_score(tr.reconstruction_history)
     mean = net.exc_neurons1['np.mean(n.output)', 0, 'np']
     osc_score = np.mean(net.exc_neurons1.target_activity-np.abs(mean - net.exc_neurons1.target_activity))/net.exc_neurons1.target_activity
     if osc_score<0:

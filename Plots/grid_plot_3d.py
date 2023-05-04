@@ -9,6 +9,7 @@ app = QtWidgets.QApplication([])
 w = gl.GLViewWidget()
 
 
+
 g = gl.GLGridItem()
 w.addItem(g)
 
@@ -32,11 +33,11 @@ def add_datapoints(names, xp, yp, zp):
     mins=np.min(s)
     maxs=np.max(s)
 
-    #mask = s>5
-    #x = x[mask]
-    #y = y[mask]
-    #z = z[mask]
-    #s = s[mask]
+    mask = s>5
+    x = x[mask]
+    y = y[mask]
+    z = z[mask]
+    s = s[mask]
 
     print(len(x),len(y),len(z),len(s))
 
@@ -60,8 +61,8 @@ def add_datapoints(names, xp, yp, zp):
     v=(s-mins)/(maxs-mins)
     color[:,0] = 1-v
     color[:,1] = v
-    color[:,2] = 0
-    color[:,3] = 1
+    color[:,2] = 0.0
+    color[:,3] = 1.0
 
     sp2 = gl.GLScatterPlotItem(pos=pos, color=color)
     w.addItem(sp2)
@@ -77,9 +78,13 @@ def add_datapoints(names, xp, yp, zp):
 #                'v5_mul_exc_scatter_3s_3sh_05inh',
 #                'v5_exp_mul_scatter_3s_3sh_linear_genome'], 'fe_mul', 'fe_exp', 'avg_inh')#v5_exp_mul_scatter_2s_3sh
 
-add_datapoints(['v5_exp_mul_h_scatter_3s_2'], 'fe_mul', 'fe_exp', 'h')
+add_datapoints(['v5_exp_mul_h_scatter_3s_4'], 'fe_mul', 'fe_exp', 'h')
 
+## set OpenGL blend function
+w.opts['glBlendFunc'] = (0x0302, 0x0303)
 w.show()
+
+
 
 if __name__ == '__main__':
     import sys

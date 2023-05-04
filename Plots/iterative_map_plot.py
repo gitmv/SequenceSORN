@@ -61,14 +61,14 @@ class iterative_map_tab(TabBase):
 
     def update(self, Network_UI):
         if self.itm_tab.isVisible():
-            group_tags = Network_UI.neuron_visible_groups
+            groups = Network_UI.get_visible_neuron_groups()
 
             self.lines.setData([], [])
             self.scatter.setData([], [])
 
-            if len(group_tags)>=2:
-                x_group = Network_UI.network[group_tags[1], 0]####################################################################add selector
-                y_group = Network_UI.network[group_tags[2], 0]####################################################################add selector
+            if len(groups)>=2:
+                x_group = groups[0]#Network_UI.network[group_tags[1], 0]####################################################################add selector
+                y_group = groups[1]#Network_UI.network[group_tags[2], 0]####################################################################add selector
 
                 if x_group is not None and y_group is not None:
 
